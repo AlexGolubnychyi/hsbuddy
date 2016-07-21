@@ -1,0 +1,7 @@
+<div style="clear:left" *ngFor="let deck of decks;trackBy:deck?.name">
+  <hr>
+  <h2><a style="text-decoration:none;color:#f78f00;" [href]="deck.url">
+       {{deck.name}} ({{deck.cost}}{{deck.costApprox ? "?" : ""}})
+      </a>
+  </h2>
+  <card *ngFor="let card of deck.cards;trackBy:card?.id" [card]="card"></card>
