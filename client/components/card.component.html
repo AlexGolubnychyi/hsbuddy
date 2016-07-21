@@ -1,0 +1,17 @@
+<div style="float: left;text-align: center;border: 1px solid lightgray;" [style.backgroundColor]="card.count <= card.numberAvailable ? '#e2ffe2' : '#f5eded'">
+    <div>
+        <a [href]="card.url"><img [src]="card.img" [title]="card.flavorText"></a>
+    </div>
+    <div style="font-weight:bold;">{{card.name}} ({{card.type}}) x {{card.count}}</div>
+    <div>Class: {{card.class}}</div>
+    <div>Dust: {{card.cost}}</div>
+    <div>Set: {{card.set}}</div>
+    <div>
+        <span>Available: </span>
+        <select [ngModel]="card.numberAvailable" (ngModelChange)="onChangeAvailability($event)">
+            <option value="0">0 cards</option>
+            <option value="1">1 card</option>
+            <option value="2">2 cards</option>
+        </select>
+    </div>
+</div>

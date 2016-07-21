@@ -1,28 +1,24 @@
-let Promise = require("bluebird"),
-    debugIndex = 0,
-    url = "http://hearthstone.metabomb.net/game-guides/the-best-standard-hearthstone-decks-july-2016-season-28",
-    dbUtils = require("../db"),
-    getContent = require("./utils.js").getContent,
+import dbUtils, {DB, DBDeck} from "../db";
+import getContent from "./utils";
+
+let url = "http://hearthstone.metabomb.net/game-guides/the-best-standard-hearthstone-decks-july-2016-season-28",
     keywords = {
         deckUrl: "deck-list"
-    },
-    generatePage = require("../view/generateDeckList");
+    };
 
-
-module.exports.parse = function() {
-    let db;
+export default function () {
+    let db: DB;
 
     return dbUtils.get()
         .then(database => db = database)
         .then(() => getContent(url))
         .then($ => {
-            let unique = {},
-                decksUrls = $(`[href*=${keywords.deckUrl}]`).each((inx, el) => unique[$(el).prop("href")] = true);
+            let unique = {};
+            $(`[href*=${keywords.deckUrl}]`).each((inx, el) => unique[$(el).prop("href")] = true);
             return Object.keys(unique);
-        }).map(deckUrl => {
-            console.log(debugIndex++);
+        }).map((deckUrl: string) => {
             return getContent(deckUrl).then($ => {
-                let deck = {
+                let deck: DBDeck = {
                     name: $("main>article>header>h1").text(),
                     url: deckUrl,
                     cost: 0,
@@ -50,18 +46,18 @@ module.exports.parse = function() {
                         let cardId = dbUtils.generateCardId($el.first().text().trim()),
                             count = +$el.parent().contents().first().text()[0],
                             card = db.cards[cardId];
-                        
-                        if (!card){
+
+                        if (!card) {
                             console.log(`${card.name} is not found in db`);
                             return;
                         }
                         deck.cards[cardId] = count;
-                        
-                        if (card.cost === "unknown"){
+
+                        if (typeof card.cost === "undefined") {
                             deck.costApprox = true;
                         }
-                        else{
-                            deck.cost += card.cost*count;
+                        else {
+                            deck.cost += card.cost * count;
                         }
                     });
                 });
@@ -74,7 +70,6 @@ module.exports.parse = function() {
             return dbUtils.save(db);
         }).then(() => {
             console.log("metabomb done!");
-            return generatePage();
         }).catch(e => {
             console.log(e);
         });

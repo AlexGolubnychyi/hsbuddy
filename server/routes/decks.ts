@@ -4,32 +4,45 @@ import dbUtils from "../db";
 import * as express from "express";
 import {Deck, Card} from "../../interfaces";
 
+
 let router = express.Router();
 
 router.get("/", (req: express.Request, res: express.Response, next: express.NextFunction) => {
     getDecks().then(decks => res.render("decks", { decks }));
 });
 
-router.get("/data", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    getDecks().then(decks => res.json(decks));
+router.get("/:userId/data", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    getDecks(req.params.userId).then(decks => res.json(decks));
 });
 
-function getDecks() {
+router.get("/:userId/changenumber/:cardId/:number", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    dbUtils.get().then(db => {
+        let availability = db.availability[req.params.userId] || {};
+        availability[req.params.cardId] = req.params.number;
+        db.availability[req.params.userId] = availability;
+        return dbUtils.save(db);
+    }).then(() => res.end());
+});
+
+function getDecks(userId = "jess-eu") {
     return dbUtils.get().then(db => {
-        let decks = Object.keys(db.decks)
+        let decks = Object.keys(db.decks)//.filter((d,i)=> i===0)
             .map(name => db.decks[name])
             .sort((f, s) => f.cost - s.cost)
             .map(deck => {
-                let deckResult: Deck = Object.assign({}, deck);
+                let deckResult: Deck = Object.assign({}, deck),
+                    costReduction = 0;
 
                 deckResult.cards = Object.keys(deck.cards)
                     .map(id => {
                         let card: Card = Object.assign({}, db.cards[id]);
                         card.count = deck.cards[id];
-                        card.numberAvailable = card.numberAvailable || 0;
+                        card.numberAvailable = (db.availability[userId] || {})[card.id] || 0;
+                        costReduction += Math.min(card.count, card.numberAvailable) * card.cost;
                         return card;
                     }).sort((f, s) => weightCard(f) - weightCard(s));
 
+                deckResult.costReduction = costReduction;
                 return deckResult;
             });
 

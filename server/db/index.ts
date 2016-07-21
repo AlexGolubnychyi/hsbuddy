@@ -4,8 +4,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as Promise from "bluebird";
 
-let writeFile = <any>Promise.promisify(fs.writeFile) as (src:string, constent:string) => Promise<{}>,
-    readFile = <any>Promise.promisify(fs.readFile) as (src:string, encoding:string) => Promise<string>,
+let writeFile = <any>Promise.promisify(fs.writeFile) as (src: string, constent: string) => Promise<{}>,
+    readFile = <any>Promise.promisify(fs.readFile) as (src: string, encoding: string) => Promise<string>,
     dbLocation = path.join(__dirname, "db.json");
 
 class DbUtils {
@@ -27,6 +27,7 @@ class DbUtils {
             cards: {
 
             },
+            availability: { },
             cardTypes: {
                 free: 0,
                 common: 40,
@@ -45,22 +46,23 @@ class DbUtils {
 export default new DbUtils();
 
 export interface DB {
-    decks: {[index:string]: DBDeck};
-    cards: {[index:string]: DBCard};
+    decks: { [index: string]: DBDeck };
+    cards: { [index: string]: DBCard };
+    availability: { [userId: string]: { [cardId: string]: number } };
     cardTypes: {
-      free: number;
-      common: number;
-      rare: number;
-      epic: number;
-      legendary: number;
+        free: number;
+        common: number;
+        rare: number;
+        epic: number;
+        legendary: number;
     };
 }
 export interface DBDeck {
     name: string;
-    url:string;
+    url: string;
     cost: number;
     costApprox: boolean;
-    cards: {[index:string]: number};
+    cards: { [index: string]: number };
 }
 
 export interface DBCard {

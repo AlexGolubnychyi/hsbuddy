@@ -4,14 +4,22 @@ import { Observable }     from "rxjs/Observable";
 import {Deck} from "../interfaces";
 import "./rxjs-operators";
 
+const enc = encodeURIComponent;
+const userId = "jess-eu";
+
 @Injectable()
 export class DeckService {
     constructor(private http: Http) { }
-    private deckUrl = "decks/data";  // URL to web API
 
     getDecks(): Observable<Deck[]> {
-        return this.http.get(this.deckUrl)
+        return this.http.get(`decks/${enc(userId)}/data`)
             .map(resp => resp.json())
+            .catch(this.handleError);
+    }
+
+    changeCardAvailability(carId: string, number: number): Observable<boolean> {
+        return this.http.get(`decks/${enc(userId)}/changenumber/${enc(carId)}/${number}`)
+            .map(resp => true)
             .catch(this.handleError);
     }
 

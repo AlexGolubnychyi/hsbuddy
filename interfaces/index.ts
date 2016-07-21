@@ -23,5 +23,6 @@ export interface Deck {
     url: string;
     cost: number;
     costApprox: boolean;
+    costReduction: number;
     cards: Card[];
 }

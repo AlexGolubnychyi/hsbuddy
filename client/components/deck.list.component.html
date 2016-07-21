@@ -1,0 +1,7 @@
+<div style="clear:left" *ngFor="let deck of decks">
+  <hr>
+  <h2><a style="text-decoration:none;color:#f78f00;" [href]="deck.url">
+       {{deck.name}} ({{deck.costReduction}}/{{deck.cost}}{{deck.costApprox ? "?" : ""}})
+      </a>
+  </h2>
+  <card *ngFor="let card of deck.cards" [card]="card" (onChanged)="onCardChanged($event)">></card>

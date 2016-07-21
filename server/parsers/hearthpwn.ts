@@ -1,23 +1,22 @@
-let Promise = require("bluebird"),
-    debugIndex = 0,
-    url = "http://www.hearthpwn.com/cards?filter-show-standard=y&page=@@@",
-    dbUtils = require("../db"),
-    getContent = require("./utils.js").getContent;
+import * as Promise from "bluebird";
+import dbUtils, {DB, DBCard} from "../db";
+import getContent from "./utils";
 
+let url = "http://www.hearthpwn.com/cards?filter-show-standard=y&page=@@@";
 
-
-module.exports.parse = () => {
+export default function() {
     let cnt = 20,
-        urls = new Array(cnt).join(",").split(",").map((_, inx) => url.replace("@@@", inx + 1)),
-        db;
+        db: DB,
+        urls = new Array(cnt).join(",").split(",").map((_, inx) => url.replace("@@@", (inx + 1) + ""));
 
     return dbUtils.get()
         .then(database => db = database)
-        .then(() => Promise.map(urls, url => getContent(url), { concurrency: 3 }))
-        .map($ => {
+        .then(() => Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 }))
+        .map(($: CheerioStatic) => {
             $("table.listing.cards-visual.listing-cards>tbody tr").each((inx, el) => {
                 let $tr = $(el),
-                    card = {
+                    card: CardRaw = {
+                        id: "",
                         name: $tr.find("h3").text(),
                         description: $tr.find(".visual-details-cell>p").text().trim(),
                         flavorText: $tr.find(".card-flavor-listing-text").text().trim(),
@@ -27,11 +26,14 @@ module.exports.parse = () => {
                         rarity: "",
                         set: "",
                         race: "",
-                        url: "http://www.hearthpwn.com" + $tr.find(".visual-image-cell>a").attr("href")
+                        url: "http://www.hearthpwn.com" + $tr.find(".visual-image-cell>a").attr("href"),
+                        cost: 0,
+                        mana: 0,
+                        token: false
                     };
 
-                $tr.find(".visual-details-cell>ul>li").each((inx, el) => {
-                    let $li = $(el);
+                $tr.find(".visual-details-cell>ul>li").each((inx, li) => {
+                    let $li = $(li);
 
                     if ($li.text().indexOf("Type:") !== -1) {
                         card.type = $li.find("a").text().trim();
@@ -64,7 +66,7 @@ module.exports.parse = () => {
                     }
 
                     if ($li.text().indexOf("Crafting Cost:") !== -1) {
-                        card.cost = $li.text().match(/([0-9]+)/g)[0];
+                        card.cost = +$li.text().match(/([0-9]+)/g)[0];
                         return;
                     }
                 });
@@ -74,7 +76,7 @@ module.exports.parse = () => {
                         card.cost = 0;
                     }
                     else {
-                        card.cost = db.cardTypes[card.rarity.toLowerCase()] || "unknown";
+                        card.cost = db.cardTypes[card.rarity.toLowerCase()];
                     }
                 }
 
@@ -94,3 +96,8 @@ module.exports.parse = () => {
         .then(() => dbUtils.save(db))
         .then(() => console.log("hearthpwn done!"));
 };
+
+
+interface CardRaw extends DBCard {
+    token: boolean;
+}
