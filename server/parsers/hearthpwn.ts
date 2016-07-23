@@ -1,16 +1,15 @@
 import * as Promise from "bluebird";
-import dbUtils, {DB, DBCard} from "../db";
+import dbUtils, {DBCard} from "../db";
 import getContent from "./utils";
 
 let url = "http://www.hearthpwn.com/cards?filter-show-standard=y&page=@@@";
 
-export default function() {
+export default function () {
     let cnt = 20,
-        db: DB,
         urls = new Array(cnt).join(",").split(",").map((_, inx) => url.replace("@@@", (inx + 1) + ""));
 
-    return dbUtils.get()
-        .then(database => db = database)
+    return dbUtils
+        .getDb()
         .then(() => Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 }))
         .map(($: CheerioStatic) => {
             $("table.listing.cards-visual.listing-cards>tbody tr").each((inx, el) => {
@@ -76,7 +75,7 @@ export default function() {
                         card.cost = 0;
                     }
                     else {
-                        card.cost = db.cardTypes[card.rarity.toLowerCase()];
+                        card.cost = dbUtils.cardTypes[card.rarity.toLowerCase()];
                     }
                 }
 
@@ -85,15 +84,10 @@ export default function() {
                     return;
                 }
                 card.id = dbUtils.generateCardId(card.name);
-
-                // if (db.cards[card.id]) {
-                //     console.log("conflict: ", card, db.cards[card.id]);
-                // }
-
-                db.cards[card.id] = card;
+                dbUtils.getCards().insert(card);
             });
         })
-        .then(() => dbUtils.save(db))
+        .then(() => dbUtils.saveDb())
         .then(() => console.log("hearthpwn done!"));
 };
 

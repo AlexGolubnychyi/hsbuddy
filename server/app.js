@@ -3,9 +3,12 @@ var express = require("express");
 var path = require("path");
 var body_parser_1 = require("body-parser");
 var routes_1 = require("./routes");
+var lokiSessionStore_1 = require("./middleware/lokiSessionStore");
+//import passport
 // var favicon = require("serve-favicon");
-var logger = require("morgan");
-// var cookieParser = require("cookie-parser");
+var logger = require("morgan"), cookieParser = require("cookie-parser"), session = require("express-session"), sessionStoreLocation = path.join(__dirname, "db/db-session.json");
+// passport = require("passport"),
+// LocalStrategy = require("passport-local").Strategy;
 var app = express();
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -13,14 +16,56 @@ app.set("view engine", "jade");
 // uncomment after placing your favicon in /public
 // app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 app.use(logger("dev"));
-app.use(body_parser_1.json());
-app.use(body_parser_1.urlencoded({ extended: false }));
-// app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "../public")));
 app.use("/client", express.static(path.join(__dirname, "../client")));
 if (app.get("env") === "development") {
     app.use("/node_modules", express.static(path.join(__dirname, "../node_modules")));
 }
+app.use(cookieParser());
+app.use(body_parser_1.json());
+app.use(body_parser_1.urlencoded({ extended: false }));
+app.use(session({
+    secret: "something else completely",
+    store: lokiSessionStore_1.default(sessionStoreLocation, session),
+    resave: false,
+    saveUninitialized: false
+}));
+// app.use(passport.initialize());
+// app.use(passport.session());
+// //https://blog.risingstack.com/node-hero-node-js-authentication-passport-js/
+// passport.use(new LocalStrategy(
+//     function (username, password, done) {
+//         // User.findOne({ username: username }, function(err, user) {
+//         //   if (err) { return done(err); }
+//         //   if (!user) {
+//         //     return done(null, false, { message: 'Incorrect username.' });
+//         //   }
+//         //   if (!user.validPassword(password)) {
+//         //     return done(null, false, { message: 'Incorrect password.' });
+//         //   }
+//         //   return done(null, user);
+//         // });
+//         if (username === "1" && password === "2") {
+//             return done(null, "jess-1");
+//         }
+//         return done(null, false, { message: "Incorrect username or password" });
+//     }
+// ));
+// app.post("/login", passport.authenticate("local", {
+//     successRedirect: "/",
+//     failureRedirect: "/login.html"
+// }));
+// passport.serializeUser(function (user, done) {
+//     done(null, user);
+// });
+// passport.deserializeUser(function (user, done) {
+//     done(null, user);
+// });
+//make user info accessible by jade engine
+app.use(function (req, res, next) {
+    req.user = res.locals.user = req.session["user"];
+    next();
+});
 routes_1.default(app);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

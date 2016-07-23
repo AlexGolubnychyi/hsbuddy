@@ -1,16 +1,19 @@
 
 import * as express from "express";
 import deckRouter from "./decks";
+import parserRouter from "./parsers";
+import loginRouter from "./login";
 
-let router = express.Router();
-
-export default function(app) {
+export default function (app: express.Express) {
   app.use("/decks", deckRouter);
+  app.use("/parse", parserRouter);
+  app.use("/", loginRouter);
 
-  router.get("/", function (req, res) {
-    res.redirect("/decks");
+  //landing
+  let mainRouter = express.Router();
+  mainRouter.get("/", function (req, res) {
+    res.render("index");
   });
-
-  app.use("/", router);
+  app.use("/", mainRouter);
 };
 

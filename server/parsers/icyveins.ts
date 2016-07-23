@@ -1,12 +1,10 @@
-import dbUtils, {DB} from "../db";
+import dbUtils, {DBCard} from "../db";
 import getContent from "./utils";
 let url = "http://www.icy-veins.com/hearthstone/card-descriptions";
 
 export default function () {
-    let db: DB;
 
-    return dbUtils.get()
-        .then(database => db = database)
+    return dbUtils.getDb()
         .then(() => getContent(url))
         .then($ => {
             let unique = {};
@@ -26,7 +24,7 @@ export default function () {
                         mana = +$tds.eq(2).text().trim(),
                         attack = +$tds.eq(3).text().trim(),
                         health = +$tds.eq(4).text().trim(),
-                        card = db.cards[dbUtils.generateCardId(name)];
+                        card = <DBCard>dbUtils.getCards().by("id", dbUtils.generateCardId(name));
 
                     if (!card) {
                         console.log(`card not found ${name}`);
@@ -38,12 +36,13 @@ export default function () {
                         card.attack = attack;
                         card.health = health;
                     }
+                    dbUtils.getCards().update(card);
                 });
 
             });
 
         }, { concurrency: 2 }).then(() => {
-            return dbUtils.save(db);
+            return dbUtils.saveDb();
         }).then(() => {
             console.log("icyveins done!");
         }).catch(e => {

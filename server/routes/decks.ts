@@ -1,9 +1,8 @@
 "use strict";
 
-import dbUtils from "../db";
+import dbUtils, {DBDeck} from "../db";
 import * as express from "express";
 import {Deck, Card} from "../../interfaces";
-
 
 let router = express.Router();
 
@@ -16,18 +15,16 @@ router.get("/:userId/data", (req: express.Request, res: express.Response, next: 
 });
 
 router.get("/:userId/changenumber/:cardId/:number", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    dbUtils.get().then(db => {
-        let availability = db.availability[req.params.userId] || {};
-        availability[req.params.cardId] = req.params.number;
-        db.availability[req.params.userId] = availability;
-        return dbUtils.save(db);
+    dbUtils.getDb().then(() => {
+        dbUtils.setCardAvailability(req.params.userId, req.params.cardId, req.params.number);
+        return dbUtils.saveDb();
     }).then(() => res.end());
 });
 
 function getDecks(userId = "jess-eu") {
-    return dbUtils.get().then(db => {
-        let decks = Object.keys(db.decks)//.filter((d,i)=> i===0)
-            .map(name => db.decks[name])
+    return dbUtils.getDb().then(db => {
+
+        let decks = (dbUtils.getDecks().find() as DBDeck[])
             .sort((f, s) => f.cost - s.cost)
             .map(deck => {
                 let deckResult: Deck = Object.assign({}, deck),
@@ -35,9 +32,9 @@ function getDecks(userId = "jess-eu") {
 
                 deckResult.cards = Object.keys(deck.cards)
                     .map(id => {
-                        let card: Card = Object.assign({}, db.cards[id]);
+                        let card: Card = Object.assign({}, dbUtils.getCards().findOne({ "id": { "$eq": id } }));
                         card.count = deck.cards[id];
-                        card.numberAvailable = (db.availability[userId] || {})[card.id] || 0;
+                        card.numberAvailable = dbUtils.getCardAvailability(userId, card.id);
                         costReduction += Math.min(card.count, card.numberAvailable) * card.cost;
                         return card;
                     }).sort((f, s) => weightCard(f) - weightCard(s));

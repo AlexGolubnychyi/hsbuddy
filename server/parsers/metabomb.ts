@@ -1,4 +1,4 @@
-import dbUtils, {DB, DBDeck} from "../db";
+import dbUtils, {DBDeck, DBCard} from "../db";
 import getContent from "./utils";
 
 let url = "http://hearthstone.metabomb.net/game-guides/the-best-standard-hearthstone-decks-july-2016-season-28",
@@ -7,10 +7,8 @@ let url = "http://hearthstone.metabomb.net/game-guides/the-best-standard-hearths
     };
 
 export default function () {
-    let db: DB;
-
-    return dbUtils.get()
-        .then(database => db = database)
+    
+    return dbUtils.getDb()
         .then(() => getContent(url))
         .then($ => {
             let unique = {};
@@ -45,7 +43,7 @@ export default function () {
 
                         let cardId = dbUtils.generateCardId($el.first().text().trim()),
                             count = +$el.parent().contents().first().text()[0],
-                            card = db.cards[cardId];
+                            card = <DBCard>dbUtils.getCards().by("id", cardId);
 
                         if (!card) {
                             console.log(`${card.name} is not found in db`);
@@ -62,12 +60,11 @@ export default function () {
                     });
                 });
 
-                db.decks[deck.name] = deck;
-
+                dbUtils.getDecks().insert(deck);
             });
 
         }, { concurrency: 2 }).then(() => {
-            return dbUtils.save(db);
+            return dbUtils.saveDb();
         }).then(() => {
             console.log("metabomb done!");
         }).catch(e => {
