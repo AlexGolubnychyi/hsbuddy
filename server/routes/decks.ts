@@ -3,45 +3,49 @@
 import dbUtils, {DBDeck} from "../db";
 import * as express from "express";
 import {Deck, Card} from "../../interfaces";
+import * as authChecks from "../middleware/authChecks";
 
 let router = express.Router();
 
 router.get("/", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    getDecks().then(decks => res.render("decks", { decks }));
+    getDecks(req.user).then(decks => res.render("decks", { decks }));
 });
 
-router.get("/:userId/data", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    getDecks(req.params.userId).then(decks => res.json(decks));
+router.get("/data", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    getDecks(req.user).then(decks => res.json(decks));
 });
 
-router.get("/:userId/changenumber/:cardId/:number", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    dbUtils.getDb().then(() => {
-        dbUtils.setCardAvailability(req.params.userId, req.params.cardId, req.params.number);
+router.get("/changenumber/:cardId/:number", authChecks.api, (req: express.Request, res: express.Response, next: express.NextFunction) => {
+
+    dbUtils.ensureDb().then(() => {
+        dbUtils.setCardAvailability(req.user, req.params.cardId, req.params.number);
         return dbUtils.saveDb();
     }).then(() => res.end());
 });
 
-function getDecks(userId = "jess-eu") {
-    return dbUtils.getDb().then(db => {
+function getDecks(userId) {
+    return dbUtils.ensureDb().then(db => {
 
         let decks = (dbUtils.getDecks().find() as DBDeck[])
-            .sort((f, s) => f.cost - s.cost)
             .map(deck => {
                 let deckResult: Deck = Object.assign({}, deck),
-                    costReduction = 0;
+                    costRemaining = deck.cost,
+                    collected = true;
 
                 deckResult.cards = Object.keys(deck.cards)
                     .map(id => {
                         let card: Card = Object.assign({}, dbUtils.getCards().findOne({ "id": { "$eq": id } }));
                         card.count = deck.cards[id];
                         card.numberAvailable = dbUtils.getCardAvailability(userId, card.id);
-                        costReduction += Math.min(card.count, card.numberAvailable) * card.cost;
+                        collected = collected && card.numberAvailable >= card.count;
+                        costRemaining -= Math.min(card.count, card.numberAvailable) * card.cost;
                         return card;
                     }).sort((f, s) => weightCard(f) - weightCard(s));
 
-                deckResult.costReduction = costReduction;
+                deckResult.costRemaining = costRemaining;
+                deckResult.collected = collected;
                 return deckResult;
-            });
+            }).sort((f, s) => f.costRemaining - s.costRemaining);
 
         return decks;
     });

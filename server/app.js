@@ -6,6 +6,7 @@ var body_parser_1 = require("body-parser");
 var cookieParser = require("cookie-parser");
 var routes_1 = require("./routes");
 var lokiSessionStore_1 = require("./middleware/lokiSessionStore");
+var loadUserInfo_1 = require("./middleware/loadUserInfo");
 var logger = require("morgan");
 // var favicon = require("serve-favicon");
 var sessionStoreLocation = path.join(__dirname, "db/db-session.json"), app = express();
@@ -33,10 +34,7 @@ app.use(session({
     }
 }));
 //make user info accessible by jade engine
-app.use(function (req, res, next) {
-    req.user = res.locals.user = req.session["user"];
-    next();
-});
+app.use(loadUserInfo_1.default);
 routes_1.default(app);
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {

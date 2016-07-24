@@ -7,6 +7,7 @@ import {json, urlencoded} from "body-parser";
 import * as cookieParser from "cookie-parser";
 import setRoutes from "./routes";
 import lokiSessionStoreFactory from "./middleware/lokiSessionStore";
+import loadUserInfo from "./middleware/loadUserInfo";
 import * as logger from "morgan";
 
 // var favicon = require("serve-favicon");
@@ -42,10 +43,7 @@ app.use(session({
 }));
 
 //make user info accessible by jade engine
-app.use((req, res, next) => {
-    req.user = res.locals.user = req.session["user"];
-    next();
-});
+app.use(loadUserInfo);
 setRoutes(app);
 
 // catch 404 and forward to error handler

@@ -1,26 +1,31 @@
 import * as util from "util";
 import * as http from "http";
 
-export function HttpError(status, message) {
-    Error.apply(this, arguments);
-    Error.captureStackTrace(this, HttpError);
 
-    this.status = status;
-    this.message = message || http.STATUS_CODES[status] || "Error";
+export class HttpError extends  Error {
+    name = "HttpError";
+
+    constructor(public status, public message) {
+        super(message);
+        Error.captureStackTrace(this, HttpError);
+        this.message = message || http.STATUS_CODES[status] || "Error";
+    }
 }
 
-util.inherits(HttpError, Error);
+export class AuthError extends  Error {
+    name = "AuthError";
 
-HttpError.prototype.name = "HttpError";
-
-
-export function AuthError(message) {
-    Error.apply(this, arguments);
-    Error.captureStackTrace(this, HttpError);
-
-    this.message = message;
+    constructor(public message) {
+        super(message);
+        Error.captureStackTrace(this, AuthError);
+    }
 }
 
-util.inherits(AuthError, Error);
+export class UnAuthorizedError extends HttpError {
+    name = "UnAuthorizedError";
 
-AuthError.prototype.name = "AuthError";
+    constructor() {
+        super(401, "action is not authorized.");
+        Error.captureStackTrace(this, UnAuthorizedError);
+    }
+}

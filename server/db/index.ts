@@ -1,19 +1,32 @@
 "use strict";
 
 import * as path from "path";
-import * as Promise from "bluebird";
-import * as loki from "lokijs";
 import * as schema from "./schema";
-import * as fs from "fs";
-let writeFile = Promise.promisify(fs.writeFile) as (name, data, options) => Promise<{}>;
+import LokiDbBase from "./LokiDbBase";
+import * as crypto from "crypto";
 
 let dbLocation = path.join(__dirname, "db.json");
 
-class DbUtils {
-    private db: Loki;
-    private initialized: boolean = false;
-    private _loadDb: (options: {}) => Promise<void>;
-    private _saveDb: () => Promise<void>;
+class DbUtils extends LokiDbBase {
+
+    constructor() {
+        super(dbLocation);
+    }
+
+    hsClasses = {
+        unknown: "unknown",
+        neutral: "neutral",
+        druid: "druid",
+        hunter: "hunter",
+        mage: "mage",
+        paladin: "paladin",
+        priest: "priest",
+        rogue: "rogue",
+        shaman: "shaman",
+        warlock: "warlock",
+        warrior: "warrior"
+    };
+
     collections = {
         cards: "cards",
         decks: "decks",
@@ -30,16 +43,17 @@ class DbUtils {
     };
 
     getCards() {
-        this.doInitCheck();
-        return this.db.getCollection(this.collections.cards);
+        return this.getCollection(this.collections.cards);
     }
 
     getDecks() {
-        this.doInitCheck();
-        return this.db.getCollection(this.collections.decks);
+        return this.getCollection(this.collections.decks);
     }
 
     getCardAvailability(userId: string, cardId: string) {
+        if (!userId || !cardId) {
+            return 0;
+        }
         var item = <schema.DBAvailability>this.getCardAvailabilityItem(userId, cardId);
         return item ? item.count : 0;
 
@@ -49,86 +63,62 @@ class DbUtils {
         var item = <schema.DBAvailability>this.getCardAvailabilityItem(userId, cardId);
         if (item) {
             item.count = count;
-            this.db.getCollection(this.collections.availability).update(item);
+            this.getCollection(this.collections.availability).update(item);
             return;
         }
         item = { cardId: cardId, count: count, userId: userId };
-        this.db.getCollection(this.collections.availability).insert(item);
-    }
-
-    getDb() {
-        if (this.initialized) {
-            return Promise.resolve(this.db);
-        }
-        return this.init().then(() => this.db);
-    }
-
-    saveDb() {
-        if (!this.initialized) {
-            return Promise.reject("db is not initialized");
-        }
-
-        return this._saveDb();
+        this.getCollection(this.collections.availability).insert(item);
     }
 
     generateCardId(name: string) {
         return name.toLowerCase().replace(/[ |,|`|.|']*/g, "");
     }
 
-    private doInitCheck() {
-        if (!this.initialized) {
-            throw "db is not inilialized";
+    generateDeckHask(deck: schema.DBDeck) {
+        let deckDNA = Object.keys(deck.cards).map(key => key + deck.cards[key]).join("");
+        return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
+    }
+
+    parseHsClass(className){
+        let name = className.trim().toLowerCase();
+        if (Object.keys(this.hsClasses).some(key => name === key)){
+            return name;
         }
+        return this.hsClasses.unknown;
     }
 
-    private init() {
-        this.db = new loki(dbLocation);
-        this._loadDb = <any>Promise.promisify(this.db.loadDatabase.bind(this.db));
-        this._saveDb = <any>Promise.promisify(this.db.saveDatabase.bind(this.db));
-        return writeFile(dbLocation, "", { flag: "wx" })
-                .catch(() => console.log("db exists"))
-                .then(() => this._loadDb({}))
-                .then(() => {
-                    this.inflate();
-                    this.initialized = true;
-                    return this._saveDb();
-                });
-    }
-
-
-    private inflate = () => {
-        let cards = this.db.getCollection(this.collections.cards);
+    protected inflate(db: Loki) {
+        let cards = db.getCollection(this.collections.cards);
         if (cards) {
             return;
         }
 
-        this.db.addCollection(this.collections.decks, {
+        db.addCollection(this.collections.decks, {
             unique: ["name"]
         });
 
-        this.db.addCollection(this.collections.cards, {
+        db.addCollection(this.collections.cards, {
             unique: ["id"]
         });
 
-        this.db.addCollection(this.collections.availability, {
+        db.addCollection(this.collections.availability, {
             indices: ["userId", "cardId"]
         });
 
-        this.db.addCollection(this.collections.user, {
+        db.addCollection(this.collections.user, {
             unique: ["userId"]
         });
     }
 
     private getCardAvailabilityItem(userId: string, cardId: string) {
-        this.doInitCheck();
-        return this.db.getCollection(this.collections.availability).findOne({
+        return this.getCollection(this.collections.availability).findOne({
             "$and": [
                 { "userId": { "$eq": userId } },
                 { "cardId": { "$eq": cardId } }
             ]
         });
     }
-
 }
+
 export default new DbUtils();
 export * from "./schema";

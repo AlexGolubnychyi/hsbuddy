@@ -23,6 +23,7 @@ export interface Deck {
     url: string;
     cost: number;
     costApprox: boolean;
-    costReduction: number;
+    costRemaining: number;
+    collected: boolean;
     cards: Card[];
 }

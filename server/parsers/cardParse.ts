@@ -2,14 +2,15 @@ import * as Promise from "bluebird";
 import dbUtils, {DBCard} from "../db";
 import getContent from "./utils";
 
-let url = "http://www.hearthpwn.com/cards?filter-show-standard=y&page=@@@";
+let hearthPwnUrl = "http://www.hearthpwn.com/cards?filter-show-standard=y&page=@@@";
+let icyVeinsUrl = "http://www.icy-veins.com/hearthstone/card-descriptions";
 
 export default function () {
     let cnt = 20,
-        urls = new Array(cnt).join(",").split(",").map((_, inx) => url.replace("@@@", (inx + 1) + ""));
+        urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrl.replace("@@@", (inx + 1) + ""));
 
     return dbUtils
-        .getDb()
+        .ensureDb()
         .then(() => Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 }))
         .map(($: CheerioStatic) => {
             $("table.listing.cards-visual.listing-cards>tbody tr").each((inx, el) => {
@@ -40,7 +41,7 @@ export default function () {
                     }
 
                     if ($li.text().indexOf("Class:") !== -1) {
-                        card.class = $li.find("a").text().trim();
+                        card.class = dbUtils.parseHsClass($li.find("a").text());
                         return;
                     }
 
@@ -88,9 +89,58 @@ export default function () {
             });
         })
         .then(() => dbUtils.saveDb())
-        .then(() => console.log("hearthpwn done!"));
+        .then(() => console.log("hearthpwn done!"))
+        .then(() => getAdditionalCardInfo());
 };
 
+function getAdditionalCardInfo(){
+
+
+return dbUtils.ensureDb()
+        .then(() => getContent(icyVeinsUrl))
+        .then($ => {
+            let unique = {};
+            $(`.page_content .nav_content_block_entry a`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
+            return Object.keys(unique);
+        })
+        .map(cardListUrl => {
+
+            return getContent(cardListUrl).then($ => {
+                $(".card_table tr").each((inx, el) => {
+                    let $tds = $(el).find("td");
+                    if (!$tds.length) {
+                        return;
+                    }
+
+                    let name = $tds.eq(0).find("a").text(),
+                        mana = +$tds.eq(2).text().trim(),
+                        attack = +$tds.eq(3).text().trim(),
+                        health = +$tds.eq(4).text().trim(),
+                        card = <DBCard>dbUtils.getCards().by("id", dbUtils.generateCardId(name));
+
+                    if (!card) {
+                        console.log(`card not found ${name}`);
+                        return;
+                    }
+
+                    card.mana = mana;
+                    if (card.type.toLowerCase() === "minion") {
+                        card.attack = attack;
+                        card.health = health;
+                    }
+                    dbUtils.getCards().update(card);
+                });
+
+            });
+
+        }, { concurrency: 2 }).then(() => {
+            return dbUtils.saveDb();
+        }).then(() => {
+            console.log("icyveins done!");
+        }).catch(e => {
+            console.log(e);
+        });
+}
 
 interface CardRaw extends DBCard {
     token: boolean;

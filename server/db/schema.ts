@@ -9,8 +9,10 @@ export interface DBUser {
 }
 
 export interface DBDeck {
+    hash: string;
     name: string;
     url: string;
+    class: string ;
     cost: number;
     costApprox: boolean;
     cards: { [index: string]: number };

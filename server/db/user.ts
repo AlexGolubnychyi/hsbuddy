@@ -8,7 +8,7 @@ class UserUtils {
     static salt = "everything is better with salt";
 
     auth(userId, password) {
-        return dbUtils.getDb().then(db => {
+        return dbUtils.ensureDb().then(db => {
             let user = <DBUser>db.getCollection(dbUtils.collections.user).by("userId", userId);
             if (!user || this.encrypt(password) !== user.hash) {
                 return Promise.reject(new AuthError("invalid username or password"));
@@ -22,7 +22,7 @@ class UserUtils {
         if (!userId || !password) {
              return Promise.reject(new AuthError("Cannot create user: name/password cannot be empty"));
         }
-        return dbUtils.getDb().then(db => {
+        return dbUtils.ensureDb().then(db => {
             let users = db.getCollection(dbUtils.collections.user);
             let user = <DBUser>users.by("userId", userId);
             if (user) {

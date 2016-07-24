@@ -1,6 +1,6 @@
 import { Component, OnInit  } from "@angular/core";
 import {CardComponent} from "./card.component";
-import {DeckService} from "../deck.service";
+import {DeckService} from "../services/deck.service";
 import {Deck} from "../../interfaces";
 import "../rxjs-operators";
 //https://angular.io/docs/ts/latest/tutorial/toh-pt6.html

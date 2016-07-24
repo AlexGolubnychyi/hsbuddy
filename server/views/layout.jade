@@ -8,20 +8,24 @@ html
     link(rel='stylesheet', href='css/styles.css')
     block styles
     block scripts
+    if user 
+      script.
+        window._authenticated = true;
   body
-    nav.navbar.navbar-default(role='navigation')
-      ul.nav.navbar-nav
-        li
-          a(href="/") Main
-      ul.nav.navbar-nav.navbar-right
-        if user 
-          li 
-           a Welcome, #{user}!
+    nav.navbar.navbar-default(role='navigation') 
+      div.container-fluid
+        ul.nav.navbar-nav
           li
-            a(href="/logout") Logout
-        else 
-          li
-            a(href="/login") Login
-          li
-            a(href="/register") Register  
+            a(href="/") Main
+        ul.nav.navbar-nav.navbar-right
+          if user 
+            li 
+              a Welcome, #{user}!
+            li
+              a(href="/logout") Logout
+          else 
+            li
+              a(href="/login") Login
+            li
+              a(href="/register") Register  
     block content

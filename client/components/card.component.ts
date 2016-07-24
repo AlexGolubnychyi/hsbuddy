@@ -1,20 +1,29 @@
-import { Component, Input, EventEmitter, Output, ChangeDetectionStrategy } from "@angular/core";
+import { Component, Input, EventEmitter, Output, ChangeDetectionStrategy, OnInit } from "@angular/core";
 import {Card} from "../../interfaces";
-import {DeckService} from "../deck.service";
+import {DeckService} from "../services/deck.service";
+import {AuthService} from "../services/auth.service";
 
 @Component({
     selector: "card",
     templateUrl: "client/components/card.component.html",
-    providers: [DeckService],
+    providers: [DeckService, AuthService],
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CardComponent {
+export class CardComponent implements OnInit {
     @Input()
     card: Card;
     @Output()
     onChanged = new EventEmitter<boolean>();
 
-    constructor(private deckService: DeckService) { }
+    enableAvailability: boolean;
+    available: boolean;
+
+    constructor(private deckService: DeckService, private authService: AuthService) { }
+
+    ngOnInit() {
+        this.enableAvailability = this.authService.isAuthenticated();
+        this.available = this.card.count <= this.card.numberAvailable;
+    }
 
     onChangeAvailability(newValue: number) {
         this.deckService.changeCardAvailability(this.card.id, newValue).subscribe(() => {
