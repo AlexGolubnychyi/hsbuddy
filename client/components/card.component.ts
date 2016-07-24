@@ -21,7 +21,7 @@ export class CardComponent implements OnInit {
     constructor(private deckService: DeckService, private authService: AuthService) { }
 
     ngOnInit() {
-        this.enableAvailability = this.authService.isAuthenticated();
+        this.enableAvailability = this.authService.isAuthenticated() && this.card.set !== "Basic";
         this.available = this.card.count <= this.card.numberAvailable;
     }
 

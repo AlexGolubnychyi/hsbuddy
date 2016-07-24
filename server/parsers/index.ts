@@ -33,7 +33,7 @@ class Parser {
             .then(() => console.log("parse complete"));
     }
 
-    private urlToTask(urlString: string) {
+    private urlToTask = (urlString: string) => {
         let urlObj = url.parse(urlString);
 
         return {
@@ -42,9 +42,8 @@ class Parser {
         };
     }
 
-    temp() {
-        cardParse()
-            .then(() => metaBombParser.parseDeckList("http://hearthstone.metabomb.net/game-guides/the-best-standard-hearthstone-decks-july-2016-season-28", true))
+    populateWithCards() {
+        return cardParse()
             .then(() => console.log("done"));
     }
 }

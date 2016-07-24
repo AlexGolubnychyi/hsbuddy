@@ -2,7 +2,7 @@ import * as Promise from "bluebird";
 import dbUtils, {DBCard} from "../db";
 import getContent from "./utils";
 
-let hearthPwnUrl = "http://www.hearthpwn.com/cards?filter-show-standard=y&page=@@@";
+let hearthPwnUrl = "http://www.hearthpwn.com/cards?page=@@@";
 let icyVeinsUrl = "http://www.icy-veins.com/hearthstone/card-descriptions";
 
 export default function () {
@@ -81,10 +81,15 @@ export default function () {
                 }
 
                 if (!card.name || card.token || card.type === "Hero") {
-                    console.log(`skipping token/hero: ${card.name}`);
+                    console.log(`[skipped] token/hero: ${card.name}`);
                     return;
                 }
                 card.id = dbUtils.generateCardId(card.name);
+                if (dbUtils.getCards().by("id", card.id)){
+                    console.log(`[skipped] card ${card.name}`);
+                    return;
+                }
+                console.log(`[added] ${card.name}`);
                 dbUtils.getCards().insert(card);
             });
         })

@@ -2,7 +2,7 @@ import * as Promise from "bluebird";
 import dbUtils, {DBCard, DBDeck} from "../db";
 import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
-let keywords = { deckUrl: "deck-list" };
+let keywords = { deckUrl: "deck-list", deckListUrl: "game-guides" };
 
 
 class MetaBombParser extends BaseDeckParser {
@@ -29,57 +29,39 @@ class MetaBombParser extends BaseDeckParser {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
-            let deck: DBDeck = {
-                name: $("main>article>header>h1").text(),
-                class: dbUtils.hsClasses.unknown,
-                url: url,
-                cost: 0,
-                costApprox: false,
-                cards: {},
-                hash: ""
-            },
-                $cardTable = $("main table").first();
+            let name =  $("main>article>header>h1").text(),
+                cards: { [cardName: string]: number } = {};
 
-            $cardTable.find("tr").each((_, tr) => {
+            $("main table").first().find("tr").each((_, tr) => {
                 $(tr).find("td").each((inx, td) => {
                     let $el = $(td).find("span[data-card]");
                     if (!$el.length) {
                         return;
                     }
 
-                    let cardId = dbUtils.generateCardId($el.first().text().trim()),
-                        count = +$el.parent().contents().first().text()[0],
-                        card = <DBCard>dbUtils.getCards().by("id", cardId);
+                    let cardName = $el.first().text().trim(),
+                        count = +$el.parent().contents().first().text()[0];
 
-                    if (!card) {
-                        console.log(`${card.name} is not found in db`);
-                        return;
-                    }
-                    deck.cards[cardId] = count;
-
-                    if (deck.class === dbUtils.hsClasses.unknown && card.class !== dbUtils.hsClasses.neutral) {
-                        deck.class = card.class;
-                    }
-
-                    if (typeof card.cost === "undefined") {
-                        deck.costApprox = true;
-                    }
-                    else {
-                        deck.cost += card.cost * count;
-                    }
+                    cards[cardName] = count;
                 });
             });
+            let deck = this.addDeckUnsafe(name, url, cards);
 
-            dbUtils.getDecks().insert(deck);
-            if (save) {
+            if (save && deck) {
                 return dbUtils.saveDb();
             }
         });
     }
 
     parse(url: string, save: boolean) {
-        console.log(`parsing ${url}`);
-        return Promise.reject("not implemented");
+        if (url.indexOf(keywords.deckListUrl) > 0) {
+            return this.parseDeckList(url, save);
+        }
+        if (url.indexOf(keywords.deckUrl) > 0) {
+            return this.parseDeck(url, save);
+        }
+
+        Promise.reject(`metabomb parser: unknown url: ${url}`);
     }
 };
 

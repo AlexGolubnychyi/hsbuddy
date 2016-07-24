@@ -54,6 +54,10 @@ class DbUtils extends LokiDbBase {
         if (!userId || !cardId) {
             return 0;
         }
+        let card = <schema.DBCard>this.getCards().by("id", cardId);
+        if (card && card.set === "Basic") {
+            return 2;
+        }
         var item = <schema.DBAvailability>this.getCardAvailabilityItem(userId, cardId);
         return item ? item.count : 0;
 
@@ -74,8 +78,8 @@ class DbUtils extends LokiDbBase {
         return name.toLowerCase().replace(/[ |,|`|.|']*/g, "");
     }
 
-    generateDeckHask(deck: schema.DBDeck) {
-        let deckDNA = Object.keys(deck.cards).map(key => key + deck.cards[key]).join("");
+    generateDeckHash(deck: schema.DBDeck) {
+        let deckDNA = Object.keys(deck.cards).sort().map(key => key + deck.cards[key]).join("");
         return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
     }
 

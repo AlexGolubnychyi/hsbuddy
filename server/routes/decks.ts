@@ -40,7 +40,7 @@ function getDecks(userId) {
                         collected = collected && card.numberAvailable >= card.count;
                         costRemaining -= Math.min(card.count, card.numberAvailable) * card.cost;
                         return card;
-                    }).sort((f, s) => weightCard(f) - weightCard(s));
+                    }).sort(sortFunc);
 
                 deckResult.costRemaining = costRemaining;
                 deckResult.collected = collected;
@@ -52,7 +52,7 @@ function getDecks(userId) {
 }
 
 
-function weightCard(card) {
+function weightCard(card: Card) {
 
     let baseWeight = card.mana, // + (card.class === "neutral" ? 1000 : 0),
         rarity = card.rarity.toLowerCase();
@@ -69,6 +69,14 @@ function weightCard(card) {
     }
 
     return baseWeight;
+}
+
+function sortFunc(card1: Card, card2: Card) {
+    let diff = weightCard(card1) - weightCard(card2);
+    if (diff) {
+        return diff;
+    }
+    return card1.name > card2.name ? 1 : -1;
 }
 
 
