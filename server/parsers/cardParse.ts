@@ -32,7 +32,7 @@ export default function () {
                         token: false
                     };
 
-                $tr.find(".visual-details-cell>ul>li").each((inx, li) => {
+                $tr.find(".visual-details-cell>ul>li").each((_, li) => {
                     let $li = $(li);
 
                     if ($li.text().indexOf("Type:") !== -1) {
@@ -85,7 +85,7 @@ export default function () {
                     return;
                 }
                 card.id = dbUtils.generateCardId(card.name);
-                if (dbUtils.getCards().by("id", card.id)){
+                if (dbUtils.getCards().by("id", card.id)) {
                     console.log(`[skipped] card ${card.name}`);
                     return;
                 }
@@ -98,10 +98,10 @@ export default function () {
         .then(() => getAdditionalCardInfo());
 };
 
-function getAdditionalCardInfo(){
+function getAdditionalCardInfo() {
 
 
-return dbUtils.ensureDb()
+    return dbUtils.ensureDb()
         .then(() => getContent(icyVeinsUrl))
         .then($ => {
             let unique = {};

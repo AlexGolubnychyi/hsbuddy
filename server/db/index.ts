@@ -83,9 +83,9 @@ class DbUtils extends LokiDbBase {
         return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
     }
 
-    parseHsClass(className){
+    parseHsClass(className) {
         let name = className.trim().toLowerCase();
-        if (Object.keys(this.hsClasses).some(key => name === key)){
+        if (Object.keys(this.hsClasses).some(key => name === key)) {
             return name;
         }
         return this.hsClasses.unknown;

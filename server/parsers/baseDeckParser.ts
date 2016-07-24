@@ -51,7 +51,7 @@ export abstract class BaseDeckParser {
             return null;
         }
         dbUtils.getDecks().insert(deck);
-        
+
         return deck;
     }
 }
