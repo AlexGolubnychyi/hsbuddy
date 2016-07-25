@@ -1,5 +1,6 @@
 import { Component, Input, EventEmitter, Output, ChangeDetectionStrategy, OnInit } from "@angular/core";
 import {Card} from "../../interfaces";
+import {CardSet} from "../../interfaces/hs-types";
 import {DeckService} from "../services/deck.service";
 import {AuthService} from "../services/auth.service";
 
@@ -21,7 +22,7 @@ export class CardComponent implements OnInit {
     constructor(private deckService: DeckService, private authService: AuthService) { }
 
     ngOnInit() {
-        this.enableAvailability = this.authService.isAuthenticated() && this.card.set !== "Basic";
+        this.enableAvailability = this.authService.isAuthenticated() && this.card.set !== CardSet.Basic;
         this.available = this.card.count <= this.card.numberAvailable;
     }
 

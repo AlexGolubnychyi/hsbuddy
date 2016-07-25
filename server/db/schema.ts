@@ -1,3 +1,5 @@
+import * as hsTypes from "../../interfaces/hs-types";
+
 export interface DBAvailability {
     userId: string;
     cardId: string;
@@ -12,7 +14,7 @@ export interface DBDeck {
     hash: string;
     name: string;
     url: string;
-    class: string ;
+    class: hsTypes.CardClass;
     cost: number;
     costApprox: boolean;
     cards: { [index: string]: number };
@@ -24,11 +26,11 @@ export interface DBCard {
     description: string;
     flavorText: string;
     img: string;
-    class: string;
-    type: string;
-    rarity: string;
-    set: string;
-    race: string;
+    class: hsTypes.CardClass;
+    type: hsTypes.CardType;
+    rarity: hsTypes.CardRarity;
+    set: hsTypes.CardSet;
+    race: hsTypes.CardRace;
     url: string;
     cost: number;
     mana: number;

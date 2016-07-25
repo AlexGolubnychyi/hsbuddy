@@ -4,6 +4,7 @@ import dbUtils, {DBDeck} from "../db";
 import * as express from "express";
 import {Deck, Card} from "../../interfaces";
 import * as authChecks from "../middleware/authChecks";
+import * as hstypes from "../../interfaces/hs-types";
 
 let router = express.Router();
 
@@ -37,11 +38,13 @@ function getDecks(userId) {
                         let card: Card = Object.assign({}, dbUtils.getCards().findOne({ "id": { "$eq": id } }));
                         card.count = deck.cards[id];
                         card.numberAvailable = dbUtils.getCardAvailability(userId, card.id);
+                        card.className = hstypes.CardClass[card.class];
+                        card.setName = <string>hstypes.hsTypeConverter.cardSet(card.set);
                         collected = collected && card.numberAvailable >= card.count;
                         costRemaining -= Math.min(card.count, card.numberAvailable) * card.cost;
                         return card;
                     }).sort(sortFunc);
-
+                deckResult.className =  hstypes.CardClass[deckResult.class];
                 deckResult.costRemaining = costRemaining;
                 deckResult.collected = collected;
                 return deckResult;
@@ -51,21 +54,19 @@ function getDecks(userId) {
     });
 }
 
-
 function weightCard(card: Card) {
 
-    let baseWeight = card.mana, // + (card.class === "neutral" ? 1000 : 0),
-        rarity = card.rarity.toLowerCase();
+    let baseWeight = card.mana; // + (card.class === "neutral" ? 1000 : 0),
 
-    if (card.set.toLowerCase() === "basic") {
+    if (card.set === hstypes.CardSet.Basic) {
         return baseWeight;
     }
 
-    switch (rarity) {
-        case "legendary": return baseWeight + 400;
-        case "epic": return baseWeight + 300;
-        case "rare": return baseWeight + 200;
-        case "common": return baseWeight + 100;
+    switch (card.rarity) {
+        case hstypes.CardRarity.legendary: return baseWeight + 400;
+        case hstypes.CardRarity.epic: return baseWeight + 300;
+        case hstypes.CardRarity.rare: return baseWeight + 200;
+        case hstypes.CardRarity.common: return baseWeight + 100;
     }
 
     return baseWeight;

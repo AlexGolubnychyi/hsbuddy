@@ -23,10 +23,10 @@ router.get("/", authChecks.url, (req: express.Request, res: express.Response, ne
 
 router.post("/", authChecks.api, (req: express.Request, res: express.Response, next: express.NextFunction) => {
     let links = req.body.links.replace(/[\n|\r]+/g, "|").split("|");
-    
+
     res.write("<p>working, please wait</p>");
     parser.parse(links)
-        .then(() => res.write("<h1>All Done!!!<h1>"))
+        .then(() => res.write(`<h1>All Done!!!</h1><div><a href="/">Go to main</a>`))
         .then(() => res.end());
 });
 

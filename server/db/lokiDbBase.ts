@@ -50,8 +50,8 @@ abstract class LokiDbBase {
                 }
 
                 this.initialized = true;
-            })
-            .then(() => this._saveDb());
+                return this._saveDb();
+            });
     }
 
     private doInitCheck() {

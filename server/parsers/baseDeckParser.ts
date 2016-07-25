@@ -1,5 +1,5 @@
 import dbUtils, {DBDeck, DBCard} from "../db";
-
+import * as hstypes from "../../interfaces/hs-types";
 export abstract class BaseDeckParser {
     siteName: string;
     abstract parseDeck(url: string, save: boolean): Promise<any>;
@@ -14,7 +14,7 @@ export abstract class BaseDeckParser {
     protected addDeckUnsafe(name, url, cards: { [cardName: string]: number }) {
         let deck: DBDeck = {
             name: name.trim(),
-            class: dbUtils.hsClasses.unknown,
+            class: hstypes.CardClass.unknown,
             url: url,
             cost: 0,
             costApprox: false,
@@ -33,7 +33,7 @@ export abstract class BaseDeckParser {
             }
 
             deck.cards[cardId] = count;
-            if (deck.class === dbUtils.hsClasses.unknown && card.class !== dbUtils.hsClasses.neutral) {
+            if (deck.class === hstypes.CardClass.unknown && card.class !== hstypes.CardClass.neutral) {
                 deck.class = card.class;
             }
 

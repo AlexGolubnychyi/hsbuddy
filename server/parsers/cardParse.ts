@@ -1,16 +1,18 @@
 import * as Promise from "bluebird";
 import dbUtils, {DBCard} from "../db";
 import getContent from "./utils";
+import * as hsTypes from "../../interfaces/hs-types";
 
 let hearthPwnUrl = "http://www.hearthpwn.com/cards?page=@@@";
 let icyVeinsUrl = "http://www.icy-veins.com/hearthstone/card-descriptions";
 
-export default function () {
+export default function (db: Loki = null) {
     let cnt = 20,
-        urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrl.replace("@@@", (inx + 1) + ""));
+        urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrl.replace("@@@", (inx + 1) + "")),
+        cardCollection: LokiCollection<DBCard>;
 
-    return dbUtils
-        .ensureDb()
+    return (!db ?  dbUtils.ensureDb() : Promise.resolve(db) )
+        .then(() => cardCollection = <LokiCollection<DBCard>>db.getCollection(dbUtils.collections.cards))
         .then(() => Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 }))
         .map(($: CheerioStatic) => {
             $("table.listing.cards-visual.listing-cards>tbody tr").each((inx, el) => {
@@ -21,11 +23,11 @@ export default function () {
                         description: $tr.find(".visual-details-cell>p").text().trim(),
                         flavorText: $tr.find(".card-flavor-listing-text").text().trim(),
                         img: $tr.find(".visual-image-cell img").attr("src"),
-                        class: "neutral",
-                        type: "",
-                        rarity: "",
-                        set: "",
-                        race: "",
+                        class: hsTypes.CardClass.neutral,
+                        type: hsTypes.CardType.unknown,
+                        rarity: hsTypes.CardRarity.unknown,
+                        set: hsTypes.CardSet.unknown,
+                        race: hsTypes.CardRace.none,
                         url: "http://www.hearthpwn.com" + $tr.find(".visual-image-cell>a").attr("href"),
                         cost: 0,
                         mana: 0,
@@ -36,27 +38,27 @@ export default function () {
                     let $li = $(li);
 
                     if ($li.text().indexOf("Type:") !== -1) {
-                        card.type = $li.find("a").text().trim();
+                        card.type = hsTypes.CardType[$li.find("a").text().trim().toLowerCase()] || card.type;
                         return;
                     }
 
                     if ($li.text().indexOf("Class:") !== -1) {
-                        card.class = dbUtils.parseHsClass($li.find("a").text());
+                        card.class = hsTypes.CardClass[$li.find("a").text().trim().toLowerCase()] || card.class;
                         return;
                     }
 
                     if ($li.text().indexOf("Rarity:") !== -1) {
-                        card.rarity = $li.find("a").text().trim();
+                        card.rarity = hsTypes.CardRarity[$li.find("a").text().trim().toLowerCase()] || card.rarity;
                         return;
                     }
 
                     if ($li.text().indexOf("Set:") !== -1) {
-                        card.set = $li.find("a").text().trim();
+                        card.set = <hsTypes.CardSet>hsTypes.hsTypeConverter.cardSet($li.find("a").text());
                         return;
                     }
 
                     if ($li.text().indexOf("Race:") !== -1) {
-                        card.race = $li.find("a").text().trim();
+                        card.race = hsTypes.CardRace[$li.find("a").text().trim().toLowerCase()] || card.race;
                         return;
                     }
 
@@ -72,37 +74,33 @@ export default function () {
                 });
 
                 if (typeof card.cost === "undefined") {
-                    if (/basic|blackrock mountain|league of explorers/.test(card.set.toLowerCase())) {
+                    if ([hsTypes.CardSet.Basic, hsTypes.CardSet.BlackrockMountain, hsTypes.CardSet.LeagueOfExplorers].indexOf(card.set) >= 0) {
                         card.cost = 0;
                     }
                     else {
-                        card.cost = dbUtils.cardTypes[card.rarity.toLowerCase()];
+                        card.cost = hsTypes.hsTypeConverter.getCardCost(card.rarity);
                     }
                 }
 
-                if (!card.name || card.token || card.type === "Hero") {
+                if (!card.name || card.token || card.type === hsTypes.CardType.hero) {
                     console.log(`[skipped] token/hero: ${card.name}`);
                     return;
                 }
                 card.id = dbUtils.generateCardId(card.name);
-                if (dbUtils.getCards().by("id", card.id)) {
+                if (cardCollection.by("id", card.id)) {
                     console.log(`[skipped] card ${card.name}`);
                     return;
                 }
                 console.log(`[added] ${card.name}`);
-                dbUtils.getCards().insert(card);
+                cardCollection.insert(card);
             });
         })
-        .then(() => dbUtils.saveDb())
-        .then(() => console.log("hearthpwn done!"))
-        .then(() => getAdditionalCardInfo());
+        .then(() => console.log("[done] loading basic card info from hearthpwn"))
+        .then(() => getAdditionalCardInfo(cardCollection));
 };
 
-function getAdditionalCardInfo() {
-
-
-    return dbUtils.ensureDb()
-        .then(() => getContent(icyVeinsUrl))
+function getAdditionalCardInfo(cardCollection: LokiCollection<DBCard>) {
+    return getContent(icyVeinsUrl)
         .then($ => {
             let unique = {};
             $(`.page_content .nav_content_block_entry a`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
@@ -121,7 +119,7 @@ function getAdditionalCardInfo() {
                         mana = +$tds.eq(2).text().trim(),
                         attack = +$tds.eq(3).text().trim(),
                         health = +$tds.eq(4).text().trim(),
-                        card = <DBCard>dbUtils.getCards().by("id", dbUtils.generateCardId(name));
+                        card = cardCollection.by("id", dbUtils.generateCardId(name));
 
                     if (!card) {
                         console.log(`card not found ${name}`);
@@ -129,19 +127,18 @@ function getAdditionalCardInfo() {
                     }
 
                     card.mana = mana;
-                    if (card.type.toLowerCase() === "minion") {
+                    if (card.type === hsTypes.CardType.minion) {
                         card.attack = attack;
                         card.health = health;
                     }
-                    dbUtils.getCards().update(card);
+                    cardCollection.update(card);
                 });
 
             });
 
-        }, { concurrency: 2 }).then(() => {
-            return dbUtils.saveDb();
-        }).then(() => {
-            console.log("icyveins done!");
+        }, { concurrency: 2 })
+        .then(() => {
+            console.log("[done] loading additional card info from icy veins");
         }).catch(e => {
             console.log(e);
         });

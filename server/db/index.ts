@@ -4,6 +4,8 @@ import * as path from "path";
 import * as schema from "./schema";
 import LokiDbBase from "./LokiDbBase";
 import * as crypto from "crypto";
+import parser from "../parsers";
+import * as hstypes from "../../interfaces/hs-types";
 
 let dbLocation = path.join(__dirname, "db.json");
 
@@ -13,20 +15,6 @@ class DbUtils extends LokiDbBase {
         super(dbLocation);
     }
 
-    hsClasses = {
-        unknown: "unknown",
-        neutral: "neutral",
-        druid: "druid",
-        hunter: "hunter",
-        mage: "mage",
-        paladin: "paladin",
-        priest: "priest",
-        rogue: "rogue",
-        shaman: "shaman",
-        warlock: "warlock",
-        warrior: "warrior"
-    };
-
     collections = {
         cards: "cards",
         decks: "decks",
@@ -34,20 +22,13 @@ class DbUtils extends LokiDbBase {
         availability: "availability",
         user: "user"
     };
-    cardTypes = {
-        free: 0,
-        common: 40,
-        rare: 100,
-        epic: 400,
-        legendary: 1600
-    };
 
     getCards() {
-        return this.getCollection(this.collections.cards);
+        return <LokiCollection<schema.DBCard>>this.getCollection(this.collections.cards);
     }
 
     getDecks() {
-        return this.getCollection(this.collections.decks);
+        return <LokiCollection<schema.DBDeck>>this.getCollection(this.collections.decks);
     }
 
     getCardAvailability(userId: string, cardId: string) {
@@ -55,7 +36,7 @@ class DbUtils extends LokiDbBase {
             return 0;
         }
         let card = <schema.DBCard>this.getCards().by("id", cardId);
-        if (card && card.set === "Basic") {
+        if (card && card.set === hstypes.CardSet.Basic) {
             return 2;
         }
         var item = <schema.DBAvailability>this.getCardAvailabilityItem(userId, cardId);
@@ -64,7 +45,15 @@ class DbUtils extends LokiDbBase {
     }
 
     setCardAvailability(userId: string, cardId: string, count: number) {
-        var item = <schema.DBAvailability>this.getCardAvailabilityItem(userId, cardId);
+        let card = this.getCards().by("id", cardId),
+            item = this.getCardAvailabilityItem(userId, cardId);
+        if (card.rarity === hstypes.CardRarity.legendary) {
+            count = Math.min(count, 1);
+        }
+        else {
+            count = Math.min(count, 2);
+        }
+
         if (item) {
             item.count = count;
             this.getCollection(this.collections.availability).update(item);
@@ -83,19 +72,13 @@ class DbUtils extends LokiDbBase {
         return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
     }
 
-    parseHsClass(className) {
-        let name = className.trim().toLowerCase();
-        if (Object.keys(this.hsClasses).some(key => name === key)) {
-            return name;
-        }
-        return this.hsClasses.unknown;
-    }
-
     protected inflate(db: Loki) {
         let cards = db.getCollection(this.collections.cards);
         if (cards) {
             return;
         }
+
+        console.log("[start] db inflate");
 
         db.addCollection(this.collections.decks, {
             unique: ["name"]
@@ -112,10 +95,12 @@ class DbUtils extends LokiDbBase {
         db.addCollection(this.collections.user, {
             unique: ["userId"]
         });
+
+        return parser.populateWithCards(db).then(() => console.log("[done] db inflate"));
     }
 
     private getCardAvailabilityItem(userId: string, cardId: string) {
-        return this.getCollection(this.collections.availability).findOne({
+        return <schema.DBAvailability>this.getCollection(this.collections.availability).findOne({
             "$and": [
                 { "userId": { "$eq": userId } },
                 { "cardId": { "$eq": cardId } }
