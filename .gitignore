@@ -1,5 +1,6 @@
 node_modules/
 **/*.js
 !server/bin/index.js
+!public/**/*.js
 **/*.js.map
 server/db/*.json
