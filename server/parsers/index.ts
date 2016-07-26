@@ -4,7 +4,7 @@ import * as Promise from "bluebird";
 import cardParse from "./cardParse";
 import metaBombParser from "./metaBombParser";
 
-import hearthpwnParser from "./hearthpwnParser";
+import hearthpwnParser from "./hearthPwnParser";
 import manaCrystalsParser from "./manaCrystalsParser";
 import hearthstoneTopDecksParser from "./hearthstoneTopDecksParser";
 import {BaseDeckParser} from "./baseDeckParser";
