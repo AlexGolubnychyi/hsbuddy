@@ -2,7 +2,7 @@
 
 import * as path from "path";
 import * as schema from "./schema";
-import LokiDbBase from "./LokiDbBase";
+import LokiDbBase from "./lokiDbBase";
 import * as crypto from "crypto";
 import parser from "../parsers";
 import * as hstypes from "../../interfaces/hs-types";
