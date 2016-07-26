@@ -1,13 +1,18 @@
 (done) - parse from ui
 (done) - parse more sources
 (done) - ignore duplicate decks on parse (by cards included)
-- filter by mana remaining
+(done) add parse link from nav 
+
+- filter by dust remaining
 - hide decks per user 
-- find similar decks (25-30 cards match)
+
 - mana curve, spell/minion break down
 - filter by class
 - decks by card
 - custom deck lists
 
-- improve parse ui (add link from nav + improve logging)
+user profile with card library
+
+- improve parse ui (+ improve logging)
 - card list? :)
+- find similar decks (25-30 cards match)

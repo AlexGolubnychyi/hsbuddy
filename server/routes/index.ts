@@ -14,6 +14,11 @@ export default function (app: express.Express) {
   mainRouter.get("/", function (req, res) {
     res.render("index");
   });
+
+  mainRouter.get("/about", function (req, res) {
+    res.render("about");
+  });
+
   app.use("/", mainRouter);
 };
 

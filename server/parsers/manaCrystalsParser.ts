@@ -1,13 +1,14 @@
 import * as Promise from "bluebird";
-import dbUtils, {DBCard, DBDeck} from "../db";
+import dbUtils from "../db";
+import {ParseReportItem} from "./index";
 import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
 
 class ManaCrystalsParser extends BaseDeckParser {
     siteName = "manacrystals.com";
 
-    parseDeckList(url: string, save: boolean) {
-        return Promise.reject("not implemented");
+    parseDeckList(url: string, save: boolean): Promise<ParseReportItem[]> {
+        return <any>Promise.reject("not implemented");
         // console.log(`parsing ${url}`);
         // return dbUtils.ensureDb()
         //     .then(() => getContent(url))
@@ -40,17 +41,18 @@ class ManaCrystalsParser extends BaseDeckParser {
                 cards[cardName] = count;
             });
 
-            let deck = this.addDeckUnsafe(name, url, cards);
+            let [deck, reportItem] = this.addDeckUnsafe(name, url, cards);
 
             if (save && deck) {
-                return dbUtils.saveDb();
+                return dbUtils.saveDb().then(() => reportItem);
             }
+            return reportItem;
         });
     }
 
     parse(url: string, save: boolean) {
         if (this.isDeckUrl(url)) {
-            return this.parseDeck(url, save);
+            return this.parseDeck(url, save).then(reportItem => [reportItem]);
         }
 
         return this.parseDeckList(url, save);

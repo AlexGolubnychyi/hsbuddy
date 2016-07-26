@@ -1,5 +1,5 @@
 import * as Promise from "bluebird";
-import dbUtils, {DBCard, DBDeck} from "../db";
+import dbUtils from "../db";
 import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
 let keywords = { deckUrl: "deck-list", deckListUrl: "game-guides" };
@@ -18,10 +18,11 @@ class MetaBombParser extends BaseDeckParser {
                 return Object.keys(unique);
             })
             .map((deckUrl: string) => this.parseDeck(deckUrl, false), { concurrency: 2 })
-            .then(() => {
+            .then(reports => {
                 if (save) {
-                    return dbUtils.saveDb();
+                    return dbUtils.saveDb().then(() => reports);
                 }
+                return reports;
             });
     }
 
@@ -45,11 +46,13 @@ class MetaBombParser extends BaseDeckParser {
                     cards[cardName] = count;
                 });
             });
-            let deck = this.addDeckUnsafe(name, url, cards);
+            let [deck, reportItem] = this.addDeckUnsafe(name, url, cards);
 
             if (save && deck) {
-                return dbUtils.saveDb();
+                return dbUtils.saveDb().then(() => reportItem);
             }
+
+            return reportItem;
         });
     }
 
@@ -58,7 +61,7 @@ class MetaBombParser extends BaseDeckParser {
             return this.parseDeckList(url, save);
         }
         if (url.indexOf(keywords.deckUrl) > 0) {
-            return this.parseDeck(url, save);
+            return this.parseDeck(url, save).then(reportItem => [reportItem]);
         }
 
         Promise.reject(`metabomb parser: unknown url: ${url}`);

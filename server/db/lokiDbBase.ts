@@ -22,7 +22,7 @@ abstract class LokiDbBase {
 
     saveDb() {
         if (!this.initialized) {
-            return Promise.reject("db is not initialized");
+            return <Promise<void>>Promise.reject("db is not initialized");
         }
 
         return this._saveDb();

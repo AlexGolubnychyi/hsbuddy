@@ -1,17 +1,18 @@
 import dbUtils, {DBDeck, DBCard} from "../db";
 import * as hstypes from "../../interfaces/hs-types";
+import {ParseReportItem, ParseStatus} from "./index";
 export abstract class BaseDeckParser {
     siteName: string;
-    abstract parseDeck(url: string, save: boolean): Promise<any>;
-    abstract parseDeckList(url: string, save: boolean): Promise<any>;
-    abstract parse(url: string, save: boolean): Promise<any>;
+    abstract parseDeck(url: string, save: boolean): Promise<ParseReportItem>;
+    abstract parseDeckList(url: string, save: boolean):  Promise<ParseReportItem[]>;
+    abstract parse(url: string, save: boolean):  Promise<ParseReportItem[]>;
 
     protected deckExistsUnsafe(deck: DBDeck) {
         let existingDecks = dbUtils.getDecks().find({ "hash": deck.hash });
         return !!(existingDecks && existingDecks.length);
     }
 
-    protected addDeckUnsafe(name, url, cards: { [cardName: string]: number }) {
+    protected addDeckUnsafe(name, url, cards: { [cardName: string]: number }): [DBDeck, ParseReportItem] {
         let deck: DBDeck = {
             name: name.trim(),
             class: hstypes.CardClass.unknown,
@@ -20,7 +21,7 @@ export abstract class BaseDeckParser {
             costApprox: false,
             cards: {},
             hash: ""
-        };
+        }
 
         Object.keys(cards).map(cardName => {
             let cardId = dbUtils.generateCardId(cardName.trim()),
@@ -28,8 +29,8 @@ export abstract class BaseDeckParser {
                 card = <DBCard>dbUtils.getCards().by("id", cardId);
 
             if (!card) {
-                console.log(`[not found] card ${cardName}`);
-                return null;
+                //console.log(`[not found] card ${cardName}`);
+                return [null, { status1: ParseStatus.failed, reason: `card not found: ${card.name}`, url: url }];
             }
 
             deck.cards[cardId] = count;
@@ -47,11 +48,9 @@ export abstract class BaseDeckParser {
 
         deck.hash = dbUtils.generateDeckHash(deck);
         if (this.deckExistsUnsafe(deck)) {
-            console.log(`[skipped] deck ${deck.url} already exists in db`);
-            return null;
+            return [null, { status: ParseStatus.duplicate, reason: "", url: url }];
         }
         dbUtils.getDecks().insert(deck);
-
-        return deck;
+        return [deck, { status: ParseStatus.success, reason: "", url: url }];
     }
 }

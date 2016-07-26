@@ -18,19 +18,12 @@ class Parser {
     }
 
     parse(urls: string[]) {
-        let tasks = urls
-            .map(this.urlToTask)
-            .filter(task => {
-                if (!task.parser) {
-                    console.log(`unable to find parser for ${task.url}`);
-                    return false;
-                }
-                return true;
-            });
-        console.log("parse starting");
+        let tasks = urls.map(this.urlToTask);
 
-        return Promise.map(tasks, t => t.parser.parse(t.url, true))
-            .then(() => console.log("parse complete"));
+        return Promise.map(tasks, t => !t.parser
+            ? Promise.resolve([{ status: ParseStatus.parserNotFound, url: t.url, reason: ""}])
+            : t.parser.parse(t.url, true))
+            .then(reports => reports.reduce((f, s) => f.concat(s)));
     }
 
     private urlToTask = (urlString: string) => {
@@ -50,3 +43,18 @@ class Parser {
 }
 
 export default new Parser();
+
+export interface ParseReport {
+    [index: number]: ParseReportItem;
+}
+
+export interface ParseReportItem {
+    status: ParseStatus;
+    reason?: string;
+    url: string;
+}
+
+export enum ParseStatus {
+    success = 0, failed, duplicate, parserNotFound
+}
+
