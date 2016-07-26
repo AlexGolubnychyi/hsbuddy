@@ -1,6 +1,7 @@
 import { Component, OnInit  } from "@angular/core";
 import {DeckComponent} from "./deck.component";
 import {DeckService} from "../services/deck.service";
+import {AuthService} from "../services/auth.service";
 import {Deck} from "../../interfaces/index";
 import {CardClass} from "../../interfaces/hs-types";
 import "../rxjs-operators";
@@ -9,19 +10,28 @@ import "../rxjs-operators";
     selector: "deck-list",
     templateUrl: "client/components/deck.list.component.html",
     directives: [DeckComponent],
-    providers: [DeckService]
+    providers: [DeckService, AuthService],
 })
 export class DeckListComponent implements OnInit {
     decks: Deck[] = [];
     deckClasses = (Object.keys(CardClass).filter(key => !isNaN(+key)))
         .map(id => ({ name: CardClass[id], value: +id }))
         .filter(item => item.value !== CardClass.neutral);
-    userCollection = localStorage.getItem("hs-fun:userCollection") === "true";
-    selectedClass = <CardClass>localStorage.getItem("hs-fun:selectedClass") || CardClass.unknown;
-    costRemaining: number = localStorage.getItem("hs-fun:costRemaining") || undefined;
+    userCollection: boolean;
+    selectedClass: CardClass;
+    costRemaining: number;
+    useUserCollectionFilter: boolean;
 
-    constructor(private deckService: DeckService) { }
+    constructor(private deckService: DeckService, private authService: AuthService) { }
     ngOnInit() {
+        let filters = localStorage.getItem("hs-fun:filters");
+        this.useUserCollectionFilter = this.authService.isAuthenticated()
+        let useLocalStorage = !!filters && this.authService.isAuthenticated();
+
+        [this.userCollection, this.selectedClass, this.costRemaining] = useLocalStorage
+                ? JSON.parse(filters)
+                : [false, CardClass.unknown, void 0];
+
         this.refreshDecks();
     }
 
@@ -29,26 +39,19 @@ export class DeckListComponent implements OnInit {
         this.refreshDecks();
     }
 
-    onChangeUserCollection(toggle: boolean) {
-        this.userCollection = toggle;
-        localStorage.setItem("hs-fun:userCollection", <any>toggle);
-        this.refreshDecks();
-    }
-    onChangeCostRemaining(costRemaining: number) {
-        if (costRemaining === null){
-            costRemaining = void 0;
+    applyFilters() {
+        if (this.authService.isAuthenticated()) {
+            localStorage.setItem("hs-fun:filters", JSON.stringify([this.userCollection, this.selectedClass, this.costRemaining]));
         }
-        this.costRemaining = costRemaining;
-        localStorage.setItem("hs-fun:costRemaining", <any>costRemaining);
-        this.refreshDecks();
-    }
-    onChangeClass(selectedClass: CardClass) {
-        this.selectedClass = selectedClass;
-        localStorage.setItem("hs-fun:selectedClass", <any>selectedClass);
+
         this.refreshDecks();
     }
 
     private refreshDecks() {
+        if (this.costRemaining === null) {
+            this.costRemaining = void 0;
+        }
+
         this.deckService
             .getDecks({ costRemaining: this.costRemaining, deckClass: this.selectedClass, userCollection: this.userCollection })
             .subscribe(decks => {
