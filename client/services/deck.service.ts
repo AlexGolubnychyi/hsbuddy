@@ -1,8 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Http } from "@angular/http";
 import { Observable }     from "rxjs/Observable";
-import {Deck, DeckQuery, deckQuery} from "../../interfaces/index";
-import {CardClass} from "../../interfaces/hs-types";
+import {Deck, DeckQuery} from "../../interfaces/index";
 import "../rxjs-operators";
 
 const enc = encodeURIComponent;
@@ -11,17 +10,14 @@ const enc = encodeURIComponent;
 export class DeckService {
     constructor(private http: Http) { }
 
-    getDecks({userCollection = false, deckClass = CardClass.unknown, costRemaining = -1} = {}): Observable<Deck[]> {
+    getDecks(options?: DeckQuery): Observable<Deck[]> {
+        let url = "decks/data", queryParams;
 
-        let params: DeckQuery = {
-                deckClass: deckClass,
-                costRemaining: costRemaining,
-                userCollection: userCollection
-            },
-            deckQueryRoute = Object.keys(deckQuery).reduce((acc, param) => `${acc}/${param}/${enc(params[param])}`, "decks/data");
+        if (options && (queryParams = Object.keys(options)).length) {
+            url += "?" + queryParams.map(paramName => `${paramName}=${options[paramName]}`).join("&");
+        }
 
-        // /data/...params
-        return this.http.get(deckQueryRoute)
+        return this.http.get(url)
             .map(resp => resp.json())
             .catch(this.handleError);
     }

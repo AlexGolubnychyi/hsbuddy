@@ -2,9 +2,11 @@ import { Component, OnInit  } from "@angular/core";
 import {DeckComponent} from "./deck.component";
 import {DeckService} from "../services/deck.service";
 import {AuthService} from "../services/auth.service";
-import {Deck} from "../../interfaces/index";
+import {Deck, DeckQuery} from "../../interfaces/index";
 import {CardClass} from "../../interfaces/hs-types";
 import "../rxjs-operators";
+
+const localStorageKey = "hs-fun:filters";
 
 @Component({
     selector: "deck-list",
@@ -19,18 +21,18 @@ export class DeckListComponent implements OnInit {
         .filter(item => item.value !== CardClass.neutral);
     userCollection: boolean;
     selectedClass: CardClass;
-    costRemaining: number;
+    dustNeeded: number;
     useUserCollectionFilter: boolean;
 
     constructor(private deckService: DeckService, private authService: AuthService) { }
     ngOnInit() {
-        let filters = localStorage.getItem("hs-fun:filters");
-        this.useUserCollectionFilter = this.authService.isAuthenticated()
+        let filters = localStorage.getItem(localStorageKey);
+        this.useUserCollectionFilter = this.authService.isAuthenticated();
         let useLocalStorage = !!filters && this.authService.isAuthenticated();
 
-        [this.userCollection, this.selectedClass, this.costRemaining] = useLocalStorage
-                ? JSON.parse(filters)
-                : [false, CardClass.unknown, void 0];
+        [this.userCollection, this.selectedClass, this.dustNeeded] = useLocalStorage
+            ? JSON.parse(filters)
+            : [false, CardClass.unknown, null];
 
         this.refreshDecks();
     }
@@ -41,19 +43,28 @@ export class DeckListComponent implements OnInit {
 
     applyFilters() {
         if (this.authService.isAuthenticated()) {
-            localStorage.setItem("hs-fun:filters", JSON.stringify([this.userCollection, this.selectedClass, this.costRemaining]));
+            localStorage.setItem(localStorageKey, JSON.stringify([this.userCollection, this.selectedClass, this.dustNeeded]));
         }
 
         this.refreshDecks();
     }
 
     private refreshDecks() {
-        if (this.costRemaining === null) {
-            this.costRemaining = void 0;
+        let params: DeckQuery = {};
+
+        if (typeof this.dustNeeded === "number") {
+            params.dustNeeded = this.dustNeeded;
+        }
+        if (this.selectedClass > 0) {
+            params.deckClass = this.selectedClass;
+        }
+
+        if (this.userCollection) {
+            params.userCollection = true;
         }
 
         this.deckService
-            .getDecks({ costRemaining: this.costRemaining, deckClass: this.selectedClass, userCollection: this.userCollection })
+            .getDecks(params)
             .subscribe(decks => {
                 this.decks = decks;
             });

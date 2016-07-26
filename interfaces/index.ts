@@ -30,21 +30,15 @@ export interface Deck {
     className: string;
     cost: number;
     costApprox: boolean;
-    costRemaining: number;
+    dustNeeded: number;
     collected: boolean;
     cards: Card[];
     userCollection: boolean;
 }
 
 export interface DeckQuery {
-    userCollection: any;
-    deckClass: any;
-    costRemaining: any;
-};
-
-export var deckQuery: DeckQuery = {
-    userCollection: "userCollection",
-    deckClass: "deckClass",
-    costRemaining: "costRemaining"
+    userCollection?: boolean | string;
+    deckClass?: hstypes.CardClass | string;
+    dustNeeded?: number | string;
 };
 

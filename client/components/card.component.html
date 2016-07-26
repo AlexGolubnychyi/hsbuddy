@@ -6,7 +6,7 @@
     <div>Class: {{card.className}}</div>
     <div>Dust: {{card.cost}}</div>
     <div>Set: {{card.setName}}</div>
-    <div *ngIf="enableAvailability">
+    <div [style.visibility]="enableAvailability ? 'visible' : 'hidden'">
         <span>Available: </span>
         <select [ngModel]="card.numberAvailable" (ngModelChange)="onChangeAvailability($event)">
             <option value="0">0 cards</option>

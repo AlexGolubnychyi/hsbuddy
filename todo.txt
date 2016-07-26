@@ -2,12 +2,13 @@
 (done) - parse more sources
 (done) - ignore duplicate decks on parse (by cards included)
 (done) add parse link from nav 
+(done) - filter by dust remaining
+(done)- filter by class
 
-- filter by dust remaining
 - hide decks per user 
 
 - mana curve, spell/minion break down
-- filter by class
+
 - decks by card
 - custom deck lists
 

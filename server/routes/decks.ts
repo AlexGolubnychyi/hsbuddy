@@ -2,7 +2,7 @@
 
 import dbUtils, {DBDeck} from "../db";
 import * as express from "express";
-import {Deck, Card, DeckQuery, deckQuery} from "../../interfaces";
+import {Deck, Card, DeckQuery} from "../../interfaces";
 import * as authChecks from "../middleware/authChecks";
 import * as hstypes from "../../interfaces/hs-types";
 
@@ -13,14 +13,7 @@ router.get("/", (req: express.Request, res: express.Response, next: express.Next
 });
 
 router.get("/data", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    getDecks(req.user).then(decks => res.json(decks));
-});
-
-
-// "/data/:...params"
-let deckQueryRoute = Object.keys(deckQuery).reduce((acc, param) => `${acc}/${param}/:${param}`, "/data");
-router.get(deckQueryRoute, (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    getDecks(req.user, req.params).then(decks => res.json(decks));
+    getDecks(req.user, req.query).then(decks => res.json(decks));
 });
 
 router.get("/changenumber/:cardId/:number", authChecks.api, (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -43,7 +36,7 @@ router.get("/toggleuserdeck/:deckId/:status", authChecks.api, (req: express.Requ
 function getDecks(userId, params?: DeckQuery) {
     return dbUtils.ensureDb().then(db => {
         let query = void 0,
-            costRemainingParam,
+            dustNeededParam,
             userDeckIds = dbUtils.getUserDeckIds(userId),
             userCollection = false;
 
@@ -58,8 +51,8 @@ function getDecks(userId, params?: DeckQuery) {
                 queryParts.push({ "class": +params.deckClass });
             }
 
-            if (+params.costRemaining !== -1) {
-                costRemainingParam = +params.costRemaining;
+            if (params.dustNeeded) {
+                dustNeededParam = +params.dustNeeded;
             }
 
             if (queryParts.length === 1) {
@@ -73,7 +66,7 @@ function getDecks(userId, params?: DeckQuery) {
         let decks = (<any>dbUtils.getDecks().find(query) as DBDeck[])
             .map(deck => {
                 let deckResult: Deck = Object.assign({}, deck),
-                    costRemaining = deck.cost,
+                    dustNeeded = deck.cost,
                     collected = true;
 
                 deckResult.cards = Object.keys(deck.cards)
@@ -84,21 +77,21 @@ function getDecks(userId, params?: DeckQuery) {
                         card.className = hstypes.CardClass[card.class];
                         card.setName = <string>hstypes.hsTypeConverter.cardSet(card.set);
                         collected = collected && card.numberAvailable >= card.count;
-                        costRemaining -= Math.min(card.count, card.numberAvailable) * card.cost;
+                        dustNeeded -= Math.min(card.count, card.numberAvailable) * card.cost;
                         return card;
                     }).sort(sortFunc);
                 deckResult.className = hstypes.CardClass[deckResult.class];
-                deckResult.costRemaining = costRemaining;
+                deckResult.dustNeeded = dustNeeded;
                 deckResult.collected = collected;
                 deckResult.userCollection = userCollection || userDeckIds.indexOf(deckResult.id) >= 0;
                 return deckResult;
             });
 
-        if (typeof costRemainingParam === "number") {
-            decks = decks.filter(d => d.costRemaining < costRemainingParam);
+        if (typeof dustNeededParam === "number") {
+            decks = decks.filter(d => d.dustNeeded < dustNeededParam);
         }
 
-        return decks.sort((f, s) => f.costRemaining - s.costRemaining);
+        return decks.sort((f, s) => f.dustNeeded - s.dustNeeded);
     });
 }
 
