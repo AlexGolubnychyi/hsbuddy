@@ -2,8 +2,13 @@
   "name": "hearth.stone.db",
   "version": "0.0.0",
   "private": true,
+  "engines": {
+    "node": "6.2.2"
+  },
   "scripts": {
-    "start": "node ./server/bin/index.js"
+    "start": "node ./server/bin/index.js",
+    "tsc": "node ./node_modules/typescript/bin/tsc",
+    "postinstall": "node ./node_modules/typescript/bin/tsc"
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.4",
