@@ -1,0 +1,15 @@
+<hr/>
+<h2>
+    <a style="text-decoration:none;color:#f78f00;" [href]="deck.url">
+        <span>[{{deck.className}}]</span>
+        <span *ngIf="deck.collected">{{deck.name}} collected!{{deck.costApprox ? "?" : ""}}</span>
+        <span *ngIf="!deck.collected">{{deck.name}}{{deck.costApprox ? "?" : ""}} ({{deck.cost}}, remaining {{deck.costRemaining}})</span>
+    </a>
+</h2>
+<div *ngIf="showUserCollectionFlag" class="checkbox">
+    <label>
+      <input type="checkbox" id="blankCheckbox" [ngModel]="deck.userCollection" (ngModelChange)="onChangePersonalCollection($event)">
+      Include in personal collection
+    </label>
+</div>
+<card *ngFor="let card of deck.cards" [card]="card" (onChanged)="onCardChanged($event)"></card>

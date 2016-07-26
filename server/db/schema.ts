@@ -5,13 +5,19 @@ export interface DBAvailability {
     cardId: string;
     count: number;
 }
+
+export interface DBUserDeck {
+    userId: string;
+    deckId: string;
+}
+
 export interface DBUser {
     userId: string;
     hash: string;
 }
 
 export interface DBDeck {
-    hash: string;
+    id: string;
     name: string;
     url: string;
     class: hsTypes.CardClass;

@@ -12,7 +12,7 @@ export interface Card {
     rarity: hstypes.CardRarity;
     set?: hstypes.CardSet;
     setName?: string;
-    race?:  hstypes.CardRace;
+    race?: hstypes.CardRace;
     url: string;
     cost: number;
     mana: number;
@@ -23,6 +23,7 @@ export interface Card {
 }
 
 export interface Deck {
+    id: string;
     name: string;
     url: string;
     class: hstypes.CardClass;
@@ -32,4 +33,18 @@ export interface Deck {
     costRemaining: number;
     collected: boolean;
     cards: Card[];
+    userCollection: boolean;
 }
+
+export interface DeckQuery {
+    userCollection: any;
+    deckClass: any;
+    costRemaining: any;
+};
+
+export var deckQuery: DeckQuery = {
+    userCollection: "userCollection",
+    deckClass: "deckClass",
+    costRemaining: "costRemaining"
+};
+

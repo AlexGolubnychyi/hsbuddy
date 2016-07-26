@@ -1,7 +1,8 @@
 import { Injectable } from "@angular/core";
 import { Http } from "@angular/http";
 import { Observable }     from "rxjs/Observable";
-import {Deck} from "../../interfaces";
+import {Deck, DeckQuery, deckQuery} from "../../interfaces/index";
+import {CardClass} from "../../interfaces/hs-types";
 import "../rxjs-operators";
 
 const enc = encodeURIComponent;
@@ -10,14 +11,29 @@ const enc = encodeURIComponent;
 export class DeckService {
     constructor(private http: Http) { }
 
-    getDecks(): Observable<Deck[]> {
-        return this.http.get(`decks/data`)
+    getDecks({userCollection = false, deckClass = CardClass.unknown, costRemaining = -1} = {}): Observable<Deck[]> {
+
+        let params: DeckQuery = {
+                deckClass: deckClass,
+                costRemaining: costRemaining,
+                userCollection: userCollection
+            },
+            deckQueryRoute = Object.keys(deckQuery).reduce((acc, param) => `${acc}/${param}/${enc(params[param])}`, "decks/data");
+
+        // /data/...params
+        return this.http.get(deckQueryRoute)
             .map(resp => resp.json())
             .catch(this.handleError);
     }
 
     changeCardAvailability(carId: string, number: number): Observable<boolean> {
         return this.http.get(`decks/changenumber/${enc(carId)}/${number}`)
+            .map(resp => true)
+            .catch(this.handleError);
+    }
+
+    toggleUserDeck(deckId: string, status: boolean): Observable<boolean> {
+        return this.http.get(`decks/toggleuserdeck/${enc(deckId)}/${status}`)
             .map(resp => true)
             .catch(this.handleError);
     }

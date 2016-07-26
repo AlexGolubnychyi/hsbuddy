@@ -6,7 +6,7 @@
 		"**/bin":false,
         "**/obj":true,
         "**/Publish":true,
-        "**/node_modules":false,
+        "**/node_modules":true,
         "**/*.js": { "when": "$(basename).ts"},
         "**/*.map": true,
         "**/*.css": { "when": "$(basename).less"}

@@ -20,6 +20,7 @@ class DbUtils extends LokiDbBase {
         decks: "decks",
         cardTypes: "cardTypes",
         availability: "availability",
+        userDecks: "userDecks",
         user: "user"
     };
 
@@ -29,6 +30,27 @@ class DbUtils extends LokiDbBase {
 
     getDecks() {
         return <LokiCollection<schema.DBDeck>>this.getCollection(this.collections.decks);
+    }
+
+    getUserDeckIds(userId: string): string[] {
+        return <any>this.getCollection(this.collections.userDecks).find({ userId }).map((item: schema.DBUserDeck) => item.deckId);
+    }
+
+    addUserDeck(userId: string, deckId: string) {
+        let collection = this.getCollection(this.collections.userDecks);
+        let item = collection.findOne({ "$and": [{ userId }, { deckId }] });
+        if (item) {
+            return;
+        }
+        this.getCollection(this.collections.userDecks).insertOne(<schema.DBUserDeck>{ userId, deckId });
+    }
+
+    removeUserDeck(userId: string, deckId: string) {
+        let collection = this.getCollection(this.collections.userDecks);
+        let item = collection.findOne({ "$and": [{ userId }, { deckId }] });
+        if (item) {
+            collection.remove(item);
+        }
     }
 
     getCardAvailability(userId: string, cardId: string) {
@@ -64,14 +86,19 @@ class DbUtils extends LokiDbBase {
     }
 
     generateCardId(name: string) {
-        return name.toLowerCase().replace(/[ |,|`|.|']*/g, "");
+        return name.toLowerCase().replace(/[ |,|`|.|'|:|"]*/g, "");
     }
 
-    generateDeckHash(deck: schema.DBDeck) {
+    generateDeckId(deck: schema.DBDeck) {
         let deckDNA = Object.keys(deck.cards).sort().map(key => key + deck.cards[key]).join("");
         return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
     }
 
+    private getCardAvailabilityItem(userId: string, cardId: string) {
+        return <schema.DBAvailability>this.getCollection(this.collections.availability).findOne({
+            "$and": [{ userId }, { cardId }]
+        });
+    }
     protected inflate(db: Loki) {
         let cards = db.getCollection(this.collections.cards);
         if (cards) {
@@ -81,7 +108,7 @@ class DbUtils extends LokiDbBase {
         console.log("[start] db inflate");
 
         db.addCollection(this.collections.decks, {
-            unique: ["name"]
+            unique: ["id", "name"]
         });
 
         db.addCollection(this.collections.cards, {
@@ -96,16 +123,11 @@ class DbUtils extends LokiDbBase {
             unique: ["userId"]
         });
 
-        return parser.populateWithCards(db).then(() => console.log("[done] db inflate"));
-    }
-
-    private getCardAvailabilityItem(userId: string, cardId: string) {
-        return <schema.DBAvailability>this.getCollection(this.collections.availability).findOne({
-            "$and": [
-                { "userId": { "$eq": userId } },
-                { "cardId": { "$eq": cardId } }
-            ]
+        db.addCollection(this.collections.userDecks, {
+            indices: ["userId", "deckId"]
         });
+
+        return parser.populateWithCards(db).then(() => console.log("[done] db inflate"));
     }
 }
 
