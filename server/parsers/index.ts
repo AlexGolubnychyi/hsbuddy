@@ -35,9 +35,9 @@ class Parser {
         };
     }
 
-    populateWithCards(db: Loki) {
+    populateWithCards() {
         console.log("[start] populate db with cards");
-        return cardParse(db)
+        return cardParse()
             .then(() => console.log("[done] populate db with cards"));
     }
 }

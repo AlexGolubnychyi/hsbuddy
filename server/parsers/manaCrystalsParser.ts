@@ -1,5 +1,4 @@
 import * as Promise from "bluebird";
-import dbUtils from "../db";
 import {ParseReportItem} from "./index";
 import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
@@ -41,12 +40,7 @@ class ManaCrystalsParser extends BaseDeckParser {
                 cards[cardName] = count;
             });
 
-            let [deck, reportItem] = this.addDeckUnsafe(name, url, cards);
-
-            if (save && deck) {
-                return dbUtils.saveDb().then(() => reportItem);
-            }
-            return reportItem;
+            return this.addDeckUnsafe(name, url, cards);
         });
     }
 

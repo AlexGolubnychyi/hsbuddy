@@ -1,5 +1,4 @@
 import * as Promise from "bluebird";
-import dbUtils from "../db";
 import getContent from "./utils";
 import {ParseReportItem} from "./index";
 import {BaseDeckParser} from "./baseDeckParser";
@@ -41,13 +40,7 @@ class HearthPwnParser extends BaseDeckParser {
                 cards[cardName] = count;
             });
 
-            let [deck, reportItem] = this.addDeckUnsafe(name, url, cards);
-
-            if (save && deck) {
-                return dbUtils.saveDb().then(() => reportItem);
-            }
-
-            return Promise.resolve(reportItem);
+            return this.addDeckUnsafe(name, url, cards);
         });
     }
 

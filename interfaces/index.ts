@@ -10,7 +10,7 @@ export interface Card {
     className: string;
     type: hstypes.CardType;
     rarity: hstypes.CardRarity;
-    set?: hstypes.CardSet;
+    cardSet?: hstypes.CardSet;
     setName?: string;
     race?: hstypes.CardRace;
     url: string;
@@ -29,7 +29,6 @@ export interface Deck {
     class: hstypes.CardClass;
     className: string;
     cost: number;
-    costApprox: boolean;
     dustNeeded: number;
     collected: boolean;
     cards: Card[];

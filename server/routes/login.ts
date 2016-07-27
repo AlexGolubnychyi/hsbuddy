@@ -1,6 +1,6 @@
 "use strict";
 import * as express from "express";
-import userUtils from "../db/user";
+import User from "../db/user";
 
 let router = express.Router();
 
@@ -9,10 +9,15 @@ router.get("/login", (req: express.Request, res: express.Response, next: express
 });
 
 router.post("/login", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    userUtils.auth(req.body.username, req.body.password)
-        .then(() => {
-            req.session["user"] = req.body.username;
-            res.redirect("/");
+    User.auth(req.body.username, req.body.password)
+        .then(result => {
+            if (result) {
+                req.session["user"] = req.body.username;
+                res.redirect("/");
+            }
+            else {
+                res.redirect("/login");
+            }
         })
         .catch(e => {
             res.redirect("/login");
@@ -31,7 +36,7 @@ router.get("/register", (req: express.Request, res: express.Response, next: expr
 });
 
 router.post("/register", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    userUtils.createUser(req.body.username, req.body.password)
+    User.createUser(req.body.username, req.body.password)
         .then(() => {
             req.session["user"] = req.body.username;
             res.redirect("/");

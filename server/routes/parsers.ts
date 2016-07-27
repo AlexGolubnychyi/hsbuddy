@@ -6,17 +6,6 @@ import parser, {ParseStatus} from "../parsers";
 
 let router = express.Router();
 
-// router.get("/", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-//     hearthpwnParse()
-//         .then(() => res.write("<p>hearthpwn done<p>"))
-//         .then(() => icyveinsParse())
-//         .then(() => res.write("<p>icyveins done<p>"))
-//         .then(() => metabombParse())
-//         .then(() => res.write("<p>metabomb done<p>"))
-//         .then(() => res.write("<h1>All Done!!!<h1>"))
-//         .catch(e => res.write("internal error"))
-//         .finally(() => res.end());
-// });
 
 router.get("/", authChecks.url, (req: express.Request, res: express.Response, next: express.NextFunction) => {
     res.render("parser");

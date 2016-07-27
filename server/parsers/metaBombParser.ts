@@ -1,5 +1,4 @@
 import * as Promise from "bluebird";
-import dbUtils from "../db";
 import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
 let keywords = { deckUrl: "deck-list", deckListUrl: "game-guides" };
@@ -10,27 +9,20 @@ class MetaBombParser extends BaseDeckParser {
 
     parseDeckList(url: string, save: boolean) {
         console.log(`parsing ${url}`);
-        return dbUtils.ensureDb()
-            .then(() => getContent(url))
+        return getContent(url)
             .then($ => {
                 let unique = {};
                 $(`[href*=${keywords.deckUrl}]`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
                 return Object.keys(unique);
             })
-            .map((deckUrl: string) => this.parseDeck(deckUrl, false), { concurrency: 2 })
-            .then(reports => {
-                if (save) {
-                    return dbUtils.saveDb().then(() => reports);
-                }
-                return reports;
-            });
+            .map((deckUrl: string) => this.parseDeck(deckUrl, false), { concurrency: 2 });
     }
 
     parseDeck(url: string, save: boolean) {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
-            let name =  $("main>article>header>h1").text(),
+            let name = $("main>article>header>h1").text(),
                 cards: { [cardName: string]: number } = {};
 
             $("main table").first().find("tr").each((_, tr) => {
@@ -46,13 +38,8 @@ class MetaBombParser extends BaseDeckParser {
                     cards[cardName] = count;
                 });
             });
-            let [deck, reportItem] = this.addDeckUnsafe(name, url, cards);
 
-            if (save && deck) {
-                return dbUtils.saveDb().then(() => reportItem);
-            }
-
-            return reportItem;
+            return this.addDeckUnsafe(name, url, cards);
         });
     }
 

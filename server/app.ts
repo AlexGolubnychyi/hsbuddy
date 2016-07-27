@@ -6,13 +6,14 @@ import * as path from "path";
 import {json, urlencoded} from "body-parser";
 import * as cookieParser from "cookie-parser";
 import setRoutes from "./routes";
-import lokiSessionStoreFactory from "./middleware/lokiSessionStore";
+
 import loadUserInfo from "./middleware/loadUserInfo";
 import * as logger from "morgan";
+import * as connectMongo from "connect-mongo";
+import mongoose from "./lib/mongoose";
 
 // var favicon = require("serve-favicon");
-const sessionStoreLocation = path.join(__dirname, "db/db-session.json"),
-    app = express();
+const app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -35,7 +36,8 @@ app.use(urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(session({
     secret: "something else completely",
-    store: lokiSessionStoreFactory(sessionStoreLocation, session),
+    name: "hs_sid",
+    store: new (connectMongo(session))({ mongooseConnection: mongoose.connection }),
     resave: false,
     saveUninitialized: false,
     cookie: {
@@ -79,4 +81,4 @@ app.use(function (err, req: express.Request, res: express.Response, next: expres
 });
 
 
-module.exports = app;
+export default app;

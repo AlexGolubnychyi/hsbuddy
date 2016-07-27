@@ -1,38 +1,36 @@
 import * as Promise from "bluebird";
-import dbUtils, {DBCard} from "../db";
+import Card, {CardDB} from "../db/card";
 import getContent from "./utils";
 import * as hsTypes from "../../interfaces/hs-types";
+import mongoose from "../lib/mongoose";
 
 let hearthPwnUrl = "http://www.hearthpwn.com/cards?page=@@@";
 let icyVeinsUrl = "http://www.icy-veins.com/hearthstone/card-descriptions";
 
-export default function (db: Loki = null) {
+export default function () {
     let cnt = 20,
         urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrl.replace("@@@", (inx + 1) + "")),
-        cardCollection: LokiCollection<DBCard>;
+        cards: { [id: string]: CardDB & mongoose.model<CardDB> } = {};
 
-    return (!db ?  dbUtils.ensureDb() : Promise.resolve(db) )
-        .then(() => cardCollection = <LokiCollection<DBCard>>db.getCollection(dbUtils.collections.cards))
-        .then(() => Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 }))
+    return Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 })
         .map(($: CheerioStatic) => {
             $("table.listing.cards-visual.listing-cards>tbody tr").each((inx, el) => {
                 let $tr = $(el),
-                    card: CardRaw = {
-                        id: "",
-                        name: $tr.find("h3").text(),
-                        description: $tr.find(".visual-details-cell>p").text().trim(),
-                        flavorText: $tr.find(".card-flavor-listing-text").text().trim(),
-                        img: $tr.find(".visual-image-cell img").attr("src"),
-                        class: hsTypes.CardClass.neutral,
-                        type: hsTypes.CardType.unknown,
-                        rarity: hsTypes.CardRarity.unknown,
-                        set: hsTypes.CardSet.unknown,
-                        race: hsTypes.CardRace.none,
-                        url: "http://www.hearthpwn.com" + $tr.find(".visual-image-cell>a").attr("href"),
-                        cost: 0,
-                        mana: 0,
-                        token: false
-                    };
+                    card = new Card(),
+                    token = false;
+
+                card.name = $tr.find("h3").text();
+                card.description = $tr.find(".visual-details-cell>p").text().trim();
+                card.flavorText = $tr.find(".card-flavor-listing-text").text().trim();
+                card.img = $tr.find(".visual-image-cell img").attr("src");
+                card.class = hsTypes.CardClass.neutral;
+                card.type = hsTypes.CardType.unknown;
+                card.rarity = hsTypes.CardRarity.unknown;
+                card.cardSet = hsTypes.CardSet.unknown;
+                card.race = hsTypes.CardRace.none;
+                card.url = "http://www.hearthpwn.com" + $tr.find(".visual-image-cell>a").attr("href");
+                card.cost = 0;
+                card.mana = 0;
 
                 $tr.find(".visual-details-cell>ul>li").each((_, li) => {
                     let $li = $(li);
@@ -53,7 +51,7 @@ export default function (db: Loki = null) {
                     }
 
                     if ($li.text().indexOf("Set:") !== -1) {
-                        card.set = <hsTypes.CardSet>hsTypes.hsTypeConverter.cardSet($li.find("a").text());
+                        card.cardSet = <hsTypes.CardSet>hsTypes.hsTypeConverter.cardSet($li.find("a").text());
                         return;
                     }
 
@@ -63,7 +61,7 @@ export default function (db: Loki = null) {
                     }
 
                     if ($li.text() === "Token") {
-                        card.token = true;
+                        token = true;
                         return;
                     }
 
@@ -74,7 +72,7 @@ export default function (db: Loki = null) {
                 });
 
                 if (typeof card.cost === "undefined") {
-                    if ([hsTypes.CardSet.Basic, hsTypes.CardSet.BlackrockMountain, hsTypes.CardSet.LeagueOfExplorers].indexOf(card.set) >= 0) {
+                    if ([hsTypes.CardSet.Basic, hsTypes.CardSet.BlackrockMountain, hsTypes.CardSet.LeagueOfExplorers].indexOf(card.cardSet) >= 0) {
                         card.cost = 0;
                     }
                     else {
@@ -82,24 +80,19 @@ export default function (db: Loki = null) {
                     }
                 }
 
-                if (!card.name || card.token || card.type === hsTypes.CardType.hero) {
+                if (!card.name || token || card.type === hsTypes.CardType.hero) {
                     console.log(`[skipped] token/hero: ${card.name}`);
                     return;
                 }
-                card.id = dbUtils.generateCardId(card.name);
-                if (cardCollection.by("id", card.id)) {
-                    console.log(`[skipped] card ${card.name}`);
-                    return;
-                }
-                console.log(`[added] ${card.name}`);
-                cardCollection.insert(card);
+                card._id = Card.generateId(card.name);
+                cards[card._id] = card;
             });
         })
         .then(() => console.log("[done] loading basic card info from hearthpwn"))
-        .then(() => getAdditionalCardInfo(cardCollection));
+        .then(() => getAdditionalCardInfo(cards));
 };
 
-function getAdditionalCardInfo(cardCollection: LokiCollection<DBCard>) {
+function getAdditionalCardInfo(cards: { [id: string]: CardDB & mongoose.model<CardDB> }) {
     return getContent(icyVeinsUrl)
         .then($ => {
             let unique = {};
@@ -119,7 +112,7 @@ function getAdditionalCardInfo(cardCollection: LokiCollection<DBCard>) {
                         mana = +$tds.eq(2).text().trim(),
                         attack = +$tds.eq(3).text().trim(),
                         health = +$tds.eq(4).text().trim(),
-                        card = cardCollection.by("id", dbUtils.generateCardId(name));
+                        card = cards[Card.generateId(name)];
 
                     if (!card) {
                         console.log(`card not found ${name}`);
@@ -131,19 +124,15 @@ function getAdditionalCardInfo(cardCollection: LokiCollection<DBCard>) {
                         card.attack = attack;
                         card.health = health;
                     }
-                    cardCollection.update(card);
                 });
 
             });
 
         }, { concurrency: 2 })
+        .then(() => Card.insertMany(Object.keys(cards).map(key => cards[key])))
         .then(() => {
-            console.log("[done] loading additional card info from icy veins");
-        }).catch(e => {
-            console.log(e);
-        });
-}
-
-interface CardRaw extends DBCard {
-    token: boolean;
+        console.log("[done] loading additional card info from icy veins");
+    }).catch(e => {
+        console.log(e);
+    });
 }
