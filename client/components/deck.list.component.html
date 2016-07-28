@@ -30,19 +30,16 @@
                 </div>
             </div>
         </div>
-        <div class="col-sm-2">
-            <div *ngIf="useUserCollectionFilter" class="form-group">
-                <div class="checkbox">
+        <div *ngIf="useUserCollectionFilter" class="col-sm-2">
+                <div class="checkbox" style="margin-bottom:0;">
                     <label>
                         <input type="checkbox" [(ngModel)]="userCollection" />
                         Personal collection
                     </label>
                 </div>
-            </div>
         </div>
     </div>
-
-    <button type="button" class="btn btn-default" (click)="applyFilters()" [class.disabled]="loading">Filter</button>
+    <button type="button" class="btn btn-default" (click)="applyFilters()" [class.disabled]="loading"  style="margin-top:10px;">Filter</button>
 </div>
 <div class="spinner" *ngIf="loading">
     <div class="bounce1"></div>

@@ -18,7 +18,7 @@ export class DeckComponent implements OnInit {
     deck: Deck;
     @Output()
     onChanged = new EventEmitter<boolean>();
-
+    deckTitle;
     showUserCollectionFlag = false;
     hideDetails: boolean;
 
@@ -26,7 +26,22 @@ export class DeckComponent implements OnInit {
 
     ngOnInit() {
         this.showUserCollectionFlag = this.authService.isAuthenticated();
+        this.assembleTitle();
         this.hideDetails = false;
+    }
+
+    assembleTitle() {
+        if (this.deck.collected) {
+            this.deckTitle = `[${this.deck.className}] ${this.deck.name} (collected!)`;
+            return;
+        }
+
+        if (this.deck.dustNeeded < this.deck.cost) {
+            this.deckTitle = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost} , remaining ${this.deck.dustNeeded})`;
+            return;
+        }
+
+        this.deckTitle = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost})`;
     }
 
     onCardChanged() {
@@ -38,4 +53,5 @@ export class DeckComponent implements OnInit {
             this.deck.userCollection = enable;
         });
     }
+
 }

@@ -5,6 +5,10 @@
 (done) - filter by dust remaining
 (done)- filter by class
 
+
+SIMPLIFY change availability, move calculations to client to avoid reload!!!
+
+
 - hide decks per user 
 
 - mana curve, spell/minion break down

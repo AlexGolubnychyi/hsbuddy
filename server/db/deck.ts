@@ -101,10 +101,11 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                             numberAvailable: (userCard && userCard.count) || 0,
                             count: count
                         };
-                    deckResult.collected = deckResult.collected && cardResult.numberAvailable >= cardResult.count;
                     deckResult.dustNeeded -= Math.min(cardResult.count, cardResult.numberAvailable) * card.cost;
                     return cardResult;
                 }).sort(sortFunc);
+
+                deckResult.collected = deckResult.dustNeeded === 0;
 
                 return deckResult;
             });

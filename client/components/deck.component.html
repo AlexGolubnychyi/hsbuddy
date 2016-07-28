@@ -1,9 +1,7 @@
 <hr/>
 <h2>
     <a style="text-decoration:none;color:#f78f00;" [href]="deck.url">
-        <span>[{{deck.className}}]</span>
-        <span *ngIf="deck.collected">{{deck.name}} collected!{{deck.costApprox ? "?" : ""}}</span>
-        <span *ngIf="!deck.collected">{{deck.name}}{{deck.costApprox ? "?" : ""}} ({{deck.cost}}, remaining {{deck.dustNeeded}})</span>
+        <span>{{deckTitle}}</span>
     </a>
 </h2>
 <!--<button (click)="hideDetails = !hideDetails" class="btn btn-small btn-inset btn-default">Details</button>-->
