@@ -7,4 +7,6 @@ Card.findOne().exec().then(card => {
         console.log("db is empty => population");
         return parser.populateWithCards();
     }
-}).then(() => console.log("done with db"));
+})
+.then(() => console.log("done with db"))
+.then(() => process.exit());
