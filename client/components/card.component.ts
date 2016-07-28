@@ -18,6 +18,7 @@ export class CardComponent implements OnInit {
 
     enableAvailability: boolean;
     available: boolean;
+    loading: boolean;
 
     constructor(private deckService: DeckService, private authService: AuthService) { }
 
@@ -27,6 +28,7 @@ export class CardComponent implements OnInit {
     }
 
     onChangeAvailability(newValue: number) {
+        this.loading = true;
         this.deckService.changeCardAvailability(this.card.id, newValue).subscribe(() => {
             this.onChanged.emit(true);
         });

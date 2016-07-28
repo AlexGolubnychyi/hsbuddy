@@ -20,11 +20,13 @@ export class DeckComponent implements OnInit {
     onChanged = new EventEmitter<boolean>();
 
     showUserCollectionFlag = false;
+    hideDetails: boolean;
 
     constructor(private deckService: DeckService, private authService: AuthService) { }
 
     ngOnInit() {
         this.showUserCollectionFlag = this.authService.isAuthenticated();
+        this.hideDetails = false;
     }
 
     onCardChanged() {

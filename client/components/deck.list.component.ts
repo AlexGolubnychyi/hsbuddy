@@ -23,6 +23,7 @@ export class DeckListComponent implements OnInit {
     selectedClass: CardClass;
     dustNeeded: number;
     useUserCollectionFilter: boolean;
+    loading: boolean;
 
     constructor(private deckService: DeckService, private authService: AuthService) { }
     ngOnInit() {
@@ -62,11 +63,12 @@ export class DeckListComponent implements OnInit {
         if (this.userCollection) {
             params.userCollection = true;
         }
-
+        this.loading = true;
         this.deckService
             .getDecks(params)
             .subscribe(decks => {
                 this.decks = decks;
+                this.loading = false;
             });
     }
 }

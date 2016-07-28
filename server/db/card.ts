@@ -1,5 +1,7 @@
 import mongoose from "../lib/mongoose";
 import * as hstypes from "../../interfaces/hs-types";
+import UserCard, {UserCardDB} from "./userCard";
+import * as contracts from "../../interfaces/";
 
 const cardSchema = new mongoose.Schema({
     _id: String,
@@ -23,6 +25,42 @@ cardSchema.static("generateId", (name: string) => {
     return name.toLowerCase().replace(/[ |,|`|.|'|:|"]*/g, "");
 });
 
+cardSchema.static("getAllCards", function (userId: string) {
+    let model = this as mongoose.Model<CardDB>,
+        userCards: UserCardDB[];
+
+    return UserCard.getByUserId(userId)
+        .then(uc => userCards = uc)
+        .then(() => model.find().exec())
+        .then(cards => {
+            return cards.map(card => {
+                let userCard = userCards.filter(uc => uc.cardId === card._id)[0],
+                    cardResult: contracts.Card = {
+                        id: card._id,
+                        name: card.name,
+                        description: card.description,
+                        flavorText: card.flavorText,
+                        img: card.img,
+                        class: card.class,
+                        className: hstypes.CardClass[card.class],
+                        type: card.type,
+                        rarity: card.rarity,
+                        cardSet: card.cardSet,
+                        setName: <string>hstypes.hsTypeConverter.cardSet(card.cardSet),
+                        race: card.race,
+                        url: card.url,
+                        cost: card.cost,
+                        mana: card.mana,
+                        attack: card.attack,
+                        health: card.health,
+                        numberAvailable: (userCard && userCard.count) || 0,
+                        count: card.rarity = hstypes.CardRarity.legendary ? 1 : 2
+                    };
+                return cardResult;
+            });
+        });
+});
+
 export interface CardDB extends mongoose.Document {
     _id: string;
     name: string;
@@ -43,6 +81,7 @@ export interface CardDB extends mongoose.Document {
 
 interface CardStatics {
     generateId: (name: string) => string;
+    getAllCards: (userId: string) => Promise<contracts.Card[]>;
 }
 export const cardSchemaName = "Card";
 export default mongoose.model<CardDB>(cardSchemaName, cardSchema) as mongoose.Model<CardDB> & CardStatics;

@@ -1,11 +1,13 @@
 
 import * as express from "express";
 import deckRouter from "./decks";
+import cardRouter from "./cards";
 import parserRouter from "./parsers";
 import loginRouter from "./login";
 
 export default function (app: express.Express) {
   app.use("/decks", deckRouter);
+  app.use("/cards", cardRouter);
   app.use("/parse", parserRouter);
   app.use("/", loginRouter);
 
