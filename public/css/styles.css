@@ -34,6 +34,7 @@ card>div.notavailable {
 
 .card-details{
   overflow:auto;
+  margin-top: 10px;
 }
 
 .spinner {

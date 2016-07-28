@@ -1,9 +1,9 @@
-import { Component, OnInit  } from "@angular/core";
+import { Component, OnInit, OnDestroy  } from "@angular/core";
 import {DeckComponent} from "./deck.component";
 import {DeckService} from "../services/deck.service";
 import {AuthService} from "../services/auth.service";
 import {Deck, DeckQuery} from "../../interfaces/index";
-import {CardClass} from "../../interfaces/hs-types";
+import {CardClass, CardSet} from "../../interfaces/hs-types";
 import "../rxjs-operators";
 
 const localStorageKey = "hs-fun:filters";
@@ -14,7 +14,7 @@ const localStorageKey = "hs-fun:filters";
     directives: [DeckComponent],
     providers: [DeckService, AuthService],
 })
-export class DeckListComponent implements OnInit {
+export class DeckListComponent implements OnInit, OnDestroy {
     decks: Deck[] = [];
     deckClasses = (Object.keys(CardClass).filter(key => !isNaN(+key)))
         .map(id => ({ name: CardClass[id], value: +id }))
@@ -24,8 +24,11 @@ export class DeckListComponent implements OnInit {
     dustNeeded: number;
     useUserCollectionFilter: boolean;
     loading: boolean;
+    cardChangedSubscription;
 
-    constructor(private deckService: DeckService, private authService: AuthService) { }
+    constructor(private deckService: DeckService, private authService: AuthService) {
+        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDecks(cardId, count));
+    }
     ngOnInit() {
         let filters = localStorage.getItem(localStorageKey);
         this.useUserCollectionFilter = this.authService.isAuthenticated();
@@ -35,7 +38,12 @@ export class DeckListComponent implements OnInit {
             ? JSON.parse(filters)
             : [false, CardClass.unknown, null];
 
+
+
         this.refreshDecks();
+    }
+    ngOnDestroy() {
+        this.cardChangedSubscription.dispose();
     }
 
     onDeckChanged() {
@@ -70,5 +78,23 @@ export class DeckListComponent implements OnInit {
                 this.decks = decks;
                 this.loading = false;
             });
+    }
+
+    private updateDecks(cardId: string, newCount: number) {
+        if (!this.decks) {
+            return;
+        }
+
+        for (let deck of this.decks) {
+            deck.cards.every(card => {
+                if (card.id === cardId) {
+                    deck.dustNeeded -= card.cost * (Math.min(newCount, card.count) - Math.min(card.numberAvailable, card.count));
+                    card.numberAvailable = newCount;
+                    return false;
+                }
+                return true;
+            });
+           deck.collected = deck.cards.every(c => c.numberAvailable >= c.count || c.cardSet === CardSet.Basic);
+        }
     }
 }

@@ -1,14 +1,18 @@
-import { Injectable } from "@angular/core";
+import { Injectable, EventEmitter } from "@angular/core";
 import { Http } from "@angular/http";
 import { Observable }     from "rxjs/Observable";
 import {Deck, DeckQuery} from "../../interfaces/index";
 import "../rxjs-operators";
+import {Subject} from "rxjs/Subject";
 
 const enc = encodeURIComponent;
 
 @Injectable()
 export class DeckService {
-    constructor(private http: Http) { }
+    public cardChanged: Subject<CardChanged>;
+    constructor(private http: Http) {
+        this.cardChanged = new Subject<CardChanged>();
+    }
 
     getDecks(options?: DeckQuery): Observable<Deck[]> {
         let url = "decks/data", queryParams;
@@ -22,10 +26,15 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    changeCardAvailability(carId: string, number: number): Observable<boolean> {
-        return this.http.get(`decks/changenumber/${enc(carId)}/${number}`)
+    changeCardAvailability(cardId: string, count: number): Observable<boolean> {
+        let request = this.http.get(`decks/changenumber/${enc(cardId)}/${count}`)
             .map(resp => true)
             .catch(this.handleError);
+
+        request.subscribe(() => {
+            this.cardChanged.next({ cardId, count });
+        });
+        return request;
     }
 
     toggleUserDeck(deckId: string, status: boolean): Observable<boolean> {
@@ -34,22 +43,6 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    // private post(hero: Hero): Promise<Hero> {
-    //     let headers = new Headers({
-    //         'Content-Type': 'application/json'
-    //     });
-
-    //     return this.http
-    //         .post(this.heroesUrl, JSON.stringify(hero), { headers: headers })
-    //         .toPromise()
-    //         .then(res => res.json().data)
-    //         .catch(this.handleError);
-    // }
-
-    // private extractData(res: Response) {
-    //     let body = res.json();
-    //     return body.data || {};
-    // }
     private handleError(error: any) {
         // In a real world app, we might use a remote logging infrastructure
         // We'd also dig deeper into the error to get a better message
@@ -60,4 +53,9 @@ export class DeckService {
     }
 
 
+}
+
+export interface CardChanged {
+    cardId: string;
+    count: number;
 }

@@ -76,7 +76,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                     collected: true,
                     cards: [],
                     userCollection: userDeckIds.indexOf(deck._id) >= 0
-                };
+                }, collected = true;
 
                 deckResult.cards = deck.cards.map(({card, count}: { card: CardDB, count: number }) => {
                     let userCard = userCards.filter(uc => uc.cardId === card._id)[0],
@@ -102,10 +102,11 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                             count: count
                         };
                     deckResult.dustNeeded -= Math.min(cardResult.count, cardResult.numberAvailable) * card.cost;
+                    collected = collected && (cardResult.numberAvailable >= cardResult.count || cardResult.cardSet === hstypes.CardSet.Basic);
                     return cardResult;
                 }).sort(sortFunc);
 
-                deckResult.collected = deckResult.dustNeeded === 0;
+                deckResult.collected = collected;
 
                 return deckResult;
             });

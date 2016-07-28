@@ -1,4 +1,6 @@
-<div style="float: left;text-align: center;border: 1px solid lightgray;" [class.available]="available"  [class.notavailable]="enableAvailability && !available">
+<div style="float: left;text-align: center;border: 1px solid lightgray;" 
+    [class.available]="getStatus() === 'available'"  
+    [class.notavailable]="getStatus() === 'notavailable'">
     <div>
         <a [href]="card.url"><img [src]="card.img" [title]="card.flavorText" style="height:300px;"></a>
     </div>

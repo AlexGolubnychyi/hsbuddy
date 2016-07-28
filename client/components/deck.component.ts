@@ -11,14 +11,12 @@ import "../rxjs-operators";
     selector: "deck",
     templateUrl: "client/components/deck.component.html",
     directives: [CardComponent],
-    providers: [DeckService, AuthService],
 })
 export class DeckComponent implements OnInit {
     @Input()
     deck: Deck;
     @Output()
     onChanged = new EventEmitter<boolean>();
-    deckTitle;
     showUserCollectionFlag = false;
     hideDetails: boolean;
 
@@ -26,22 +24,20 @@ export class DeckComponent implements OnInit {
 
     ngOnInit() {
         this.showUserCollectionFlag = this.authService.isAuthenticated();
-        this.assembleTitle();
-        this.hideDetails = false;
+        this.hideDetails = true;
     }
 
-    assembleTitle() {
+    getTitle() {
         if (this.deck.collected) {
-            this.deckTitle = `[${this.deck.className}] ${this.deck.name} (collected!)`;
-            return;
+            return `[${this.deck.className}] ${this.deck.name}`;
+
         }
 
         if (this.deck.dustNeeded < this.deck.cost) {
-            this.deckTitle = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost} , remaining ${this.deck.dustNeeded})`;
-            return;
+            return `[${this.deck.className}] ${this.deck.name} (${this.deck.cost}, remaining ${this.deck.dustNeeded})`;
         }
 
-        this.deckTitle = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost})`;
+        return `[${this.deck.className}] ${this.deck.name} (${this.deck.cost})`;
     }
 
     onCardChanged() {
