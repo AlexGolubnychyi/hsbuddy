@@ -48,7 +48,7 @@ cardSchema.static("getAllCards", function (userId: string) {
                         flavorText: card.flavorText,
                         img: card.img,
                         class: card.class,
-                        className: hstypes.CardClass[card.class],
+                        className: "", // hstypes.CardClass[card.class],
                         type: card.type,
                         rarity: card.rarity,
                         cardSet: card.cardSet,

@@ -5,7 +5,7 @@
         <a [href]="card.url"><img [src]="card.img" [title]="card.flavorText" style="height:300px;"></a>
     </div>
     <div style="font-weight:bold;">{{card.name}} x {{card.count}}</div>
-    <div>Class: {{card.className}}</div>
+    <div [class.hidden]="!card.className">Class: {{card.className}}</div>
     <div>Dust: {{card.cost}}</div>
     <div>Set: {{card.setName}}</div>
     <div [style.visibility]="enableAvailability ? 'visible' : 'hidden'" class="availability-container">
