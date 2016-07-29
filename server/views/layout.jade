@@ -1,6 +1,7 @@
 doctype html
 html
-  head
+  head    
+    base(href="/")
     title HearthStone DeckDB
     meta(charset='UTF-8')
     meta(name='viewport', content='width=device-width, initial-scale=1')
@@ -16,13 +17,13 @@ html
       div.container-fluid
         ul.nav.navbar-nav
           li
-            a(href="/") Main
+            a(href="/decks") Main
           if user
             li
+              a(href="/cards") Card Library
+            li
               a(href="/parse") Parse
-            //- li
-            //-   a(href="/cards") Cards
-           li
+          li
             a(href="/about") About
         ul.nav.navbar-nav.navbar-right
           if user 

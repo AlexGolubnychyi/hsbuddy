@@ -27,13 +27,19 @@ cardSchema.static("generateId", (name: string) => {
 
 cardSchema.static("getAllCards", function (userId: string) {
     let model = this as mongoose.Model<CardDB>,
-        userCards: UserCardDB[];
+        userCards: UserCardDB[],
+        standardSets = [
+            hstypes.CardSet.Basic, hstypes.CardSet.BlackrockMountain,
+            hstypes.CardSet.Expert, hstypes.CardSet.LeagueOfExplorers,
+            hstypes.CardSet.TheGrandTournament, hstypes.CardSet.WhispersoftheOldGods
+        ],
+        result: contracts.CardGroup[] = [];
 
     return UserCard.getByUserId(userId)
         .then(uc => userCards = uc)
-        .then(() => model.find().exec())
+        .then(() => model.find({ "cardSet": { "$in": standardSets } }).exec())
         .then(cards => {
-            return cards.map(card => {
+            cards.map(card => {
                 let userCard = userCards.filter(uc => uc.cardId === card._id)[0],
                     cardResult: contracts.Card = {
                         id: card._id,
@@ -54,12 +60,42 @@ cardSchema.static("getAllCards", function (userId: string) {
                         attack: card.attack,
                         health: card.health,
                         numberAvailable: (userCard && userCard.count) || 0,
-                        count: card.rarity = hstypes.CardRarity.legendary ? 1 : 2
+                        count: card.rarity === hstypes.CardRarity.legendary ? 1 : 2
                     };
                 return cardResult;
+            }).forEach(card => {
+                let group = result.filter(g => g.class === card.class)[0];
+                if (!group) {
+                    group = {
+                        class: card.class,
+                        name: card.className,
+                        cards: [],
+                    };
+                    result.push(group);
+                }
+                group.cards.push(card);
             });
+
+            //sort
+            result.forEach(g => g.cards = g.cards.sort(sortCars));
+            result = result.sort((f, s) => {
+                return weightClass(f.class) - weightClass(s.class);
+            });
+
+            return result;
         });
 });
+
+function weightClass(c: hstypes.CardClass) {
+    return c === hstypes.CardClass.neutral ? 1000 : c;
+}
+function sortCars(f: contracts.Card, s: contracts.Card) {
+    let result = f.mana - s.mana;
+    if (result) {
+        return result;
+    }
+    return f.name > s.name ? 1 : -1;
+}
 
 export interface CardDB extends mongoose.Document {
     _id: string;
@@ -81,7 +117,8 @@ export interface CardDB extends mongoose.Document {
 
 interface CardStatics {
     generateId: (name: string) => string;
-    getAllCards: (userId: string) => Promise<contracts.Card[]>;
+    getAllCards: (userId: string) => Promise<contracts.CardGroup[]>;
 }
+
 export const cardSchemaName = "Card";
 export default mongoose.model<CardDB>(cardSchemaName, cardSchema) as mongoose.Model<CardDB> & CardStatics;

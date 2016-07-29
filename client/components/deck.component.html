@@ -1,7 +1,7 @@
 <hr/>
 <h2>
     <a style="text-decoration:none;color:#f78f00;vertical-align: middle;" [href]="deck.url">
-        <span>{{getTitle()}}</span>
+        <span>{{title}}</span>
     </a><span class="label label-default" *ngIf="deck.collected">collected</span>
 </h2>
 
@@ -11,9 +11,9 @@
             Include in personal collection
         </label>
 </div>
-<button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">Details</button>
+<button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} details</button>
 
 <div class="card-details" [class.hidden]="hideDetails">  
-    <card *ngFor="let card of deck.cards" [card]="card" (onChanged)="onCardChanged($event)"></card>
+    <card *ngFor="let card of deck.cards" [card]="card"></card>
 </div>
 

@@ -41,3 +41,12 @@ export interface DeckQuery {
     dustNeeded?: number | string;
 };
 
+export interface CardGroup {
+    name: string;
+    class: hstypes.CardClass;
+    cards: Card[];
+    collapsed?: boolean;
+}
+
+export type APICardResult = CardGroup[];
+export type APIDeckResult = Deck[];

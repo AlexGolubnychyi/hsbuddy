@@ -1,4 +1,4 @@
-import { Component, Input, EventEmitter, Output, OnInit } from "@angular/core";
+import { Component, Input, OnInit } from "@angular/core";
 import {Card} from "../../interfaces";
 import {CardSet} from "../../interfaces/hs-types";
 import {DeckService} from "../services/deck.service";
@@ -11,8 +11,6 @@ import {AuthService} from "../services/auth.service";
 export class CardComponent implements OnInit {
     @Input()
     card: Card;
-    @Output()
-    onChanged = new EventEmitter<boolean>();
     enableAvailability: boolean;
     loading: boolean;
 
@@ -25,11 +23,12 @@ export class CardComponent implements OnInit {
     onChangeAvailability(newValue: number) {
         this.loading = true;
         this.deckService.changeCardAvailability(this.card.id, newValue).subscribe(() => {
+            this.card.numberAvailable = newValue;
             this.loading = false;
         });
     }
 
     getStatus() {
-        return !this.enableAvailability ? "" : (this.card.count <= this.card.numberAvailable ? "available" : "notavailable");
+        return (!this.enableAvailability || !this.card.count) ? "" : (this.card.count <= this.card.numberAvailable ? "available" : "notavailable");
     }
 }

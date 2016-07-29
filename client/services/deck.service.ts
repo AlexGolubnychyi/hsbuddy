@@ -1,7 +1,7 @@
-import { Injectable, EventEmitter } from "@angular/core";
+import { Injectable } from "@angular/core";
 import { Http } from "@angular/http";
 import { Observable }     from "rxjs/Observable";
-import {Deck, DeckQuery} from "../../interfaces/index";
+import * as contracts from "../../interfaces/index";
 import "../rxjs-operators";
 import {Subject} from "rxjs/Subject";
 
@@ -14,8 +14,8 @@ export class DeckService {
         this.cardChanged = new Subject<CardChanged>();
     }
 
-    getDecks(options?: DeckQuery): Observable<Deck[]> {
-        let url = "decks/data", queryParams;
+    getDecks(options?: contracts.DeckQuery): Observable<contracts.Deck[]> {
+        let url = "api/decks", queryParams;
 
         if (options && (queryParams = Object.keys(options)).length) {
             url += "?" + queryParams.map(paramName => `${paramName}=${options[paramName]}`).join("&");
@@ -26,19 +26,27 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    changeCardAvailability(cardId: string, count: number): Observable<boolean> {
-        let request = this.http.get(`decks/changenumber/${enc(cardId)}/${count}`)
-            .map(resp => true)
+    getCards(): Observable<contracts.APICardResult> {
+        return this.http.get("api/cards")
+            .map(resp => resp.json())
             .catch(this.handleError);
+    }
+
+    changeCardAvailability(cardId: string, count: number): Observable<boolean> {
+        let request = this.http.get(`api/changenumber/${enc(cardId)}/${count}`)
+            .map(resp => true)
+            .catch(this.handleError)
+            .share(); //to send single request instead of multiple
 
         request.subscribe(() => {
             this.cardChanged.next({ cardId, count });
         });
+
         return request;
     }
 
     toggleUserDeck(deckId: string, status: boolean): Observable<boolean> {
-        return this.http.get(`decks/toggleuserdeck/${enc(deckId)}/${status}`)
+        return this.http.get(`api/toggleuserdeck/${enc(deckId)}/${status}`)
             .map(resp => true)
             .catch(this.handleError);
     }

@@ -8,7 +8,7 @@ export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, tot
 
 let rarityMapping = [-1, 0, 40, 100, 400, 1600];
 let cardSetMapping = ["-", "Basic", "Expert", "Blackrock Mountain", "The Grand Tournament", "League of Explorers",
-    "Whispers of the Old Gods", "Naxxramas", "Goblins vs Gnomes", "Reward"];
+    "Whispers of the Old Gods", "Curse of Naxxramas", "Goblins vs Gnomes", "Reward"];
 
 
 class HsTypeConverter {

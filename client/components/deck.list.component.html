@@ -48,5 +48,5 @@
 </div>
 
 
-<deck style="clear:left;display:block" *ngFor="let deck of decks" (onChanged)="onDeckChanged($event)" [deck]="deck"></deck>
+<deck style="clear:left;display:block" *ngFor="let deck of decks" [deck]="deck"></deck>
 <h3 [class.hidden]="loading || decks.length">nothing found..</h3>

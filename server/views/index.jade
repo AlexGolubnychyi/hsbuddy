@@ -1,6 +1,6 @@
 extends layout
 
-block scripts
+block scripts 
     // 1. Load libraries
     // Polyfill(s) for older browsers
     script(src='node_modules/core-js/client/shim.min.js')
@@ -14,4 +14,9 @@ block scripts
       System.import('app').catch(function(err){ console.error(err); });
   
   block content
-    deck-list Loading...
+    hs-app  
+        div(style="margin-top:50px").spinner
+            div.bounce1
+            div.bounce2
+            div.bounce3
+</div>

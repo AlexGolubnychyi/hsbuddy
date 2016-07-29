@@ -1,8 +1,10 @@
-import { Component, Input, Output, EventEmitter, OnInit } from "@angular/core";
+import { Component, Input, OnInit, OnDestroy } from "@angular/core";
 import {DeckService} from "../services/deck.service";
 import {AuthService} from "../services/auth.service";
 import {CardComponent} from "./card.component";
 import {Deck} from "../../interfaces/index";
+import {CardSet} from "../../interfaces/hs-types";
+import {Subscription} from "rxjs";
 
 import "../rxjs-operators";
 //https://angular.io/docs/ts/latest/tutorial/toh-pt6.html
@@ -12,42 +14,64 @@ import "../rxjs-operators";
     templateUrl: "client/components/deck.component.html",
     directives: [CardComponent],
 })
-export class DeckComponent implements OnInit {
+export class DeckComponent implements OnInit, OnDestroy {
     @Input()
     deck: Deck;
-    @Output()
-    onChanged = new EventEmitter<boolean>();
     showUserCollectionFlag = false;
     hideDetails: boolean;
+    cardChangedSubscription: Subscription;
+    title: string;
 
-    constructor(private deckService: DeckService, private authService: AuthService) { }
+    constructor(private deckService: DeckService, private authService: AuthService) {
+        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDecks(cardId, count));
+    }
 
     ngOnInit() {
         this.showUserCollectionFlag = this.authService.isAuthenticated();
         this.hideDetails = true;
+        this.updateTitle();
+    }
+    ngOnDestroy() {
+        this.cardChangedSubscription.unsubscribe();
     }
 
-    getTitle() {
+    updateTitle() {
         if (this.deck.collected) {
-            return `[${this.deck.className}] ${this.deck.name}`;
+            this.title = `[${this.deck.className}] ${this.deck.name}`;
+            return;
 
         }
 
         if (this.deck.dustNeeded < this.deck.cost) {
-            return `[${this.deck.className}] ${this.deck.name} (${this.deck.cost}, remaining ${this.deck.dustNeeded})`;
+            this.title = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost}, remaining ${this.deck.dustNeeded})`;
+            return;
         }
 
-        return `[${this.deck.className}] ${this.deck.name} (${this.deck.cost})`;
-    }
-
-    onCardChanged() {
-        this.onChanged.emit(true);
+        this.title = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost})`;
     }
 
     onChangePersonalCollection(enable: boolean) {
         this.deckService.toggleUserDeck(this.deck.id, enable).subscribe(() => {
             this.deck.userCollection = enable;
         });
+    }
+
+    private updateDecks(cardId: string, newCount: number) {
+        let collected = true,
+            containsChangedCard = false;
+        this.deck.cards.forEach(card => {
+            if (card.id === cardId) {
+                this.deck.dustNeeded -= card.cost * (Math.min(newCount, card.count) - Math.min(card.numberAvailable, card.count));
+                card.numberAvailable = newCount;
+                containsChangedCard = true;
+            }
+            collected = collected && (card.numberAvailable >= card.count || card.cardSet === CardSet.Basic);
+        });
+
+        if (containsChangedCard) {
+            this.deck.collected = collected;
+            this.updateTitle();
+        }
     }
 
 }

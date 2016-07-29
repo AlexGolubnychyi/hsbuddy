@@ -3,18 +3,24 @@
 import * as express from "express";
 import * as contracts from "../../interfaces";
 import * as authChecks from "../middleware/authChecks";
-import * as hstypes from "../../interfaces/hs-types";
+
 import UserCard from "../db/userCard";
 import Deck from "../db/deck";
 import User from "../db/user";
+import Card from "../db/card";
 
 let router = express.Router();
 
 router.get("/", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    getDecks(req.user).then(decks => res.render("decks", { decks }));
+    res.render("index");
 });
 
-router.get("/data", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.get("/cards", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    Card.getAllCards(req.user).then((cards) => res.json(cards));
+});
+
+
+router.get("/decks", (req: express.Request, res: express.Response, next: express.NextFunction) => {
     getDecks(req.user, req.query).then(decks => res.json(decks));
 });
 
