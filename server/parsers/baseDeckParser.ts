@@ -19,6 +19,7 @@ export abstract class BaseDeckParser {
         deck.url = url;
         deck.class = hstypes.CardClass.unknown;
         deck.cost = 0;
+        deck.dateAdded = new Date();
 
         return Deck.findById(deck._id).exec()
             .then(existing => {

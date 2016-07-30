@@ -14,7 +14,7 @@ const deckSchema = new mongoose.Schema({
     url: String,
     class: { type: Number, index: true },
     cost: Number,
-    costApprox: Boolean,
+    dateAdded: Date,
     cards: [{
         card: { type: String, ref: cardSchemaName },
         count: Number
@@ -152,6 +152,7 @@ export interface DeckDB extends mongoose.Document {
     class: hstypes.CardClass;
     cost: number;
     cards: { card: string | CardDB, count: number }[];
+    dateAdded: Date;
 
 };
 

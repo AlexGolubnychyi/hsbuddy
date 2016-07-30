@@ -7,13 +7,14 @@ import metaBombParser from "./metaBombParser";
 import hearthpwnParser from "./hearthPwnParser";
 import manaCrystalsParser from "./manaCrystalsParser";
 import hearthstoneTopDecksParser from "./hearthstoneTopDecksParser";
+import tempoStormParser from "./tempoStormParser";
 import {BaseDeckParser} from "./baseDeckParser";
 
 class Parser {
     private parsers: { [index: string]: BaseDeckParser } = {};
 
     constructor() {
-        [hearthpwnParser, manaCrystalsParser, hearthstoneTopDecksParser, metaBombParser]
+        [hearthpwnParser, manaCrystalsParser, hearthstoneTopDecksParser, metaBombParser,tempoStormParser]
             .forEach(p => this.parsers[p.siteName] = p);
     }
 
