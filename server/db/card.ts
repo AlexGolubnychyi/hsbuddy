@@ -68,7 +68,7 @@ cardSchema.static("getAllCards", function (userId: string) {
                 if (!group) {
                     group = {
                         class: card.class,
-                        name: card.className,
+                        name: hstypes.CardClass[card.class],
                         cards: [],
                     };
                     result.push(group);
