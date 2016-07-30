@@ -19,6 +19,7 @@ const deckSchema = new mongoose.Schema({
         card: { type: String, ref: cardSchemaName },
         count: Number
     }],
+    userId: String
 });
 
 deckSchema.static("generateId", (cards: { [cardName: string]: number }) => {
@@ -153,6 +154,7 @@ export interface DeckDB extends mongoose.Document {
     cost: number;
     cards: { card: string | CardDB, count: number }[];
     dateAdded: Date;
+    userId: string;
 
 };
 

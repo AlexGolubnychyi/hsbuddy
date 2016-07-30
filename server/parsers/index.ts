@@ -18,12 +18,12 @@ class Parser {
             .forEach(p => this.parsers[p.siteName] = p);
     }
 
-    parse(urls: string[]) {
+    parse(userId: string, urls: string[]) {
         let tasks = urls.map(this.urlToTask);
 
         return Promise.map(tasks, t => !t.parser
             ? Promise.resolve([{ status: ParseStatus.parserNotFound, url: t.url, reason: ""}])
-            : t.parser.parse(t.url, true))
+            : t.parser.parse(userId, t.url, true))
             .then(reports => reports.reduce((f, s) => f.concat(s)));
     }
 

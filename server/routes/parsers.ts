@@ -17,7 +17,7 @@ router.post("/", authChecks.api, (req: express.Request, res: express.Response, n
      res.write("<p>working, please wait..</p>");
 
     Promise
-        .each(links.map(link => parser.parse([link])), reports => {
+        .each(links.map(link => parser.parse(req.user, [link])), reports => {
             reports.forEach(report => {
                 res.write(`<div>[${ParseStatus[report.status]}] ${report.url}. ${report.reason}</div>`);
             });

@@ -6,7 +6,7 @@ import {BaseDeckParser} from "./baseDeckParser";
 class ManaCrystalsParser extends BaseDeckParser {
     siteName = "manacrystals.com";
 
-    parseDeckList(url: string, save: boolean): Promise<ParseReportItem[]> {
+    parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]> {
         return <any>Promise.reject("not implemented");
         // console.log(`parsing ${url}`);
         // return dbUtils.ensureDb()
@@ -24,7 +24,7 @@ class ManaCrystalsParser extends BaseDeckParser {
         //     });
     }
 
-    parseDeck(url: string, save: boolean) {
+    parseDeck(userId: string, url: string, save: boolean) {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
@@ -40,16 +40,16 @@ class ManaCrystalsParser extends BaseDeckParser {
                 cards[cardName] = count;
             });
 
-            return this.addDeckUnsafe(name, url, cards);
+            return this.addDeckUnsafe(userId, name, url, cards);
         });
     }
 
-    parse(url: string, save: boolean) {
+    parse(userId: string, url: string, save: boolean) {
         if (this.isDeckUrl(url)) {
-            return this.parseDeck(url, save).then(reportItem => [reportItem]);
+            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
         }
 
-        return this.parseDeckList(url, save);
+        return this.parseDeckList(userId, url, save);
     }
 
     private isDeckUrl(url) {

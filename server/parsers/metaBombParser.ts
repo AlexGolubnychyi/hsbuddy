@@ -7,7 +7,7 @@ let keywords = { deckUrl: "deck-list", deckListUrl: "game-guides" };
 class MetaBombParser extends BaseDeckParser {
     siteName = "hearthstone.metabomb.net";
 
-    parseDeckList(url: string, save: boolean) {
+    parseDeckList(userId: string, url: string, save: boolean) {
         console.log(`parsing ${url}`);
         return getContent(url)
             .then($ => {
@@ -15,10 +15,10 @@ class MetaBombParser extends BaseDeckParser {
                 $(`[href*=${keywords.deckUrl}]`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
                 return Object.keys(unique);
             })
-            .map((deckUrl: string) => this.parseDeck(deckUrl, false), { concurrency: 2 });
+            .map((deckUrl: string) => this.parseDeck(userId, deckUrl, false), { concurrency: 2 });
     }
 
-    parseDeck(url: string, save: boolean) {
+    parseDeck(userId: string, url: string, save: boolean) {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
@@ -39,16 +39,16 @@ class MetaBombParser extends BaseDeckParser {
                 });
             });
 
-            return this.addDeckUnsafe(name, url, cards);
+            return this.addDeckUnsafe(userId, name, url, cards);
         });
     }
 
-    parse(url: string, save: boolean) {
+    parse(userId: string, url: string, save: boolean) {
         if (url.indexOf(keywords.deckListUrl) > 0) {
-            return this.parseDeckList(url, save);
+            return this.parseDeckList(userId, url, save);
         }
         if (url.indexOf(keywords.deckUrl) > 0) {
-            return this.parseDeck(url, save).then(reportItem => [reportItem]);
+            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
         }
 
         Promise.reject(`metabomb parser: unknown url: ${url}`);

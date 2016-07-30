@@ -7,7 +7,7 @@ import {BaseDeckParser} from "./baseDeckParser";
 class TempoStormParser extends BaseDeckParser {
     siteName = "tempostorm.com";
 
-    parseDeckList(url: string, save: boolean): Promise<ParseReportItem[]> {
+    parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]> {
         return <any>Promise.reject("not implemented");
         // console.log(`parsing ${url}`);
         // return dbUtils.ensureDb()
@@ -25,23 +25,23 @@ class TempoStormParser extends BaseDeckParser {
         //     });
     }
 
-    parseDeck(url: string, save: boolean) {
+    parseDeck(userId: string, url: string, save: boolean) {
 
         console.log(`parsing ${url}`);
 
         return this.getJSON(url).then(obj => {
             let cards: { [cardName: string]: number } = {};
             obj.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
-            return this.addDeckUnsafe(obj.name, url, cards);
+            return this.addDeckUnsafe(userId, obj.name, url, cards);
         });
     }
 
-    parse(url: string, save: boolean) {
+    parse(userId: string, url: string, save: boolean) {
         if (this.isDeckUrl(url)) {
-            return this.parseDeck(url, save).then(reportItem => [reportItem]);
+            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
         }
 
-        return this.parseDeckList(url, save);
+        return this.parseDeckList(userId, url, save);
     }
 
     private isDeckUrl(url) {

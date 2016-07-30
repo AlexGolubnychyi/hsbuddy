@@ -7,11 +7,11 @@ import Card from "../db/card";
 
 export abstract class BaseDeckParser {
     siteName: string;
-    abstract parseDeck(url: string, save: boolean): Promise<ParseReportItem>;
-    abstract parseDeckList(url: string, save: boolean): Promise<ParseReportItem[]>;
-    abstract parse(url: string, save: boolean): Promise<ParseReportItem[]>;
+    abstract parseDeck(userId: string, url: string, save: boolean): Promise<ParseReportItem>;
+    abstract parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]>;
+    abstract parse(userId: string, url: string, save: boolean): Promise<ParseReportItem[]>;
 
-    protected addDeckUnsafe(name, url, cards: { [cardName: string]: number }) {
+    protected addDeckUnsafe(userId: string, name: string, url: string, cards: { [cardName: string]: number }) {
         let cardNames = Object.keys(cards),
             deck = new Deck();
         deck._id = Deck.generateId(cards);
@@ -20,6 +20,7 @@ export abstract class BaseDeckParser {
         deck.class = hstypes.CardClass.unknown;
         deck.cost = 0;
         deck.dateAdded = new Date();
+        deck.userId = userId;
 
         return Deck.findById(deck._id).exec()
             .then(existing => {
