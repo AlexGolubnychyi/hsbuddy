@@ -56,6 +56,6 @@ export interface ParseReportItem {
 }
 
 export enum ParseStatus {
-    success = 0, failed, duplicate, parserNotFound
+    success = 0, failed, duplicate, parserNotFound, urlNotRecognized
 }
 

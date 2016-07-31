@@ -1,6 +1,8 @@
 import * as Promise from "bluebird";
 import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
+import {ParseReportItem, ParseStatus} from "./index";
+
 let keywords = { deckUrl: "deck-list", deckListUrl: "game-guides" };
 
 
@@ -47,11 +49,11 @@ class MetaBombParser extends BaseDeckParser {
         if (url.indexOf(keywords.deckListUrl) > 0) {
             return this.parseDeckList(userId, url, save);
         }
-        if (url.indexOf(keywords.deckUrl) > 0) {
+        if (url.indexOf("deck-guides") > 0) { //change to regex url check
             return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
         }
 
-        Promise.reject(`metabomb parser: unknown url: ${url}`);
+        return Promise.resolve([<ParseReportItem>{status: ParseStatus.urlNotRecognized, url: url}]);
     }
 };
 
