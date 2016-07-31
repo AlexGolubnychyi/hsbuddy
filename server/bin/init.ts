@@ -8,7 +8,7 @@ import * as Promise from "bluebird";
 
 
 let updates: (() => Promise<void>)[] = [
-    updateToVersion0, updateToVersion1, updateToVersion2
+    updateToVersion0, updateToVersion1, updateToVersion2, updateToVersion3
 ];
 
 (function checkForUpdates() {
@@ -67,5 +67,18 @@ function updateToVersion2(): Promise<void> {
             return cards;
         }).map((card: mongoose.model<CardDB>) => card.save())
         .then(() => console.log("ver2 appplied successfully"));
+}
+
+function updateToVersion3(): Promise<void> {
+    let version = 3;
+
+    console.log(`apply ver${version}`);
+    return Deck.find({name: "Pirate Warrior (Standard) deck list and guide - Hearthstone - July 2016"}).exec()
+        .then(badDecks => {
+            console.log("remove faulty pirate warrior deck");
+            return badDecks;
+        })
+        .then(badDecks => Promise.map(badDecks, bd => bd.remove()))
+        .then(() => console.log(`ver${version} appplied successfully`));
 }
 

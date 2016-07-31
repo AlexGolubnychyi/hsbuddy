@@ -4,9 +4,9 @@
 (done) add parse link from nav 
 (done) - filter by dust remaining
 (done)- filter by class
+(done)SIMPLIFY change availability, move calculations to client to avoid reload!!!	
 
-
-SIMPLIFY change availability, move calculations to client to avoid reload!!!	
+use LESS
 
 
 - hide decks per user 

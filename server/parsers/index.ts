@@ -14,7 +14,7 @@ class Parser {
     private parsers: { [index: string]: BaseDeckParser } = {};
 
     constructor() {
-        [hearthpwnParser, manaCrystalsParser, hearthstoneTopDecksParser, metaBombParser,tempoStormParser]
+        [hearthpwnParser, manaCrystalsParser, hearthstoneTopDecksParser, metaBombParser, tempoStormParser]
             .forEach(p => this.parsers[p.siteName] = p);
     }
 
@@ -56,6 +56,19 @@ export interface ParseReportItem {
 }
 
 export enum ParseStatus {
-    success = 0, failed, duplicate, parserNotFound, urlNotRecognized
+    success = 0, failed, duplicate, parserNotFound, urlNotRecognized, deckMalformed
+}
+
+export class ParseError extends Error {
+    name = "ParseError";
+
+    constructor(public message, public status: ParseStatus, public url: string) {
+        super(message);
+        Error.captureStackTrace(this, ParseError);
+    }
+
+    getParseStatusReportItem() {
+        return <ParseReportItem>{ reason: this.message, status: this.status, url: this.url };
+    }
 }
 

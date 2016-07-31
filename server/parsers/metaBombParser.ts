@@ -3,7 +3,8 @@ import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
 import {ParseReportItem, ParseStatus} from "./index";
 
-let keywords = { deckUrl: "deck-list", deckListUrl: "game-guides" };
+//TODO change to regex
+let keywords = { deckUrl: "/deck-guides/", deckListUrl: "game-guides" };
 
 
 class MetaBombParser extends BaseDeckParser {
@@ -14,7 +15,7 @@ class MetaBombParser extends BaseDeckParser {
         return getContent(url)
             .then($ => {
                 let unique = {};
-                $(`[href*=${keywords.deckUrl}]`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
+                $(`[href*='${keywords.deckUrl}']`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
                 return Object.keys(unique);
             })
             .map((deckUrl: string) => this.parseDeck(userId, deckUrl, false), { concurrency: 2 });
@@ -29,15 +30,12 @@ class MetaBombParser extends BaseDeckParser {
 
             $("main table").first().find("tr").each((_, tr) => {
                 $(tr).find("td").each((inx, td) => {
-                    let $el = $(td).find("span[data-card]");
-                    if (!$el.length) {
+                    let text = $(td).text();
+                    if (!text) {
                         return;
                     }
-
-                    let cardName = $el.first().text().trim(),
-                        count = +$el.parent().contents().first().text()[0];
-
-                    cards[cardName] = count;
+                    let [count, cardName] = text.split(" x ").map(part => part.trim());
+                    cards[cardName] = +count;
                 });
             });
 
@@ -49,11 +47,11 @@ class MetaBombParser extends BaseDeckParser {
         if (url.indexOf(keywords.deckListUrl) > 0) {
             return this.parseDeckList(userId, url, save);
         }
-        if (url.indexOf("deck-guides") > 0) { //change to regex url check
+        if (url.indexOf(keywords.deckUrl) > 0) { //change to regex url check
             return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
         }
 
-        return Promise.resolve([<ParseReportItem>{status: ParseStatus.urlNotRecognized, url: url}]);
+        return Promise.resolve([<ParseReportItem>{ status: ParseStatus.urlNotRecognized, url: url }]);
     }
 };
 
