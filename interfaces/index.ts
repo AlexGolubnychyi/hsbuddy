@@ -37,13 +37,15 @@ export interface Deck {
 
 export interface CardMissing {
     card: Card;
-    available: number;
     decks: [
         {
             id: string,
             name: string,
             count: number,
-            url: string
+            url: string,
+            cost: number;
+            dustNeeded: number;
+            className: string;
         }
     ];
 }
