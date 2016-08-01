@@ -5,7 +5,7 @@ import * as contracts from "../../interfaces/";
 import * as Promise from "bluebird";
 import User from "./user";
 import Card, {CardDB, cardSchemaName} from "./card";
-import UserCard, {UserCardDB} from "./userCard";
+import UserCard from "./userCard";
 
 
 const deckSchema = new mongoose.Schema({
@@ -29,7 +29,7 @@ deckSchema.static("generateId", (cards: { [cardName: string]: number }) => {
 
 deckSchema.static("getDecksByParams", function (userId: string, params?: contracts.DeckQuery) {
     let model = this as mongoose.Model<DeckDB>,
-        userCards: UserCardDB[],
+        userCards: { [cardId: string]: number },
         userDeckIds: string[],
         query = void 0,
         dustNeededParam;
@@ -80,28 +80,8 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                 }, collected = true;
 
                 deckResult.cards = deck.cards.map(({card, count}: { card: CardDB, count: number }) => {
-                    let userCard = userCards.filter(uc => uc.cardId === card._id)[0],
-                        cardResult: contracts.Card = {
-                            id: card._id,
-                            name: card.name,
-                            description: card.description,
-                            flavorText: card.flavorText,
-                            img: card.img,
-                            class: card.class,
-                            className: hstypes.CardClass[card.class],
-                            type: card.type,
-                            rarity: card.rarity,
-                            cardSet: card.cardSet,
-                            setName: <string>hstypes.hsTypeConverter.cardSet(card.cardSet),
-                            race: card.race,
-                            url: card.url,
-                            cost: card.cost,
-                            mana: card.mana,
-                            attack: card.attack,
-                            health: card.health,
-                            numberAvailable: (userCard && userCard.count) || 0,
-                            count: count
-                        };
+                    let cardResult = cardToContract(card, userCards[card._id], count);
+
                     deckResult.dustNeeded -= Math.min(cardResult.count, cardResult.numberAvailable) * card.cost;
                     collected = collected && (cardResult.numberAvailable >= cardResult.count || cardResult.cardSet === hstypes.CardSet.Basic);
                     return cardResult;
@@ -118,6 +98,91 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
             return result.sort((f, s) => f.dustNeeded - s.dustNeeded);
         });
 });
+
+
+deckSchema.static("getMissingCards", function (userId: string) {
+    let model = this as mongoose.Model<DeckDB>,
+        userCards: { [cardId: string]: number },
+        resultObj: { [cardId: string]: contracts.CardMissing } = {},
+        missingCardIds = [],
+        standardSets = [
+            hstypes.CardSet.Basic, hstypes.CardSet.BlackrockMountain,
+            hstypes.CardSet.Expert, hstypes.CardSet.LeagueOfExplorers,
+            hstypes.CardSet.TheGrandTournament, hstypes.CardSet.WhispersoftheOldGods
+        ],
+        cards: { [cardId: string]: CardDB } = {};
+
+
+    return UserCard.getByUserId(userId)
+        .then(uc => userCards = uc)
+        .then(() => Card.find({ "cardSet": { "$in": standardSets } }).exec())
+        .then(c => c.forEach(card => cards[card._id] = card))
+        .then(() => model.find().exec())
+        .then(decks => {
+            decks.forEach(deck => {
+                deck.cards.forEach(cardInfo => {
+                    let cardId: string = cardInfo.card as string,
+                        card = cards[cardId],
+                        available = userCards[cardId] || 0;
+                    if (cardInfo.count > available && card.cardSet !== hstypes.CardSet.Basic) {
+                        let cardMissing = resultObj[cardId];
+                        if (!cardMissing) {
+                            missingCardIds.push(cardId);
+                            resultObj[cardId] = cardMissing = {
+                                card: cardToContract(card, available),
+                                available,
+                                decks: <any>[]
+                            };
+                        }
+                        cardMissing.decks.push({
+                            id: deck._id,
+                            name: deck.name,
+                            url: deck.url,
+                            count: cardInfo.count
+                        });
+                    }
+                });
+            });
+        })
+        .then(() => {
+            return Object.keys(resultObj).map(cardId => resultObj[cardId]).sort((card1, card2) => {
+                let diff = card2.decks.length - card1.decks.length;
+                if (diff) {
+                    return diff;
+                }
+                diff = card2.card.cost - card1.card.cost;
+                if (diff) {
+                    return diff;
+                }
+                return card1.card.name > card2.card.name ? 1 : -1;
+            });
+        });
+});
+
+function cardToContract(card: CardDB, numberAvailable: number, deckCount = 0): contracts.Card {
+    return {
+        id: card._id,
+        name: card.name,
+        description: card.description,
+        flavorText: card.flavorText,
+        img: card.img,
+        class: card.class,
+        className: hstypes.CardClass[card.class],
+        type: card.type,
+        rarity: card.rarity,
+        cardSet: card.cardSet,
+        setName: <string>hstypes.hsTypeConverter.cardSet(card.cardSet),
+        race: card.race,
+        url: card.url,
+        cost: card.cost,
+        mana: card.mana,
+        attack: card.attack,
+        health: card.health,
+        numberAvailable: card.cardSet === hstypes.CardSet.Basic ? 2 : numberAvailable,
+        count: deckCount
+    };
+}
+
 
 function weightCard(card: contracts.Card) {
 
@@ -161,6 +226,7 @@ export interface DeckDB extends mongoose.Document {
 interface DeckStatics {
     generateId: (cards: { [cardName: string]: number }) => string;
     getDecksByParams: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.Deck[]>;
+    getMissingCards: (userId: string) => Promise<contracts.CardMissing[]>;
 }
 
 export const deckSchemaName = "Deck";

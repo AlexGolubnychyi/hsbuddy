@@ -27,7 +27,7 @@ cardSchema.static("generateId", (name: string) => {
 
 cardSchema.static("getAllCards", function (userId: string) {
     let model = this as mongoose.Model<CardDB>,
-        userCards: UserCardDB[],
+        userCards: { [cardId: string]: number },
         standardSets = [
             hstypes.CardSet.Basic, hstypes.CardSet.BlackrockMountain,
             hstypes.CardSet.Expert, hstypes.CardSet.LeagueOfExplorers,
@@ -40,7 +40,7 @@ cardSchema.static("getAllCards", function (userId: string) {
         .then(() => model.find({ "cardSet": { "$in": standardSets } }).exec())
         .then(cards => {
             cards.map(card => {
-                let userCard = userCards.filter(uc => uc.cardId === card._id)[0],
+                let userCard = userCards[card._id],
                     cardResult: contracts.Card = {
                         id: card._id,
                         name: card.name,
@@ -59,7 +59,7 @@ cardSchema.static("getAllCards", function (userId: string) {
                         mana: card.mana,
                         attack: card.attack,
                         health: card.health,
-                        numberAvailable: (userCard && userCard.count) || 0,
+                        numberAvailable: userCard || 0,
                         count: card.rarity === hstypes.CardRarity.legendary ? 1 : 2
                     };
                 return cardResult;

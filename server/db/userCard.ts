@@ -5,13 +5,19 @@ import cardModel, {CardDB, cardSchemaName} from "./card";
 import {userSchemaName} from "./user";
 
 const userCardSchema = new mongoose.Schema({
-    userId: { type: String, index: true, ref: userSchemaName},
-    cardId: { type: String, index: true, ref: cardSchemaName},
+    userId: { type: String, index: true, ref: userSchemaName },
+    cardId: { type: String, index: true, ref: cardSchemaName },
     count: Number
 });
 
 userCardSchema.static("getByUserId", function (userId: string) {
-    return (this as mongoose.Model<UserCardDB>).find({ userId }).exec();
+    let info: { [cardId: string]: number } = {};
+    return (this as mongoose.Model<UserCardDB>)
+        .find({ userId }).exec()
+        .then(userCards => {
+            userCards.forEach(uc => info[uc.cardId] = uc.count);
+            return info;
+        });
 });
 
 userCardSchema.static("setWithChecks", function (userId: string, cardId: string, count: number) {
@@ -43,7 +49,7 @@ export interface UserCardDB extends mongoose.Document {
 };
 
 interface UserCardStatics {
-    getByUserId: (userId: string) => Promise<UserCardDB[]>;
+    getByUserId: (userId: string) => Promise<{ [cardId: string]: number }>;
     setWithChecks: (userId: string, cardId: string, count: number) => Promise<void>;
 }
 

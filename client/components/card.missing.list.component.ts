@@ -1,18 +1,18 @@
 import { Component, OnInit } from "@angular/core";
 import {DeckService} from "../services/deck.service";
-import {CardGroup} from "../../interfaces/index";
+import {CardMissing} from "../../interfaces/index";
 import {CardComponent} from "./card.component";
 import {SpinnerComponent} from "./spinner.component";
 
 @Component({
-    selector: "card-list",
-    templateUrl: "client/components/card.list.component.html",
+    selector: "missing-card-list",
+    templateUrl: "client/components/card.missing.list.component.html",
     directives: [CardComponent, SpinnerComponent]
 })
-export class CardListComponent implements OnInit {
+export class CardMissingListComponent implements OnInit {
     constructor(private deckService: DeckService) { }
     loading: boolean;
-    cardGroups: CardGroup[];
+    missingCards: CardMissing[];
 
     ngOnInit() {
         this.refreshCards();
@@ -21,10 +21,9 @@ export class CardListComponent implements OnInit {
     private refreshCards() {
         this.loading = true;
         this.deckService
-            .getCards()
-            .subscribe(groups => {
-                this.cardGroups = groups;
-                this.cardGroups.forEach((group, inx) => group.collapsed = inx > 0);
+            .getMissingCards()
+            .subscribe(missing => {
+                this.missingCards = missing;
                 this.loading = false;
             });
     }

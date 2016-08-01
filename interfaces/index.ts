@@ -35,6 +35,19 @@ export interface Deck {
     userCollection: boolean;
 }
 
+export interface CardMissing {
+    card: Card;
+    available: number;
+    decks: [
+        {
+            id: string,
+            name: string,
+            count: number,
+            url: string
+        }
+    ];
+}
+
 export interface DeckQuery {
     userCollection?: boolean | string;
     deckClass?: hstypes.CardClass | string;
@@ -47,6 +60,3 @@ export interface CardGroup {
     cards: Card[];
     collapsed?: boolean;
 }
-
-export type APICardResult = CardGroup[];
-export type APIDeckResult = Deck[];

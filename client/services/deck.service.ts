@@ -26,8 +26,14 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    getCards(): Observable<contracts.APICardResult> {
+    getCards(): Observable<contracts.CardGroup[]> {
         return this.http.get("api/cards")
+            .map(resp => resp.json())
+            .catch(this.handleError);
+    }
+
+    getMissingCards(): Observable<contracts.CardMissing[]> {
+        return this.http.get("api/missingcards")
             .map(resp => resp.json())
             .catch(this.handleError);
     }

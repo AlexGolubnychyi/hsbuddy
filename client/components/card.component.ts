@@ -11,6 +11,8 @@ import {AuthService} from "../services/auth.service";
 export class CardComponent implements OnInit {
     @Input()
     card: Card;
+    @Input()
+    showCount: boolean;
     enableAvailability: boolean;
     loading: boolean;
 

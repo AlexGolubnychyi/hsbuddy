@@ -41,12 +41,6 @@
     </div>
     <button type="button" class="btn btn-default" (click)="applyFilters()" [class.disabled]="loading"  style="margin-top:10px;">Filter</button>
 </div>
-<div class="spinner" *ngIf="loading">
-    <div class="bounce1"></div>
-    <div class="bounce2"></div>
-    <div class="bounce3"></div>
-</div>
-
-
+<spinner *ngIf="loading"></spinner>
 <deck style="clear:left;display:block" *ngFor="let deck of decks" [deck]="deck"></deck>
 <h3 [class.hidden]="loading || decks.length">nothing found..</h3>

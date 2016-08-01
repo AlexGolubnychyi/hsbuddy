@@ -4,13 +4,14 @@ import {DeckService} from "../services/deck.service";
 import {AuthService} from "../services/auth.service";
 import {Deck, DeckQuery} from "../../interfaces/index";
 import {CardClass} from "../../interfaces/hs-types";
+import {SpinnerComponent} from "./spinner.component";
 
 const localStorageKey = "hs-fun:filters";
 
 @Component({
     selector: "deck-list",
     templateUrl: "client/components/deck.list.component.html",
-    directives: [DeckComponent]
+    directives: [DeckComponent, SpinnerComponent]
 })
 export class DeckListComponent implements OnInit {
     decks: Deck[] = [];

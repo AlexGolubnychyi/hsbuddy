@@ -1,0 +1,20 @@
+<h1>Missing Cards</h1>
+
+<spinner *ngIf="loading"></spinner>
+
+<div *ngFor="let missingCard of missingCards">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card-details" [class.hidden]="hideDetails">
+                <card [card]="missingCard.card"></card>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <p>Decks: </p>
+            <div *ngFor="let deck of missingCard.decks">
+                {{deck.count}}: <a [href]="deck.url">{{deck.name}}</a>
+            </div>
+        </div>
+    </div>
+    <hr/>
+</div>

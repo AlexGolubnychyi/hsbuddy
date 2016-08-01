@@ -19,6 +19,9 @@ router.get("/cards", (req: express.Request, res: express.Response, next: express
     Card.getAllCards(req.user).then((cards) => res.json(cards));
 });
 
+router.get("/missingcards", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    Deck.getMissingCards(req.user).then((cards) => res.json(cards));
+});
 
 router.get("/decks", (req: express.Request, res: express.Response, next: express.NextFunction) => {
     getDecks(req.user, req.query).then(decks => res.json(decks));

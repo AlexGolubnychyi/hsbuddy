@@ -5,8 +5,11 @@
 (done) - filter by dust remaining
 (done)- filter by class
 (done)SIMPLIFY change availability, move calculations to client to avoid reload!!!	
+(done) card list? :)
 
 use LESS
+
+- add statistics to card library top
 
 
 - hide decks per user 
@@ -19,5 +22,5 @@ use LESS
 user profile with card library
 
 - improve parse ui (+ improve logging)
-- card list? :)
+
 - find similar decks (25-30 cards match)

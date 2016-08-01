@@ -14,6 +14,6 @@
 <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} details</button>
 
 <div class="card-details" [class.hidden]="hideDetails">  
-    <card *ngFor="let card of deck.cards" [card]="card"></card>
+    <card *ngFor="let card of deck.cards" [card]="card" [showCount]="true"></card>
 </div>
 
