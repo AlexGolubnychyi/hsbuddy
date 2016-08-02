@@ -1,31 +1,46 @@
 import { Component, OnInit } from "@angular/core";
 import {DeckService} from "../services/deck.service";
-import {CardGroup} from "../../interfaces/index";
+import {CardLibraryInfo} from "../../interfaces/index";
 import {CardComponent} from "./card.component";
 import {SpinnerComponent} from "./spinner.component";
+import {CardClass, CardRarity} from "../../interfaces/hs-types";
 
 @Component({
-    selector: "card-list",
+    selector: "card-library",
     templateUrl: "client/components/card.library.component.html",
     directives: [CardComponent, SpinnerComponent]
 })
 export class CardListComponent implements OnInit {
     constructor(private deckService: DeckService) { }
     loading: boolean;
-    cardGroups: CardGroup[];
+    statsCollapsed: boolean;
+    info: CardLibraryInfo;
+    stats: {};
+    rarity = CardRarity;
+    classes = CardClass;
 
     ngOnInit() {
         this.refreshCards();
+        this.statsCollapsed = true;
+
     }
 
     private refreshCards() {
         this.loading = true;
         this.deckService
-            .getCards()
-            .subscribe(groups => {
-                this.cardGroups = groups;
-                this.cardGroups.forEach((group, inx) => group.collapsed = inx > 0);
+            .getCardLibraryInfo()
+            .subscribe(info => {
+                this.info = info;
+                this.info.groups.forEach((group, inx) => group.collapsed = inx > 0);
                 this.loading = false;
             });
+    }
+
+    enumerate(enumerable: { [index: number]: string }) {
+        return Object.keys(enumerable)
+            .filter(key => !isNaN(parseInt(key)))
+            .map(key => enumerable[key])
+            .filter(name => !!this.info.stats[name])
+            .map(name => ({ count: this.info.stats[name][0], total: this.info.stats[name][1], name }));
     }
 }

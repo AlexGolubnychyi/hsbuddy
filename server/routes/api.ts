@@ -15,8 +15,8 @@ router.get("/", (req: express.Request, res: express.Response, next: express.Next
     res.render("index");
 });
 
-router.get("/cards", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    Card.getAllCards(req.user).then((cards) => res.json(cards));
+router.get("/cardslibrary", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    Card.getCardLibraryInfo(req.user).then((cards) => res.json(cards));
 });
 
 router.get("/missingcards", (req: express.Request, res: express.Response, next: express.NextFunction) => {

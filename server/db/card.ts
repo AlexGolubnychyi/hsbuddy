@@ -1,6 +1,6 @@
 import mongoose from "../lib/mongoose";
 import * as hstypes from "../../interfaces/hs-types";
-import UserCard, {UserCardDB} from "./userCard";
+import UserCard from "./userCard";
 import * as contracts from "../../interfaces/";
 
 const cardSchema = new mongoose.Schema({
@@ -25,7 +25,7 @@ cardSchema.static("generateId", (name: string) => {
     return name.toLowerCase().replace(/[ |,|`|.|'|:|"]*/g, "");
 });
 
-cardSchema.static("getAllCards", function (userId: string) {
+cardSchema.static("getCardLibraryInfo", function (userId: string) {
     let model = this as mongoose.Model<CardDB>,
         userCards: { [cardId: string]: number },
         standardSets = [
@@ -33,7 +33,10 @@ cardSchema.static("getAllCards", function (userId: string) {
             hstypes.CardSet.Expert, hstypes.CardSet.LeagueOfExplorers,
             hstypes.CardSet.TheGrandTournament, hstypes.CardSet.WhispersoftheOldGods
         ],
-        result: contracts.CardGroup[] = [];
+        result: contracts.CardLibraryInfo = {
+            groups: <any>[],
+            stats: {}
+        };
 
     return UserCard.getByUserId(userId)
         .then(uc => userCards = uc)
@@ -62,23 +65,33 @@ cardSchema.static("getAllCards", function (userId: string) {
                         numberAvailable: userCard || 0,
                         count: card.rarity === hstypes.CardRarity.legendary ? 1 : 2
                     };
+                //stats
+                let type = result.stats[hstypes.CardType[cardResult.type]] = result.stats[hstypes.CardType[cardResult.type]] || [0, 0],
+                    rarity = result.stats[hstypes.CardRarity[cardResult.rarity]] = result.stats[hstypes.CardRarity[cardResult.rarity]] || [0, 0],
+                    cardClass = result.stats[hstypes.CardClass[cardResult.class]] = result.stats[hstypes.CardClass[cardResult.class]] || [0, 0];
+
+                [type, rarity, cardClass].forEach(stat => {
+                    stat[0] += (cardResult.numberAvailable > 0 || cardResult.cardSet === hstypes.CardSet.Basic) ? 1 : 0;
+                    stat[1]++;
+                });
+
                 return cardResult;
             }).forEach(card => {
-                let group = result.filter(g => g.class === card.class)[0];
+                let group = result.groups.filter(g => g.class === card.class)[0];
                 if (!group) {
                     group = {
                         class: card.class,
                         name: hstypes.CardClass[card.class],
                         cards: [],
                     };
-                    result.push(group);
+                    result.groups.push(group);
                 }
                 group.cards.push(card);
             });
 
             //sort
-            result.forEach(g => g.cards = g.cards.sort(sortCars));
-            result = result.sort((f, s) => {
+            result.groups.forEach(g => g.cards = g.cards.sort(sortCars));
+            result.groups = result.groups.sort((f, s) => {
                 return weightClass(f.class) - weightClass(s.class);
             });
 
@@ -117,7 +130,7 @@ export interface CardDB extends mongoose.Document {
 
 interface CardStatics {
     generateId: (name: string) => string;
-    getAllCards: (userId: string) => Promise<contracts.CardGroup[]>;
+    getCardLibraryInfo: (userId: string) => Promise<contracts.CardLibraryInfo>;
 }
 
 export const cardSchemaName = "Card";

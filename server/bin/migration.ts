@@ -8,7 +8,7 @@ import * as Promise from "bluebird";
 
 
 let updates: (() => Promise<void>)[] = [
-    updateToVersion0, updateToVersion1, updateToVersion2, updateToVersion3
+    updateToVersion1, updateToVersion2, updateToVersion3, updateToVersion4, updateToVersion5
 ];
 
 (function checkForUpdates() {
@@ -32,8 +32,8 @@ let updates: (() => Promise<void>)[] = [
 
 
 //-------------------------updates-------------------------------------
-function updateToVersion0(): Promise<void> {
-    console.log("apply ver0");
+function updateToVersion1(): Promise<void> {
+    console.log("apply ver1");
     return Card.findOne().exec()
         .then(card => {
             if (card === null) {
@@ -44,41 +44,54 @@ function updateToVersion0(): Promise<void> {
                 console.log("db already contains cards");
             }
         })
-        .then(() => console.log("ver0 appplied successfully"));
+        .then(() => console.log("ver1 appplied successfully"));
 }
 
-function updateToVersion1(): Promise<void> {
-    console.log("apply ver1");
+function updateToVersion2(): Promise<void> {
+    console.log("apply ver2");
     return Deck.find().exec()
         .then(decks => {
             console.log("add Deck.dateAdded");
             decks.forEach(d => d.dateAdded = d.dateAdded || new Date());
             return decks;
         }).map((deck: mongoose.model<DeckDB>) => deck.save())
-        .then(() => console.log("ver1 appplied successfully"));
+        .then(() => console.log("ver2 appplied successfully"));
 }
 
-function updateToVersion2(): Promise<void> {
-    console.log("apply ver2");
+function updateToVersion3(): Promise<void> {
+    console.log("apply ver3");
     return Card.find({ "cardSet": 0 }).exec()
         .then(cards => {
             console.log("fix Naxx cards");
             cards.forEach(c => c.cardSet = hstypes.CardSet.Naxxramas);
             return cards;
         }).map((card: mongoose.model<CardDB>) => card.save())
-        .then(() => console.log("ver2 appplied successfully"));
+        .then(() => console.log("ver3 appplied successfully"));
 }
 
-function updateToVersion3(): Promise<void> {
-    let version = 3;
+function updateToVersion4(): Promise<void> {
+    let version = 4;
 
     console.log(`apply ver${version}`);
-    return Deck.find({name: "Pirate Warrior (Standard) deck list and guide - Hearthstone - July 2016"}).exec()
+    return Deck.find({ name: "Pirate Warrior (Standard) deck list and guide - Hearthstone - July 2016" }).exec()
         .then(badDecks => {
             console.log("remove faulty pirate warrior deck");
             return badDecks;
         })
         .then(badDecks => Promise.map(badDecks, bd => bd.remove()))
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion5(): Promise<void> {
+    let version = 5;
+
+    console.log(`apply ver${version}`);
+    console.log("fix cards from basic set to be free not common");
+    return Card.find({ cardSet: 1 }).exec()
+        .then(badDecks => Promise.map(badDecks, bc => {
+            bc.rarity = hstypes.CardRarity.free;
+            return bc.save();
+        }))
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 

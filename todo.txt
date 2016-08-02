@@ -9,13 +9,13 @@
 (done) user profile with card library
 (done) improve parse ui (+ improve logging)
 (done) decks by card (in card missing mode)
+(done) use LESS
 
 - add filters to card missing
 - add/grab deck dates
 - improve tempostorm parser
 - think of the way to distinqgish old deck from new decks
 
-- use LESS
 - add statistics to card library top
 
 - hide decks per user 

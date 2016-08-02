@@ -62,3 +62,8 @@ export interface CardGroup {
     cards: Card[];
     collapsed?: boolean;
 }
+
+export interface CardLibraryInfo {
+    stats: { [index: string]: [number, number] };
+    groups: CardGroup[];
+}
