@@ -9,8 +9,8 @@ import { CardMissingListComponent }  from "./card.missing.list.component";
     selector: "hs-app",
     templateUrl: "client/components/app.component.html",
     directives: [ROUTER_DIRECTIVES],
-    precompile: [DeckListComponent, CardListComponent,CardMissingListComponent]
+    precompile: [DeckListComponent, CardListComponent, CardMissingListComponent]
 })
-export class AppComponent  {
+export class AppComponent {
 
 }
