@@ -1,7 +1,7 @@
 import { provideRouter, RouterConfig } from "@angular/router";
 import {AuthGuard} from "./auth.guard";
 
-import { CardListComponent }  from "./components/card.list.component";
+import { CardListComponent }  from "./components/card.library.component";
 import { CardMissingListComponent }  from "./components/card.missing.list.component";
 import { DeckListComponent }  from "./components/deck.list.component";
 

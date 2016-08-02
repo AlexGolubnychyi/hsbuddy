@@ -6,7 +6,7 @@ import {SpinnerComponent} from "./spinner.component";
 
 @Component({
     selector: "card-list",
-    templateUrl: "client/components/card.list.component.html",
+    templateUrl: "client/components/card.library.component.html",
     directives: [CardComponent, SpinnerComponent]
 })
 export class CardListComponent implements OnInit {
