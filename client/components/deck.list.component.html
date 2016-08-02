@@ -1,6 +1,6 @@
 <h1>Standart decks</h1>
 
-<div class="form-group">
+<div class="form-group deck-filter">
     <div class="row">
         <div class="col-sm-3 cols-md-2">
             <div class="row">
@@ -39,8 +39,8 @@
                 </div>
         </div>
     </div>
-    <button type="button" class="btn btn-default" (click)="applyFilters()" [class.disabled]="loading"  style="margin-top:10px;">Filter</button>
+    <button type="button" class="btn btn-default" (click)="applyFilters()" [class.disabled]="loading">Filter</button>
 </div>
 <spinner *ngIf="loading"></spinner>
-<deck style="clear:left;display:block" *ngFor="let deck of decks" [deck]="deck"></deck>
+<deck *ngFor="let deck of decks" [deck]="deck"></deck>
 <h3 [class.hidden]="loading || decks.length">nothing found..</h3>

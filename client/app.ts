@@ -5,6 +5,9 @@ import {AuthGuard} from "./auth.guard";
 import {AuthService} from "./services/auth.service";
 import {DeckService} from "./services/deck.service";
 import {AppComponent} from "./components/app.component";
+import {enableProdMode} from "@angular/core";
 
-bootstrap(AppComponent, [HTTP_PROVIDERS, appRouterProviders, AuthService,DeckService, AuthGuard])
+enableProdMode();
+
+bootstrap(AppComponent, [HTTP_PROVIDERS, appRouterProviders, AuthService, DeckService, AuthGuard])
     .catch(err => console.error(err));

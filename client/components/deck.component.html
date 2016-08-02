@@ -1,11 +1,11 @@
 <hr/>
 <h2>
-    <a style="text-decoration:none;color:#f78f00;vertical-align: middle;" [href]="deck.url">
+    <a class="deck-title" [href]="deck.url">
         <span>{{title}}</span>
     </a><span class="label label-default" *ngIf="deck.collected">collected</span>
 </h2>
 
-<div *ngIf="showUserCollectionFlag" class="checkbox" slyle="float:left">
+<div *ngIf="showUserCollectionFlag" class="checkbox">
         <label>
         <input type="checkbox" id="blankCheckbox" [ngModel]="deck.userCollection" (ngModelChange)="onChangePersonalCollection($event)">
             Include in personal collection
