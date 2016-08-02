@@ -1,6 +1,6 @@
 export enum CardRarity { unknown, free, common, rare, epic, legendary };
 export enum CardClass { unknown, neutral, druid, hunter, mage, paladin, priest, rogue, shaman, warlock, warrior };
-export enum CardType { weapon, ability, minion, hero };
+export enum CardType { weapon, ability, minion, hero, unknown };
 export enum CardSet {
     unknown = 0, Basic, Expert, BlackrockMountain, TheGrandTournament, LeagueOfExplorers, WhispersoftheOldGods, Naxxramas, GoblinsvsGnomes, Reward
 };
