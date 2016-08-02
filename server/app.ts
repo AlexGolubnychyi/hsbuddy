@@ -12,6 +12,8 @@ import * as logger from "morgan";
 import * as connectMongo from "connect-mongo";
 import mongoose from "./lib/mongoose";
 
+let less = require("less-middleware");
+
 // var favicon = require("serve-favicon");
 const app = express();
 
@@ -23,6 +25,8 @@ app.set("view engine", "jade");
 // app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
 app.use(logger("dev"));
 
+
+app.use(less(path.join(__dirname, "../public"), { once: true }));
 app.use(express.static(path.join(__dirname, "../public")));
 app.use("/client", express.static(path.join(__dirname, "../client")));
 app.use("/interfaces", express.static(path.join(__dirname, "../interfaces")));
