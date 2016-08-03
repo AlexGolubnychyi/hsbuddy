@@ -1,16 +1,30 @@
-import * as Promise from "bluebird";
 import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
-import {ParseReportItem, ParseStatus} from "./index";
 
 //TODO change to regex
 let keywords = { deckUrl: "/deck-guides/", deckListUrl: "game-guides" };
 
 
 class MetaBombParser extends BaseDeckParser {
-    siteName = "hearthstone.metabomb.net";
+    private deckRegex = /hearthstone\.metabomb.net\/deck-guides\/([0-9a-zA-Z\-]+)/;
+    private deckListRegex = /hearthstone\.metabomb.net\/game-guides\/([0-9a-zA-Z\-]+)/;
 
-    parseDeckList(userId: string, url: string, save: boolean) {
+    canParse(url: string) {
+        return this.deckRegex.test(url) || this.deckListRegex.test(url);
+    }
+    parse(userId: string, url: string, save: boolean) {
+        if (this.deckListRegex.test(url)) {
+            return this.parseDeckList(userId, url, save);
+        }
+
+        if (this.deckRegex.test(url)) {
+            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
+        }
+
+        return this.reportUnrecognized(url);
+    }
+
+    private parseDeckList(userId: string, url: string, save: boolean) {
         console.log(`parsing ${url}`);
         return getContent(url)
             .then($ => {
@@ -21,7 +35,7 @@ class MetaBombParser extends BaseDeckParser {
             .map((deckUrl: string) => this.parseDeck(userId, deckUrl, false), { concurrency: 2 });
     }
 
-    parseDeck(userId: string, url: string, save: boolean) {
+    private parseDeck(userId: string, url: string, save: boolean) {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
@@ -34,24 +48,13 @@ class MetaBombParser extends BaseDeckParser {
                     if (!text) {
                         return;
                     }
-                    let [count, cardName] = text.split(" x ").map(part => part.trim());
+                    let [_, count, cardName] = text.match(/(1|2)\s*x\s*(.+)/);
                     cards[cardName] = +count;
                 });
             });
 
             return this.addDeckUnsafe(userId, name, url, cards);
         });
-    }
-
-    parse(userId: string, url: string, save: boolean) {
-        if (url.indexOf(keywords.deckListUrl) > 0) {
-            return this.parseDeckList(userId, url, save);
-        }
-        if (url.indexOf(keywords.deckUrl) > 0) { //change to regex url check
-            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
-        }
-
-        return Promise.resolve([<ParseReportItem>{ status: ParseStatus.urlNotRecognized, url: url }]);
     }
 };
 

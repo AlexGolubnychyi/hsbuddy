@@ -6,12 +6,10 @@ import Deck from "../db/deck";
 import Card from "../db/card";
 
 export abstract class BaseDeckParser {
-    siteName: string;
-    abstract parseDeck(userId: string, url: string, save: boolean): Promise<ParseReportItem>;
-    abstract parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]>;
     abstract parse(userId: string, url: string, save: boolean): Promise<ParseReportItem[]>;
+    abstract canParse(url: string): boolean;
 
-    protected addDeckUnsafe(userId: string, name: string, url: string, cards: { [cardName: string]: number}, date?: Date) {
+    protected addDeckUnsafe(userId: string, name: string, url: string, cards: { [cardName: string]: number }, date?: Date) {
         let cardNames = Object.keys(cards),
             deck = new Deck();
         deck._id = Deck.generateId(cards);
@@ -61,5 +59,13 @@ export abstract class BaseDeckParser {
                 }
                 return <ParseReportItem>{ status: ParseStatus.failed, reason: rejection.message, url: url };
             });
+    }
+
+    protected reportUnrecognized(url) {
+        return Promise.resolve([<ParseReportItem>{ status: ParseStatus.urlNotRecognized, url: url, reason: "" }]);
+    }
+
+     protected reportParserNotFound(url) {
+        return Promise.resolve([<ParseReportItem>{ status: ParseStatus.parserNotFound, url: url, reason: "" }]);
     }
 }

@@ -1,16 +1,30 @@
 import * as Promise from "bluebird";
-import {ParseReportItem, ParseStatus} from "./index";
+import {ParseReportItem} from "./index";
 import {getJSON} from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
 
 
 
 class TempoStormParser extends BaseDeckParser {
-    siteName = "tempostorm.com";
     private deckRegex = /tempostorm\.com\/hearthstone\/decks\/([0-9a-z\-]+)/;
     private deckListRegex = /tempostorm\.com\/hearthstone\/meta-snapshot\/standard\/([0-9a-z\-]+)/;
 
-    parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]> {
+    parse(userId: string, url: string, save: boolean) {
+        if (this.deckRegex.test(url)) {
+            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
+        }
+        if (this.deckListRegex.test(url)) {
+            return this.parseDeckList(userId, url, save);
+        }
+
+        return this.reportUnrecognized(url);
+    }
+
+    canParse(url) {
+        return this.deckRegex.test(url) || this.deckListRegex.test(url);
+    }
+
+    private parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]> {
         console.log(`parsing ${url}`);
         return this.getDeckListJSON(url).then(obj => {
 
@@ -26,7 +40,7 @@ class TempoStormParser extends BaseDeckParser {
         });
     }
 
-    parseDeck(userId: string, url: string, save: boolean) {
+    private parseDeck(userId: string, url: string, save: boolean) {
         console.log(`parsing ${url}`);
 
         return this.getDeckJSON(url).then(obj => {
@@ -34,21 +48,6 @@ class TempoStormParser extends BaseDeckParser {
             obj.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
             return this.addDeckUnsafe(userId, obj.name, url, cards, new Date(obj.createdDate));
         });
-    }
-
-    parse(userId: string, url: string, save: boolean) {
-        if (this.deckRegex.test(url)) {
-            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
-        }
-        if (this.deckListRegex.test(url)) {
-            return this.parseDeckList(userId, url, save);
-        }
-
-        return Promise.resolve([{ status: ParseStatus.urlNotRecognized, url: url, reason: "" }]);
-    }
-
-    canParse(url) {
-        return this.deckRegex.test(url) || this.deckListRegex.test(url);
     }
 
     private getDeckListJSON(url): Promise<DeckListResponseObj> {

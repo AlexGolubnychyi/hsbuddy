@@ -1,5 +1,4 @@
 "use strict";
-import * as url from "url";
 import * as Promise from "bluebird";
 import cardParse from "./cardParse";
 import metaBombParser from "./metaBombParser";
@@ -8,38 +7,47 @@ import hearthpwnParser from "./hearthPwnParser";
 import manaCrystalsParser from "./manaCrystalsParser";
 import hearthstoneTopDecksParser from "./hearthstoneTopDecksParser";
 import tempoStormParser from "./tempoStormParser";
+import failParser from "./failParser";
 import {BaseDeckParser} from "./baseDeckParser";
 
+
 class Parser {
-    private parsers: { [index: string]: BaseDeckParser } = {};
+    private parsers: BaseDeckParser[];
 
     constructor() {
-        [hearthpwnParser, manaCrystalsParser, hearthstoneTopDecksParser, metaBombParser, tempoStormParser]
-            .forEach(p => this.parsers[p.siteName] = p);
+        this.parsers = [
+            hearthpwnParser,
+            manaCrystalsParser,
+            hearthstoneTopDecksParser,
+            metaBombParser,
+            tempoStormParser,
+            //<-----failParser should always be the last in the list
+            failParser
+        ];
     }
 
     parse(userId: string, urls: string[]) {
-        let tasks = urls.map(this.urlToTask);
+        let tasks = urls
+            .map(this.urlClean)
+            .map(url => this.parsers.find(p => p.canParse(url)).parse(userId, url, true)) as PromiseLike<ParseReportItem[]>[];
 
-        return Promise.map(tasks, t => !t.parser
-            ? Promise.resolve([{ status: ParseStatus.parserNotFound, url: t.url, reason: ""}])
-            : t.parser.parse(userId, t.url, true))
-            .then(reports => reports.reduce((f, s) => f.concat(s)));
-    }
-
-    private urlToTask = (urlString: string) => {
-        let urlObj = url.parse(urlString);
-
-        return {
-            url: urlString,
-            parser: this.parsers[urlObj.hostname]
-        };
+        return Promise.all(tasks)
+            .then(reports => reports.reduce((f, s) => f.concat(s)))
+            .catch(e => [<ParseReportItem>{ status: ParseStatus.failed, url: "", reason: e.message }]);
     }
 
     populateWithCards() {
         console.log("[start] populate db with cards");
         return cardParse()
             .then(() => console.log("[done] populate db with cards"));
+    }
+
+    private urlClean(url: string) {
+        let prefix = "http://";
+        if (!/https?:\/\//.test(url)) {
+            return prefix + url;
+        }
+        return url;
     }
 }
 

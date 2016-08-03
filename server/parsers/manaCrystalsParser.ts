@@ -1,30 +1,21 @@
-import * as Promise from "bluebird";
-import {ParseReportItem} from "./index";
 import getContent from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
 
 class ManaCrystalsParser extends BaseDeckParser {
-    siteName = "manacrystals.com";
+    private deckRegex = /manacrystals\.com\/deck_guides\/([0-9]+)/;
 
-    parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]> {
-        return <any>Promise.reject("not implemented");
-        // console.log(`parsing ${url}`);
-        // return dbUtils.ensureDb()
-        //     .then(() => getContent(url))
-        //     .then($ => {
-        //         let unique = {};
-        //         $(`[href*=${keywords.deckUrl}]`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
-        //         return Object.keys(unique);
-        //     })
-        //     .map((deckUrl: string) => this.parseDeck(deckUrl, false), { concurrency: 2 })
-        //     .then(() => {
-        //         if (save) {
-        //             return dbUtils.saveDb();
-        //         }
-        //     });
+    canParse(url: string) {
+        return this.deckRegex.test(url);
+    }
+    parse(userId: string, url: string, save: boolean) {
+        if (this.canParse(url)) {
+            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
+        }
+
+        return this.reportUnrecognized(url);
     }
 
-    parseDeck(userId: string, url: string, save: boolean) {
+    private parseDeck(userId: string, url: string, save: boolean) {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
@@ -42,18 +33,6 @@ class ManaCrystalsParser extends BaseDeckParser {
 
             return this.addDeckUnsafe(userId, name, url, cards);
         });
-    }
-
-    parse(userId: string, url: string, save: boolean) {
-        if (this.isDeckUrl(url)) {
-            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
-        }
-
-        return this.parseDeckList(userId, url, save);
-    }
-
-    private isDeckUrl(url) {
-        return /manacrystals\.com\/deck_guides\/[0-9]*/.test(url);
     }
 };
 
