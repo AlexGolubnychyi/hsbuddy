@@ -1,5 +1,6 @@
 <h1>Missing Cards</h1>
 
+<deck-filter filterName="card-missing-filter" (filterChanged)="refreshCards($event)"></deck-filter>
 <spinner *ngIf="loading"></spinner>
 
 <div *ngFor="let missingCard of missingCards">

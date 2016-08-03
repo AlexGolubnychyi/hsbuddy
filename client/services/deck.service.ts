@@ -15,11 +15,8 @@ export class DeckService {
     }
 
     getDecks(options?: contracts.DeckQuery): Observable<contracts.Deck[]> {
-        let url = "api/decks", queryParams;
+        let url = this.withParams("api/decks", options);
 
-        if (options && (queryParams = Object.keys(options)).length) {
-            url += "?" + queryParams.map(paramName => `${paramName}=${options[paramName]}`).join("&");
-        }
 
         return this.http.get(url)
             .map(resp => resp.json())
@@ -32,8 +29,10 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    getMissingCards(): Observable<contracts.CardMissing[]> {
-        return this.http.get("api/missingcards")
+    getMissingCards(options?: contracts.DeckQuery): Observable<contracts.CardMissing[]> {
+        let url = this.withParams("api/missingcards", options);
+
+        return this.http.get(url)
             .map(resp => resp.json())
             .catch(this.handleError);
     }
@@ -55,6 +54,15 @@ export class DeckService {
         return this.http.get(`api/toggleuserdeck/${enc(deckId)}/${status}`)
             .map(resp => true)
             .catch(this.handleError);
+    }
+
+    private withParams(url: string, options?: {}) {
+        let queryParams;
+
+        if (options && (queryParams = Object.keys(options)).length) {
+            return url + "?" + queryParams.map(paramName => `${paramName}=${options[paramName]}`).join("&");
+        }
+        return url;
     }
 
     private handleError(error: any) {
