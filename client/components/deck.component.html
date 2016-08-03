@@ -1,5 +1,6 @@
 <hr/>
 <h2>
+    <div class="deck-metadata">added {{formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
     <a class="deck-title" [href]="deck.url">
         <span>{{title}}</span>
     </a><span class="label label-default" *ngIf="deck.collected">collected</span>

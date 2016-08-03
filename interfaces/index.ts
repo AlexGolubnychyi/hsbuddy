@@ -26,6 +26,7 @@ export interface Deck {
     id: string;
     name: string;
     url: string;
+    dateAdded: Date;
     class: hstypes.CardClass;
     className: string;
     cost: number;
@@ -33,6 +34,7 @@ export interface Deck {
     collected: boolean;
     cards: Card[];
     userCollection: boolean;
+    userId: string;
 }
 
 export interface CardMissing {

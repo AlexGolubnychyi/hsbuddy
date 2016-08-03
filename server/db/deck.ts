@@ -70,13 +70,15 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                     id: deck._id,
                     name: deck.name,
                     url: deck.url,
+                    dateAdded: deck.dateAdded,
                     class: deck.class,
                     className: hstypes.CardClass[deck.class],
                     cost: deck.cost,
                     dustNeeded: deck.cost,
                     collected: true,
                     cards: [],
-                    userCollection: userDeckIds.indexOf(deck._id) >= 0
+                    userCollection: userDeckIds.indexOf(deck._id) >= 0,
+                    userId: deck.userId
                 }, collected = true;
 
                 deckResult.cards = deck.cards.map(({card, count}: { card: CardDB, count: number }) => {

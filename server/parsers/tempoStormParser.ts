@@ -1,55 +1,111 @@
 import * as Promise from "bluebird";
-import {ParseReportItem} from "./index";
+import {ParseReportItem, ParseStatus} from "./index";
 import {getJSON} from "./utils";
 import {BaseDeckParser} from "./baseDeckParser";
 
 
+
 class TempoStormParser extends BaseDeckParser {
     siteName = "tempostorm.com";
+    private deckRegex = /tempostorm\.com\/hearthstone\/decks\/([0-9a-z\-]+)/;
+    private deckListRegex = /tempostorm\.com\/hearthstone\/meta-snapshot\/standard\/([0-9a-z\-]+)/;
 
     parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]> {
-        return <any>Promise.reject("not implemented");
-        // console.log(`parsing ${url}`);
-        // return dbUtils.ensureDb()
-        //     .then(() => getContent(url))
-        //     .then($ => {
-        //         let unique = {};
-        //         $(`[href*=${keywords.deckUrl}]`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
-        //         return Object.keys(unique);
-        //     })
-        //     .map((deckUrl: string) => this.parseDeck(deckUrl, false), { concurrency: 2 })
-        //     .then(() => {
-        //         if (save) {
-        //             return dbUtils.saveDb();
-        //         }
-        //     });
+        console.log(`parsing ${url}`);
+        return this.getDeckListJSON(url).then(obj => {
+
+            let promises = obj.deckTiers.map(tier => {
+                let deckUrl = `https://tempostorm.com/hearthstone/decks/${tier.deck.slugs[0].slug}`,
+                    date = new Date(tier.deck.createdDate),
+                    cards: { [cardName: string]: number } = {};
+                tier.deck.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
+                return this.addDeckUnsafe(userId, tier.name, deckUrl, cards, date);
+            });
+
+            return Promise.all(promises as PromiseLike<ParseReportItem>[]);
+        });
     }
 
     parseDeck(userId: string, url: string, save: boolean) {
-
         console.log(`parsing ${url}`);
 
-        return this.getJSON(url).then(obj => {
+        return this.getDeckJSON(url).then(obj => {
             let cards: { [cardName: string]: number } = {};
             obj.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
-            return this.addDeckUnsafe(userId, obj.name, url, cards);
+            return this.addDeckUnsafe(userId, obj.name, url, cards, new Date(obj.createdDate));
         });
     }
 
     parse(userId: string, url: string, save: boolean) {
-        if (this.isDeckUrl(url)) {
+        if (this.deckRegex.test(url)) {
             return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
         }
+        if (this.deckListRegex.test(url)) {
+            return this.parseDeckList(userId, url, save);
+        }
 
-        return this.parseDeckList(userId, url, save);
+        return Promise.resolve([{ status: ParseStatus.urlNotRecognized, url: url, reason: "" }]);
     }
 
-    private isDeckUrl(url) {
-        return /tempostorm\.com\/hearthstone\/decks\/[0-9a-z\-]/.test(url);
+    canParse(url) {
+        return this.deckRegex.test(url) || this.deckListRegex.test(url);
     }
 
-    private getJSON(url): Promise<ResponseObj> {
-        let deckName = url.trim("/").split("/").pop().trim(),
+    private getDeckListJSON(url): Promise<DeckListResponseObj> {
+        let listName = url.match(this.deckListRegex)[1],
+            payload = {
+                "where": {
+                    "slug": listName,
+                    "snapshotType": "standard"
+                },
+                "include": [
+                    {
+                        "relation": "deckTiers",
+                        "scope": {
+                            "include": [
+                                {
+                                    "relation": "deck",
+                                    "scope": {
+                                        "fields": [
+                                            "id",
+                                            "name",
+                                            "createdDate",
+                                            "slug",
+                                            "playerClass"
+                                        ],
+                                        "include": [
+                                            {
+                                                "relation": "slugs",
+                                                "scope": {
+                                                    "fields": [
+                                                        "linked",
+                                                        "slug"
+                                                    ]
+                                                },
+                                            },
+                                            {
+                                                "relation": "cards",
+                                                "scope": {
+                                                    "include": "card",
+                                                    "scope": {
+                                                        "fields": ["id", "name"]
+                                                    }
+                                                }
+                                            }
+                                        ],
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]
+
+            };
+        return getJSON("https://tempostorm.com/api/snapshots/findOne?filter=" + encodeURIComponent(JSON.stringify(payload)));
+    }
+
+    private getDeckJSON(url: string): Promise<DeckResponseObj> {
+        let deckName = url.match(this.deckRegex)[1],
             payload = {
                 where: {
                     slug: deckName
@@ -68,13 +124,14 @@ class TempoStormParser extends BaseDeckParser {
                 ]
             };
 
+
         return getJSON("https://tempostorm.com/api/decks/findOne?filter=" + encodeURIComponent(JSON.stringify(payload)));
     }
 };
 
 export default new TempoStormParser();
 
-interface ResponseObj {
+interface DeckResponseObj {
     id: string;
     name: string;
     createdDate: string;
@@ -83,5 +140,24 @@ interface ResponseObj {
         card: {
             name: string;
         }
+    }[];
+}
+
+interface DeckListResponseObj {
+    deckTiers: {
+        deck: {
+            createdDate: string,
+            cards: {
+                cardQuantity: number,
+                card: {
+                    name: string;
+                }
+            }[];
+            slugs: {
+                slug: string;
+            }[];
+        },
+        name: string;
+        tier: number;
     }[];
 }

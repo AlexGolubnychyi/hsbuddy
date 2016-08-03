@@ -56,6 +56,10 @@ export class DeckComponent implements OnInit, OnDestroy {
         });
     }
 
+    formatDate(date: string) {
+        return date.slice(0, 10);
+    }
+
     private updateDecks(cardId: string, newCount: number) {
         let collected = true,
             containsChangedCard = false;

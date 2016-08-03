@@ -11,7 +11,7 @@ export abstract class BaseDeckParser {
     abstract parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]>;
     abstract parse(userId: string, url: string, save: boolean): Promise<ParseReportItem[]>;
 
-    protected addDeckUnsafe(userId: string, name: string, url: string, cards: { [cardName: string]: number }) {
+    protected addDeckUnsafe(userId: string, name: string, url: string, cards: { [cardName: string]: number}, date?: Date) {
         let cardNames = Object.keys(cards),
             deck = new Deck();
         deck._id = Deck.generateId(cards);
@@ -19,7 +19,7 @@ export abstract class BaseDeckParser {
         deck.url = url;
         deck.class = hstypes.CardClass.unknown;
         deck.cost = 0;
-        deck.dateAdded = new Date();
+        deck.dateAdded = date || new Date();
         deck.userId = userId;
 
         return Deck.findById(deck._id).exec()
