@@ -21,7 +21,10 @@ class HearthStoneTopDecksParser extends BaseDeckParser {
 
         return getContent(url).then($ => {
             let name = $(".entry-title").text().trim(),
-                cards: { [cardName: string]: number } = {};
+                cards: { [cardName: string]: number } = {},
+                date = new Date($(".entry-title").text().match(/\((.+),.*\)/)[1]);
+            date.setDate(15); //we get only month and year => improvise!
+            date = (isNaN(date.valueOf()) || date > new Date()) ? new Date() : date; //but not too much
 
 
             $(".deck-class").find(".card-frame").each((_, cardEl) => {

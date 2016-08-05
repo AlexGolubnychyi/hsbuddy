@@ -20,8 +20,13 @@ class ManaCrystalsParser extends BaseDeckParser {
 
         return getContent(url).then($ => {
             let name = $(".page-header").text().trim(),
+                dateStr = $("section h4")
+                    .filter((_, h4) => $(h4).text().toLowerCase().trim() === "last updated")
+                    .parent()
+                    .find("p")
+                    .text(),
+                date = new Date(dateStr),
                 cards: { [cardName: string]: number } = {};
-
 
             $(".card-list-item").each((_, cardEl) => {
                 let $cardEl = $(cardEl),
@@ -31,7 +36,7 @@ class ManaCrystalsParser extends BaseDeckParser {
                 cards[cardName] = count;
             });
 
-            return this.addDeckUnsafe(userId, name, url, cards);
+            return this.addDeckUnsafe(userId, name, url, cards, date);
         });
     }
 };

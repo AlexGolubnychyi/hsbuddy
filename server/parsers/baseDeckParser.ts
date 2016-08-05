@@ -17,7 +17,7 @@ export abstract class BaseDeckParser {
         deck.url = url;
         deck.class = hstypes.CardClass.unknown;
         deck.cost = 0;
-        deck.dateAdded = date || new Date();
+        deck.dateAdded = (date && !isNaN(date.valueOf())) ? date : new Date();
         deck.userId = userId;
 
         return Deck.findById(deck._id).exec()

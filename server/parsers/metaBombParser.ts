@@ -40,7 +40,8 @@ class MetaBombParser extends BaseDeckParser {
 
         return getContent(url).then($ => {
             let name = $("main>article>header>h1").text(),
-                cards: { [cardName: string]: number } = {};
+                cards: { [cardName: string]: number } = {},
+                date = new Date($("span[itemprop=datePublished]").attr("content"));
 
             $("main table").first().find("tr").each((_, tr) => {
                 $(tr).find("td").each((inx, td) => {
@@ -53,7 +54,7 @@ class MetaBombParser extends BaseDeckParser {
                 });
             });
 
-            return this.addDeckUnsafe(userId, name, url, cards);
+            return this.addDeckUnsafe(userId, name, url, cards, date);
         });
     }
 };
