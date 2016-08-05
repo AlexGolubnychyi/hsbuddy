@@ -96,6 +96,9 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
             if (typeof dustNeededParam === "number") {
                 result = result.filter(d => d.dustNeeded <= dustNeededParam);
             }
+            if (+params.orderBy === contracts.OrderBy.date) {
+                return result.sort((f, s) => s.dateAdded > f.dateAdded ? 1 : -1);
+            }
 
             return result.sort((f, s) => f.dustNeeded - s.dustNeeded);
         });

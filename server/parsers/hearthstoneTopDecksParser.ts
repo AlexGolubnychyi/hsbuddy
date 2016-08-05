@@ -35,7 +35,7 @@ class HearthStoneTopDecksParser extends BaseDeckParser {
                 cards[cardName] = count;
             });
 
-            return this.addDeckUnsafe(userId, name, url, cards);
+            return this.addDeckUnsafe(userId, name, url, cards, date);
         });
     }
 }

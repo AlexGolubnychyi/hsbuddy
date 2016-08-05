@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter  } from "@angular/core";
 import {CardClass} from "../../interfaces/hs-types";
 import {AuthService} from "../services/auth.service";
-import {DeckQuery} from "../../interfaces/index";
+import {DeckQuery, OrderBy} from "../../interfaces/index";
 
 @Component({
     selector: "deck-filter",
@@ -19,32 +19,36 @@ export class DeckFilterComponent implements OnInit {
         .filter(key => !isNaN(+key))
         .map(id => ({ name: CardClass[id], value: +id }))
         .filter(item => item.value !== CardClass.neutral);
+    orderOptions = OrderBy;
     userCollection: boolean;
     selectedClass: CardClass;
     dustNeeded: number;
     useUserCollectionFilter: boolean;
+    orderBy: OrderBy = OrderBy.dust;
 
     ngOnInit() {
         let filters = localStorage.getItem(this.filterName);
         this.useUserCollectionFilter = this.authService.isAuthenticated();
         let useLocalStorage = !!filters && this.authService.isAuthenticated();
 
-        [this.userCollection, this.selectedClass, this.dustNeeded] = useLocalStorage
+        [this.userCollection, this.selectedClass, this.dustNeeded, this.orderBy = this.orderBy] = useLocalStorage
             ? JSON.parse(filters)
-            : [false, CardClass.unknown, null];
+            : [false, CardClass.unknown, null, this.orderBy];
 
         this.notify();
     }
 
     applyFilters() {
         if (this.authService.isAuthenticated()) {
-            localStorage.setItem(this.filterName, JSON.stringify([this.userCollection, this.selectedClass, this.dustNeeded]));
+            localStorage.setItem(this.filterName, JSON.stringify([this.userCollection, this.selectedClass, this.dustNeeded, this.orderBy]));
         }
         this.notify();
     }
 
     private notify() {
-        let params: DeckQuery = {};
+        let params: DeckQuery = {
+            orderBy: this.orderBy
+        };
 
         if (typeof this.dustNeeded === "number") {
             params.dustNeeded = this.dustNeeded;
@@ -56,6 +60,7 @@ export class DeckFilterComponent implements OnInit {
         if (this.userCollection) {
             params.userCollection = true;
         }
+
 
         this.filterChanged.emit(params);
     }

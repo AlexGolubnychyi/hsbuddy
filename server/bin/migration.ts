@@ -3,12 +3,12 @@ import Card, {CardDB} from "../db/card";
 import Deck, {DeckDB} from "../db/deck";
 import * as hstypes from "../../interfaces/hs-types";
 import version from "../db/version";
-import parser from "../parsers";
+import parser, {ParseStatus} from "../parsers";
 import * as Promise from "bluebird";
 
 
 let updates: (() => Promise<void>)[] = [
-    updateToVersion1, updateToVersion2, updateToVersion3, updateToVersion4, updateToVersion5
+    updateToVersion1, updateToVersion2, updateToVersion3, updateToVersion4, updateToVersion5, updateToVersion6
 ];
 
 (function checkForUpdates() {
@@ -28,8 +28,6 @@ let updates: (() => Promise<void>)[] = [
 
     });
 })();
-
-
 
 //-------------------------updates-------------------------------------
 function updateToVersion1(): Promise<void> {
@@ -92,6 +90,29 @@ function updateToVersion5(): Promise<void> {
             bc.rarity = hstypes.CardRarity.free;
             return bc.save();
         }))
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion6(): Promise<void> {
+    let version = 6;
+    let urls: string[];
+
+    console.log(`apply ver${version}`);
+    console.log("fix deck dates");
+    return Deck.find().exec()
+        .then(decks => {
+            urls = decks.map(deck => deck.url);
+            return Promise.map(decks, deck => deck.remove());
+        })
+        .then(() => parser.parse(void 0, urls))
+        .then(reports => {
+            let failed = reports.filter(r => r.status !== ParseStatus.success);
+            if (failed.length) {
+                console.log(`failed to parse ${failed.length}/${reports.length - failed.length} items`);
+                console.log("---------------------------------------------------------");
+                failed.forEach(r => console.log(`${ParseStatus[r.status]}, url: ${r.url}, \nreason: ${r.reason}`));
+            }
+        })
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 

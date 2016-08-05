@@ -1,5 +1,7 @@
 import * as hstypes from "./hs-types";
 
+export enum OrderBy {date, dust};
+
 export interface Card {
     id: string;
     name: string;
@@ -56,6 +58,7 @@ export interface DeckQuery {
     userCollection?: boolean | string;
     deckClass?: hstypes.CardClass | string;
     dustNeeded?: number | string;
+    orderBy: OrderBy;
 };
 
 export interface CardGroup {

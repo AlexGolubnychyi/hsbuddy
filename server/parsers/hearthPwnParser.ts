@@ -23,8 +23,11 @@ class HearthPwnParser extends BaseDeckParser {
             let name = $(".deck-title").text(),
                 cards: { [cardName: string]: number } = {},
                 date = new Date(0);
-
-            date.setUTCSeconds(+$("li.last-updated abbr.standard-date").attr("data-epoch"));
+            date.setUTCSeconds(+$(".revision-listing abbr.standard-date").attr("data-epoch"));
+            if (isNaN(date.valueOf())) {
+                date = new Date(0);
+                date.setUTCSeconds(+$("li.last-updated abbr.standard-date").attr("data-epoch"));
+            }
 
             $(".class-listing .listing, .neutral-listing .listing").find("[data-id]").each((_, cardEl) => {
                 let $td = $(cardEl).closest("td"),

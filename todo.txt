@@ -14,8 +14,8 @@
 (done) improve tempostorm parser
 (done) add statistics to card library top
 (done) add filters to card missing
+(date) ensure all parsers try to grab deck date
 
-- ensure all parsers try to grab deck date
 - think of the way to distinguish old deck from new decks
 - hide decks per user 
 - mana curve, spell/minion break down
@@ -24,3 +24,7 @@
 - improve UI to single page app
 - improve UI to support server prerender
 - diff decks
+-sort by deck date
+-ability to set deck alias
+- more info on card missing (how to obtain from hs json db)
+- deck list: show only missing cards

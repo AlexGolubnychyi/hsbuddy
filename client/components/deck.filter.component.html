@@ -23,7 +23,20 @@
                 </div>
             </div>
         </div>
-        <div *ngIf="useUserCollectionFilter" class="col-sm-4">
+        <div class="col-sm-3 cols-md-2">
+            <div class="row">
+                <label for="orderBy" class="col-sm-12 control-label">Order By:</label>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <select id="orderBy" class="form-control" [(ngModel)]="orderBy">
+                      <option value="{{orderOptions.date}}">Date</option>
+                      <option value="{{orderOptions.dust}}">Dust remaining</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <div *ngIf="useUserCollectionFilter" class="col-sm-3">
             <div class="row hidden-xs">&nbsp;</div>
             <div class="row">
                 <div class="col-sm-12">
