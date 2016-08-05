@@ -7,14 +7,29 @@
 </h2>
 
 <div *ngIf="showUserCollectionFlag" class="checkbox">
-        <label>
+    <label>
         <input type="checkbox" id="blankCheckbox" [ngModel]="deck.userCollection" (ngModelChange)="onChangePersonalCollection($event)">
-            Include in personal collection
-        </label>
+        Include in personal collection
+    </label>
 </div>
 <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} details</button>
+<span *ngIf="!hideDetails">
+    <button *ngIf="auth" (click)="changeAvailability()" class="btn btn-default btn-xs">
+        {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
+    </button>
+    <div class="btn-group" dropdown (click)="$event.preventDefault()">
+        <button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
+        Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
+        </button>
+        <ul class="dropdown-menu" dropdownMenu>
+            <li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
+            <li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
+        </ul>
+    </div>
+</span>
 
-<div class="card-details" [class.hidden]="hideDetails">  
-    <card *ngFor="let card of deck.cards" [card]="card" [showCount]="true"></card>
+<div *ngIf="!hideDetails">
+    <div class="card-details">
+        <card *ngFor="let card of deck.cards | cardpipe: filter" [card]="card" [showCount]="true"></card>
+    </div>
 </div>
-

@@ -10,5 +10,6 @@
         "**/*.js": { "when": "$(basename).ts"},
         "**/*.map": true,
         "**/*.css": { "when": "$(basename).less"}
-	}
+	},
+    "editor.snippetSuggestions": "bottom"
 }

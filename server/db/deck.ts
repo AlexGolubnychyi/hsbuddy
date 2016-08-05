@@ -87,7 +87,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                     deckResult.dustNeeded -= Math.min(cardResult.count, cardResult.numberAvailable) * card.cost;
                     collected = collected && (cardResult.numberAvailable >= cardResult.count || cardResult.cardSet === hstypes.CardSet.Basic);
                     return cardResult;
-                }).sort(sortFunc);
+                });
 
                 deckResult.collected = collected;
 
@@ -177,34 +177,6 @@ function cardToContract(card: CardDB, numberAvailable: number, deckCount = 0): c
         count: deckCount
     };
 }
-
-
-function weightCard(card: contracts.Card) {
-
-    let baseWeight = card.mana; // + (card.class === "neutral" ? 1000 : 0),
-
-    if (card.cardSet === hstypes.CardSet.Basic) {
-        return baseWeight;
-    }
-
-    switch (card.rarity) {
-        case hstypes.CardRarity.legendary: return baseWeight + 400;
-        case hstypes.CardRarity.epic: return baseWeight + 300;
-        case hstypes.CardRarity.rare: return baseWeight + 200;
-        case hstypes.CardRarity.common: return baseWeight + 100;
-    }
-
-    return baseWeight;
-}
-
-function sortFunc(card1: contracts.Card, card2: contracts.Card) {
-    let diff = weightCard(card1) - weightCard(card2);
-    if (diff) {
-        return diff;
-    }
-    return card1.name > card2.name ? 1 : -1;
-}
-
 
 export interface DeckDB extends mongoose.Document {
     _id: string;

@@ -90,7 +90,7 @@ cardSchema.static("getCardLibraryInfo", function (userId: string) {
             });
 
             //sort
-            result.groups.forEach(g => g.cards = g.cards.sort(sortCars));
+            result.groups.forEach(g => g.cards = g.cards.sort(sortCards));
             result.groups = result.groups.sort((f, s) => {
                 return weightClass(f.class) - weightClass(s.class);
             });
@@ -102,7 +102,7 @@ cardSchema.static("getCardLibraryInfo", function (userId: string) {
 function weightClass(c: hstypes.CardClass) {
     return c === hstypes.CardClass.neutral ? 1000 : c;
 }
-function sortCars(f: contracts.Card, s: contracts.Card) {
+function sortCards(f: contracts.Card, s: contracts.Card) {
     let result = f.mana - s.mana;
     if (result) {
         return result;
