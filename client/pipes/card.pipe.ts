@@ -1,5 +1,4 @@
 import { Pipe, PipeTransform } from "@angular/core";
-import * as hstypes from "../../interfaces/hs-types";
 
 import {Card} from "../../interfaces";
 

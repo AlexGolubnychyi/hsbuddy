@@ -39,13 +39,10 @@ export class DeckService {
 
     changeCardAvailability(cardId: string, count: number): Observable<boolean> {
         let request = this.http.get(`api/changenumber/${enc(cardId)}/${count}`)
-            .map(resp => true)
-            .catch(this.handleError)
-            .share(); //to send single request instead of multiple
-
-        request.subscribe(() => {
-            this.cardChanged.next({ cardId, count });
-        });
+            .do(resp => {
+                this.cardChanged.next({ cardId, count });
+            })
+            .catch(this.handleError);
 
         return request;
     }

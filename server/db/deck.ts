@@ -50,7 +50,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                     queryParts.push({ "class": +params.deckClass });
                 }
 
-                if (params.dustNeeded) {
+                if (!isNaN(+params.dustNeeded)) {
                     dustNeededParam = +params.dustNeeded;
                 }
 
@@ -137,10 +137,7 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
         }))
         .then(() => {
             return Object.keys(resultObj).map(cardId => resultObj[cardId])
-                .map(card => {
-                    card.decks = <any>card.decks.sort((deck1, deck2) => deck1.dustNeeded - deck2.dustNeeded);
-                    return card;
-                }).sort((card1, card2) => {
+                .sort((card1, card2) => {
                     let diff = card2.decks.length - card1.decks.length;
                     if (diff) {
                         return diff;

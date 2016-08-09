@@ -1,17 +1,23 @@
-import { Component, OnInit, Input, Output, EventEmitter  } from "@angular/core";
+import { Component, OnInit, Input } from "@angular/core";
 import {CardClass} from "../../interfaces/hs-types";
 import {AuthService} from "../services/auth.service";
 import {DeckQuery, OrderBy} from "../../interfaces/index";
+import { FormGroup, FormControl, Validators, REACTIVE_FORM_DIRECTIVES   }  from "@angular/forms";
+import {Subject} from "rxjs/Subject";
+import {Observable} from "rxjs/Observable";
 
 @Component({
     selector: "deck-filter",
     templateUrl: "client/components/deck.filter.component.html",
+    directives: [REACTIVE_FORM_DIRECTIVES]
 })
 export class DeckFilterComponent implements OnInit {
     @Input()
     filterName: string;
-    @Output()
-    filterChanged = new EventEmitter<DeckQuery>();
+
+    filterForm: FormGroup;
+    filterButtonClickStream = new Subject();
+    filter$: Observable<DeckQuery>;
 
     constructor(private authService: AuthService) { }
 
@@ -20,48 +26,38 @@ export class DeckFilterComponent implements OnInit {
         .map(id => ({ name: CardClass[id], value: +id }))
         .filter(item => item.value !== CardClass.neutral);
     orderOptions = OrderBy;
-    userCollection: boolean;
-    selectedClass: CardClass;
-    dustNeeded: number;
+
     useUserCollectionFilter: boolean;
-    orderBy: OrderBy = OrderBy.dust;
 
     ngOnInit() {
-        let filters = localStorage.getItem(this.filterName);
-        this.useUserCollectionFilter = this.authService.isAuthenticated();
-        let useLocalStorage = !!filters && this.authService.isAuthenticated();
+        let auth = this.authService.isAuthenticated(),
+            filters = auth && localStorage.getItem(this.filterName),
+            defaults: DeckQuery = (filters && JSON.parse(filters)) || {
+                deckClass: CardClass.unknown,
+                dustNeeded: undefined,
+                orderBy: OrderBy.dust,
+                userCollection: undefined
+            };
+        this.useUserCollectionFilter = auth;
 
-        [this.userCollection, this.selectedClass, this.dustNeeded, this.orderBy = this.orderBy] = useLocalStorage
-            ? JSON.parse(filters)
-            : [false, CardClass.unknown, null, this.orderBy];
 
-        this.notify();
-    }
-
-    applyFilters() {
-        if (this.authService.isAuthenticated()) {
-            localStorage.setItem(this.filterName, JSON.stringify([this.userCollection, this.selectedClass, this.dustNeeded, this.orderBy]));
-        }
-        this.notify();
-    }
-
-    private notify() {
-        let params: DeckQuery = {
-            orderBy: this.orderBy
+        let group: { [index: string]: FormControl } = {
+            "dustNeeded": new FormControl(defaults.dustNeeded, Validators.pattern("[0-9]*")),
+            "deckClass": new FormControl(defaults.deckClass),
+            "orderBy": new FormControl(defaults.orderBy),
         };
 
-        if (typeof this.dustNeeded === "number") {
-            params.dustNeeded = this.dustNeeded;
-        }
-        if (this.selectedClass > 0) {
-            params.deckClass = this.selectedClass;
+        if (auth) {
+            group["userCollection"] = new FormControl(defaults && defaults.userCollection);
         }
 
-        if (this.userCollection) {
-            params.userCollection = true;
-        }
+        this.filterForm = new FormGroup(group);
 
-
-        this.filterChanged.emit(params);
+        this.filter$ = this.filterForm
+            .valueChanges
+            .debounce(v => Observable.race(this.filterButtonClickStream, Observable.timer(2000)))
+            .startWith(defaults)
+            .filter(v => this.filterForm.valid)
+            .do(v => localStorage.setItem(this.filterName, JSON.stringify(v)));
     }
 }
