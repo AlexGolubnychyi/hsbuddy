@@ -13,7 +13,7 @@ import {DeckFilterComponent} from "./deck.filter.component";
 })
 export class DeckListComponent implements AfterViewInit {
     decks: Deck[] = [];
-    loading: boolean;
+    loading: boolean = true;
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;
 
     constructor(private deckService: DeckService, private authService: AuthService) { }

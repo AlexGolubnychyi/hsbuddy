@@ -12,7 +12,7 @@ import {DeckFilterComponent} from "./deck.filter.component";
 })
 export class CardMissingListComponent implements AfterViewInit {
     constructor(private deckService: DeckService) { }
-    loading: boolean;
+    loading: boolean = true;
     missingCards: CardMissing[];
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;
 
