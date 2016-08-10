@@ -2,14 +2,13 @@ import { Component, OnInit, Input } from "@angular/core";
 import {CardClass} from "../../interfaces/hs-types";
 import {AuthService} from "../services/auth.service";
 import {DeckQuery, OrderBy} from "../../interfaces/index";
-import { FormGroup, FormControl, Validators, REACTIVE_FORM_DIRECTIVES   }  from "@angular/forms";
+import {FormGroup, FormControl, Validators}  from "@angular/forms";
 import {Subject} from "rxjs/Subject";
 import {Observable} from "rxjs/Observable";
 
 @Component({
     selector: "deck-filter",
     templateUrl: "client/components/deck.filter.component.html",
-    directives: [REACTIVE_FORM_DIRECTIVES]
 })
 export class DeckFilterComponent implements OnInit {
     @Input()

@@ -17,7 +17,7 @@
 (date) ensure all parsers try to grab deck date
 (done) deck list: show only missing cards
 (done) sort by deck date
-
+(done) prod: pack js 
 - think of the way to distinguish old deck from new decks
 - hide decks per user 
 - mana curve, spell/minion break down
@@ -25,8 +25,10 @@
 - find similar decks (25-30 cards match)
 - improve UI to single page app
 - improve UI to support server prerender
-- diff decks
 
+- diff decks
+- prod: pack htlm
+- prod reduce response sizes (at the moment: 450kb !)
 -ability to set deck alias
 - more info on card missing (how to obtain from hs json db)
 

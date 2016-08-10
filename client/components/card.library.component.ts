@@ -1,14 +1,11 @@
 import { Component, OnInit } from "@angular/core";
 import {DeckService} from "../services/deck.service";
 import {CardLibraryInfo} from "../../interfaces/index";
-import {CardComponent} from "./card.component";
-import {SpinnerComponent} from "./spinner.component";
 import {CardClass, CardRarity} from "../../interfaces/hs-types";
 
 @Component({
     selector: "card-library",
     templateUrl: "client/components/card.library.component.html",
-    directives: [CardComponent, SpinnerComponent]
 })
 export class CardListComponent implements OnInit {
     constructor(private deckService: DeckService) { }

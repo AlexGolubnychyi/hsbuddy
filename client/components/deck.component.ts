@@ -1,22 +1,16 @@
 import { Component, Input, OnInit, OnDestroy } from "@angular/core";
 import {DeckService} from "../services/deck.service";
 import {AuthService} from "../services/auth.service";
-import {CardComponent} from "./card.component";
 import {Deck, Card} from "../../interfaces/index";
 import {CardSet} from "../../interfaces/hs-types";
-import {CardPipe, SortOptions, CardPipeArg} from "../pipes/card.pipe";
-import {DROPDOWN_DIRECTIVES} from "ng2-bootstrap/components/dropdown";
+import {SortOptions, CardPipeArg} from "../pipes/card.pipe";
+
 import {Subscription} from "rxjs";
 import "../rxjs-operators";
 
-
-//https://angular.io/docs/ts/latest/tutorial/toh-pt6.html
-//https://angular.io/docs/ts/latest/cookbook/component-communication.html#!#child-to-parent
 @Component({
     selector: "deck",
     templateUrl: "client/components/deck.component.html",
-    directives: [CardComponent, DROPDOWN_DIRECTIVES],
-    pipes: [CardPipe]
 })
 export class DeckComponent implements OnInit, OnDestroy {
     @Input()
@@ -39,7 +33,6 @@ export class DeckComponent implements OnInit, OnDestroy {
         this.hideDetails = true;
         this.updateTitle();
         this.auth = this.authService.isAuthenticated();
-        //this.applyAvailFilter();
         this.filter = {
             hideAvailable: false,
             sort: SortOptions.classic

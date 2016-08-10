@@ -1,14 +1,11 @@
 import { Component, ViewChild, AfterViewInit } from "@angular/core";
 import {DeckService} from "../services/deck.service";
 import {CardMissing} from "../../interfaces/index";
-import {CardComponent} from "./card.component";
-import {SpinnerComponent} from "./spinner.component";
 import {DeckFilterComponent} from "./deck.filter.component";
 
 @Component({
     selector: "missing-card-list",
-    templateUrl: "client/components/card.missing.list.component.html",
-    directives: [CardComponent, SpinnerComponent, DeckFilterComponent]
+    templateUrl: "client/components/card.missing.list.component.html"
 })
 export class CardMissingListComponent implements AfterViewInit {
     constructor(private deckService: DeckService) { }

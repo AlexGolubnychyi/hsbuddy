@@ -1,15 +1,12 @@
 import { Component, ViewChild, AfterViewInit } from "@angular/core";
-import {DeckComponent} from "./deck.component";
 import {DeckService} from "../services/deck.service";
 import {AuthService} from "../services/auth.service";
 import {Deck} from "../../interfaces/index";
-import {SpinnerComponent} from "./spinner.component";
 import {DeckFilterComponent} from "./deck.filter.component";
 
 @Component({
     selector: "deck-list",
     templateUrl: "client/components/deck.list.component.html",
-    directives: [DeckComponent, SpinnerComponent, DeckFilterComponent]
 })
 export class DeckListComponent implements AfterViewInit {
     decks: Deck[] = [];
