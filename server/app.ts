@@ -30,9 +30,10 @@ app.use(less(path.join(__dirname, "../public"), { once: true }));
 app.use(express.static(path.join(__dirname, "../public")));
 app.use("/client", express.static(path.join(__dirname, "../client")));
 app.use("/interfaces", express.static(path.join(__dirname, "../interfaces")));
-if (app.get("env") === "development") {
-    app.use("/node_modules", express.static(path.join(__dirname, "../node_modules")));
-}
+// if (app.get("env") === "development") {
+//     app.use("/node_modules", express.static(path.join(__dirname, "../node_modules")));
+// }
+app.use("/node_modules", express.static(path.join(__dirname, "../node_modules")));
 
 app.use(json());
 app.use(urlencoded({ extended: false }));

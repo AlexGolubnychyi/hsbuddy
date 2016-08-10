@@ -19,7 +19,7 @@ export default function (app: express.Express) {
   // });
 
   app.use("/", function (req, res) {
-    res.render("index");
+    res.render("index", {env: app.get("env")});
   });
 
 };

@@ -1,7 +1,6 @@
-/**
- * System configuration for Angular 2 samples
- * Adjust as necessary for your application needs.
- */
+/** Type declaration for ambient System. */
+declare var System: any;
+
 (function (global) {
     // map tells the System loader where to look for things
     var map = {
@@ -14,7 +13,7 @@
     // packages tells the System loader how to load when no filename and/or no extension
     var packages = {
         "app": { main: "app.js", defaultExtension: "js" },
-        "ng2-bootstrap": {defaultExtension: "js"},
+        "ng2-bootstrap": { defaultExtension: "js" },
         "interfaces": { defaultExtension: "js" },
         "rxjs": { defaultExtension: "js" },
     };
@@ -38,13 +37,23 @@
     function packUmd(pkgName) {
         packages["@angular/" + pkgName] = { main: "/bundles/" + pkgName + ".umd.js", defaultExtension: "js" };
     }
+
     // Most environments should use UMD; some (Karma) need the individual index files
-    var setPackageConfig = System.packageWithIndex ? packIndex : packUmd;
+    var setPackageConfig = (typeof System !== "undefined" && System.packageWithIndex) ? packIndex : packUmd;
     // Add package entries for angular packages
     ngPackageNames.forEach(setPackageConfig);
     var config = {
         map: map,
         packages: packages
     };
-    System.config(config);
+
+    if (typeof module !== "undefined") {
+        //for builder
+        module.exports = config;
+    }
+    else {
+        //for dev mode
+        System.config(config);
+    }
 })(this);
+

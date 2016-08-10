@@ -7,6 +7,7 @@ import {DeckService} from "./services/deck.service";
 import {AppComponent} from "./components/app.component";
 import {enableProdMode} from "@angular/core";
 import { disableDeprecatedForms, provideForms } from "@angular/forms";
+
 enableProdMode();
 
 bootstrap(AppComponent, [
