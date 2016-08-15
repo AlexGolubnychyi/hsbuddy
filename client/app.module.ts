@@ -1,5 +1,5 @@
 import {NgModule}      from "@angular/core";
-import {FormsModule, ReactiveFormsModule }      from "@angular/forms";
+import {ReactiveFormsModule }      from "@angular/forms";
 import {BrowserModule} from "@angular/platform-browser";
 
 import {routing} from "./app.routing";
@@ -24,7 +24,6 @@ import {CardPipe} from "./pipes/card.pipe";
     imports: [
         BrowserModule,
         routing,
-        FormsModule,
         ReactiveFormsModule,
         HttpModule
     ],

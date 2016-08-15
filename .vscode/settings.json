@@ -11,5 +11,6 @@
         "**/*.map": true,
         "**/*.css": { "when": "$(basename).less"}
 	},
-    "editor.snippetSuggestions": "bottom"
+    "editor.snippetSuggestions": "bottom",
+    "typescript.tsdk": "c:/Users/Alexei/AppData/Roaming/npm/node_modules/typescript/lib"
 }

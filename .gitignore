@@ -2,3 +2,4 @@ node_modules/
 **/*.js
 **/*.js.map
 server/db/*.json
+client/**/*.json

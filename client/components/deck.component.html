@@ -1,35 +1,37 @@
-<hr/>
-<h2>
-    <div class="deck-metadata">added {{formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
-    <a class="deck-title" [href]="deck.url">
-        <span>{{title}}</span>
-    </a><span class="label label-default" *ngIf="deck.collected">collected</span>
-</h2>
+<div [formGroup]="form">
+    <hr/>
+    <h2>
+        <div class="deck-metadata">added {{formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
+        <a class="deck-title" [href]="deck.url">
+            <span>{{title}}</span>
+        </a><span class="label label-default" *ngIf="deck.collected">collected</span>
+    </h2>
 
-<div *ngIf="showUserCollectionFlag" class="checkbox">
-    <label>
-        <input type="checkbox" id="blankCheckbox" [ngModel]="deck.userCollection" (ngModelChange)="onChangePersonalCollection($event)">
-        Include in personal collection
-    </label>
-</div>
-<button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} details</button>
-<span *ngIf="!hideDetails">
-    <button *ngIf="auth" (click)="changeAvailability()" class="btn btn-default btn-xs">
-        {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
-    </button>
-    <div class="btn-group" dropdown (click)="$event.preventDefault()">
-        <button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
-        Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" dropdownMenu>
-            <li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
-            <li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
-        </ul>
+    <div class="checkbox">
+        <label>
+            <input type="checkbox" id="blankCheckbox" formControlName="userCollection">
+            Include in personal collection
+        </label>
     </div>
-</span>
+    <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} details</button>
+    <span *ngIf="!hideDetails">
+        <button *ngIf="auth" (click)="changeAvailability()" class="btn btn-default btn-xs">
+            {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
+        </button>
+        <div class="btn-group" dropdown (click)="$event.preventDefault()">
+            <button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
+            Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" dropdownMenu>
+                <li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
+                <li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
+            </ul>
+        </div>
+    </span>
 
-<div *ngIf="!hideDetails">
-    <div class="card-details">
-        <card *ngFor="let card of deck.cards | cardpipe: filter" [card]="card" [showCount]="true"></card>
+    <div *ngIf="!hideDetails">
+        <div class="card-details">
+            <card *ngFor="let card of deck.cards | cardpipe: filter" [card]="card" [showCount]="true"></card>
+        </div>
     </div>
 </div>

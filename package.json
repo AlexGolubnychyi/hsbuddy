@@ -21,6 +21,8 @@
     "@angular/platform-browser-dynamic": "2.0.0-rc.5",
     "@angular/router": "^3.0.0-rc.1",
     "@angular/upgrade": "2.0.0-rc.5",
+    "@angular/compiler-cli": "0.5.0",
+    "@angular/platform-server": "2.0.0-rc.5",
     "bluebird": "*",
     "body-parser": "~1.15.1",
     "bootstrap": "^3.3.6",
@@ -43,7 +45,7 @@
     "serve-favicon": "~2.3.0",
     "systemjs": "0.19.27",
     "systemjs-builder": "^0.15.26",
-    "typescript": "*",
+    "typescript": "^1.9.0-dev",
     "zone.js": "^0.6.12"
   }
 }

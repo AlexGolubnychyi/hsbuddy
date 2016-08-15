@@ -1,3 +1,7 @@
+import * as Promise from "bluebird";
+
+declare type MongoosePromise<T> = Promise<T>;
+
 /// <reference path="globals/bluebird/index.d.ts" />
 /// <reference path="globals/body-parser/index.d.ts" />
 /// <reference path="globals/cheerio/index.d.ts" />

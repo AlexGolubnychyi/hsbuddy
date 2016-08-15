@@ -15,7 +15,8 @@ mongoose.connect(connection, {
         throw err;
     }
 });
-mongoose.Promise = Promise;
+//wrong mongoose typings
+(mongoose as any).Promise = Promise;
 
 
 export default mongoose;

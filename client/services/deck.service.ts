@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 import { Http } from "@angular/http";
-import { Observable }     from "rxjs/Observable";
+import { Observable } from "rxjs/Observable";
 import * as contracts from "../../interfaces/index";
 import "../rxjs-operators";
-import {Subject} from "rxjs/Subject";
+import { Subject } from "rxjs/Subject";
 
 const enc = encodeURIComponent;
 
@@ -38,13 +38,11 @@ export class DeckService {
     }
 
     changeCardAvailability(cardId: string, count: number): Observable<boolean> {
-        let request = this.http.get(`api/changenumber/${enc(cardId)}/${count}`)
+        return this.http.get(`api/changenumber/${enc(cardId)}/${count}`)
             .do(resp => {
                 this.cardChanged.next({ cardId, count });
             })
             .catch(this.handleError);
-
-        return request;
     }
 
     toggleUserDeck(deckId: string, status: boolean): Observable<boolean> {

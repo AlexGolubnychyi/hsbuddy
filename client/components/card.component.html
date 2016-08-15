@@ -1,4 +1,5 @@
 <div class="card-container" 
+    [formGroup] = "form"
     [class.available]="getStatus() === 'available'"  
     [class.notavailable]="getStatus() === 'notavailable'">
     <div>
@@ -8,8 +9,9 @@
     <div [class.hidden]="!card.className">Class: {{card.className}}</div>
     <div>Dust: {{card.cost}}</div>
     <div>Set: {{card.setName}}</div>
+
     <div [style.visibility]="enableAvailability ? 'visible' : 'hidden'" class="availability-container">
-        <select [ngModel]="card.numberAvailable" (ngModelChange)="onChangeAvailability($event)" class="form-control availability-selector" [disabled]="loading">
+        <select formControlName="numberAvailable" class="form-control availability-selector" [disabled]="loading">
             <option value="0">0 cards</option>
             <option value="1">1 card</option>
             <option value="2">2 cards</option>

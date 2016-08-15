@@ -1,11 +1,11 @@
 import { Component, Input, OnInit, OnDestroy } from "@angular/core";
-import {DeckService} from "../services/deck.service";
-import {AuthService} from "../services/auth.service";
-import {Deck, Card} from "../../interfaces/index";
-import {CardSet} from "../../interfaces/hs-types";
-import {SortOptions, CardPipeArg} from "../pipes/card.pipe";
-
-import {Subscription} from "rxjs";
+import { DeckService } from "../services/deck.service";
+import { AuthService } from "../services/auth.service";
+import { Deck, Card } from "../../interfaces/index";
+import { CardSet } from "../../interfaces/hs-types";
+import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
+import { FormGroup, FormBuilder } from "@angular/forms";
+import { Subscription, Observable } from "rxjs";
 import "../rxjs-operators";
 
 @Component({
@@ -23,8 +23,9 @@ export class DeckComponent implements OnInit, OnDestroy {
     sortOptions = SortOptions;
     filter: CardPipeArg;
     auth: boolean;
+    form: FormGroup;
 
-    constructor(private deckService: DeckService, private authService: AuthService) {
+    constructor(private deckService: DeckService, private authService: AuthService, private fb: FormBuilder) {
         this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDecks(cardId, count));
     }
 
@@ -37,6 +38,15 @@ export class DeckComponent implements OnInit, OnDestroy {
             hideAvailable: false,
             sort: SortOptions.classic
         };
+
+        this.form = this.fb.group(<Model>{
+            "userCollection": this.deck.userCollection
+        });
+
+        (this.form.valueChanges as Observable<Model>)
+            .debounceTime(200)
+            .switchMap(val => this.deckService.toggleUserDeck(this.deck.id, val.userCollection))
+            .subscribe();
     }
     ngOnDestroy() {
         this.cardChangedSubscription.unsubscribe();
@@ -57,11 +67,6 @@ export class DeckComponent implements OnInit, OnDestroy {
         this.title = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost})`;
     }
 
-    onChangePersonalCollection(enable: boolean) {
-        this.deckService.toggleUserDeck(this.deck.id, enable).subscribe(() => {
-            this.deck.userCollection = enable;
-        });
-    }
 
     changeAvailability() {
         this.filter = {
@@ -99,4 +104,8 @@ export class DeckComponent implements OnInit, OnDestroy {
         }
     }
 
+}
+
+interface Model {
+    userCollection: boolean;
 }

@@ -1,5 +1,6 @@
 /** Type declaration for ambient System. */
 declare var System: any;
+declare var module: NodeModule;
 
 (function (global) {
     // map tells the System loader where to look for things

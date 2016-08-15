@@ -1,10 +1,10 @@
 import { Component, OnInit, Input } from "@angular/core";
-import {CardClass} from "../../interfaces/hs-types";
-import {AuthService} from "../services/auth.service";
-import {DeckQuery, OrderBy} from "../../interfaces/index";
-import {FormGroup, FormControl, Validators}  from "@angular/forms";
-import {Subject} from "rxjs/Subject";
-import {Observable} from "rxjs/Observable";
+import { CardClass } from "../../interfaces/hs-types";
+import { AuthService } from "../services/auth.service";
+import { DeckQuery, OrderBy } from "../../interfaces/index";
+import { FormGroup, Validators, FormBuilder } from "@angular/forms";
+import { Subject } from "rxjs/Subject";
+import { Observable } from "rxjs/Observable";
 
 @Component({
     selector: "deck-filter",
@@ -18,7 +18,7 @@ export class DeckFilterComponent implements OnInit {
     filterButtonClickStream = new Subject();
     filter$: Observable<DeckQuery>;
 
-    constructor(private authService: AuthService) { }
+    constructor(private authService: AuthService, private fb: FormBuilder) { }
 
     deckClasses = Object.keys(CardClass)
         .filter(key => !isNaN(+key))
@@ -35,25 +35,21 @@ export class DeckFilterComponent implements OnInit {
                 deckClass: CardClass.unknown,
                 dustNeeded: undefined,
                 orderBy: OrderBy.dust,
-                userCollection: undefined
+                userCollection: false
             };
         this.useUserCollectionFilter = auth;
 
 
-        let group: { [index: string]: FormControl } = {
-            "dustNeeded": new FormControl(defaults.dustNeeded, Validators.pattern("[0-9]*")),
-            "deckClass": new FormControl(defaults.deckClass),
-            "orderBy": new FormControl(defaults.orderBy),
+        let group: { [index: string]: any } = {
+            "dustNeeded": [defaults.dustNeeded, Validators.pattern("[0-9]*")],
+            "deckClass": defaults.deckClass,
+            "orderBy": defaults.orderBy,
+            "userCollection": defaults.userCollection
         };
 
-        if (auth) {
-            group["userCollection"] = new FormControl(defaults && defaults.userCollection);
-        }
+        this.filterForm = this.fb.group(group);
 
-        this.filterForm = new FormGroup(group);
-
-        this.filter$ = this.filterForm
-            .valueChanges
+        this.filter$ = (this.filterForm.valueChanges as Observable<DeckQuery>)
             .debounce(v => Observable.race(this.filterButtonClickStream, Observable.timer(2000)))
             .startWith(defaults)
             .filter(v => this.filterForm.valid)

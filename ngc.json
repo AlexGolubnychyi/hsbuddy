@@ -1,8 +1,6 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "module": "commonjs",
-    "moduleResolution": "node",
     "sourceMap": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -10,6 +8,11 @@
     "noImplicitAny": false
   },
   "exclude": [
-    "node_modules"
-  ]
+    "node_modules",
+    "server"
+  ],
+  "angularCompilerOptions":{
+    "genDir": "./dist",
+    "debug": true
+  }
 }

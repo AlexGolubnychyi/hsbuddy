@@ -33,3 +33,4 @@
 - more info on card missing (how to obtain from hs json db)
 
 - explore prod setup
+- error handling (bluebird vs express).txt
