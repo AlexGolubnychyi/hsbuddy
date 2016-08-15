@@ -9,7 +9,7 @@
   "scripts": {
     "start": "node ./server/bin/index.js",
     "tsc": "node ./node_modules/typescript/bin/tsc",
-    "postinstall": "node ./node_modules/typescript/bin/tsc &&  node ./server/bin/build.js && node ./server/bin/migration.js"
+    "postinstall": "node node_modules/@angular/compiler-cli/src/main.js -p ngc.json && node ./node_modules/typescript/bin/tsc && node ./server/bin/migration.js"
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.5",

@@ -80,7 +80,7 @@ export default function () {
                     }
                 }
 
-                if (!card.name || token || card.type === hsTypes.CardType.hero) {
+                if (!card.name || token || +card.type === +hsTypes.CardType.hero) {
                     console.log(`[skipped] token/hero: ${card.name}`);
                     return;
                 }
