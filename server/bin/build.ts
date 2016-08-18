@@ -3,13 +3,13 @@ let Builder = require("systemjs-builder"),
 
 var builder = new Builder("./"),
     config = {
-        minify: true,
+        //minify: true,
         sourceMaps: false,
         runtime: false,
         config: systemConfig
     };
 
-builder.buildStatic("app", "./public/app.min.js", config)
+builder.buildStatic("app", "./public/app.js", config)
     .then(function () {
         console.log("app packed successfully by systemjs builder");
         process.exit();

@@ -10,7 +10,7 @@ import "../rxjs-operators";
 
 @Component({
     selector: "deck",
-    templateUrl: "client/components/deck.component.html",
+    templateUrl: "deck.component.html",
 })
 export class DeckComponent implements OnInit, OnDestroy {
     @Input()
@@ -82,8 +82,12 @@ export class DeckComponent implements OnInit, OnDestroy {
     }
 
 
-    formatDate(date: string) {
+    formatDate(date: string | Date) {
+        if (typeof date !== "string") {
+            date = date.toISOString();
+        }
         return date.slice(0, 10);
+
     }
 
     private updateDecks(cardId: string, newCount: number) {

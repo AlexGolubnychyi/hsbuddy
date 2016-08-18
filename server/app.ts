@@ -3,7 +3,7 @@
 import * as express from "express";
 import * as session from "express-session";
 import * as path from "path";
-import {json, urlencoded} from "body-parser";
+import { json, urlencoded } from "body-parser";
 import * as cookieParser from "cookie-parser";
 import setRoutes from "./routes";
 
@@ -28,6 +28,13 @@ app.use(logger("dev"));
 
 app.use(less(path.join(__dirname, "../public"), { once: true }));
 app.use(express.static(path.join(__dirname, "../public")));
+
+app.use((req, res, next) => {
+    if (req.url.endsWith("html")) {
+        req.url = "/client/components" + req.url;
+    }
+    next();
+});
 app.use("/client", express.static(path.join(__dirname, "../client")));
 app.use("/interfaces", express.static(path.join(__dirname, "../interfaces")));
 // if (app.get("env") === "development") {

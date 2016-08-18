@@ -12,6 +12,6 @@
     "server"
   ],
   "angularCompilerOptions":{
-    "debug": true
+    "debug": false
   }
 }

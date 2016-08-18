@@ -5,7 +5,7 @@ import {CardClass, CardRarity} from "../../interfaces/hs-types";
 
 @Component({
     selector: "card-library",
-    templateUrl: "client/components/card.library.component.html",
+    templateUrl: "card.library.component.html",
 })
 export class CardListComponent implements OnInit {
     constructor(private deckService: DeckService) { }

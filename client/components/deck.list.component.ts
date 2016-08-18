@@ -6,7 +6,7 @@ import {DeckFilterComponent} from "./deck.filter.component";
 
 @Component({
     selector: "deck-list",
-    templateUrl: "client/components/deck.list.component.html",
+    templateUrl: "deck.list.component.html",
 })
 export class DeckListComponent implements AfterViewInit {
     decks: Deck[] = [];

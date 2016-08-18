@@ -5,7 +5,7 @@ import {DeckFilterComponent} from "./deck.filter.component";
 
 @Component({
     selector: "missing-card-list",
-    templateUrl: "client/components/card.missing.list.component.html"
+    templateUrl: "card.missing.list.component.html"
 })
 export class CardMissingListComponent implements AfterViewInit {
     constructor(private deckService: DeckService) { }

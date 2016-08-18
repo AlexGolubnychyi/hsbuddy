@@ -9,7 +9,7 @@ import {Observable} from "rxjs/Observable";
 
 @Component({
     selector: "card",
-    templateUrl: "client/components/card.component.html",
+    templateUrl: "card.component.html",
 })
 export class CardComponent implements OnInit {
     @Input()
