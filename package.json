@@ -8,15 +8,19 @@
   },
   "scripts": {
     "start": "node ./server/bin/index.js",
-    "tsc": "node ./node_modules/typescript/bin/tsc",
-    "tscc": "node ./node_modules/typescript/bin/tsc -p tsconfig-client.json",
-    "ngc": "node node_modules/@angular/compiler-cli/src/main.js -p ngc.json",
+    "tsc": "tsc",
+    "tscc": "tsc -p tsconfig-client.json",
+    "tsci": "tsc -p tsconfig-int.json",
+    "ngc": "ngc -p ngc.json",
+    "rollup": "rollup -f iife -c -o client_temp/bundle.es2015.js",
+    "bundle-es5": "tsc --target es5 --allowJs client_temp/bundle.es2015.js --out public/app.js",
     "migrate": "node ./server/bin/migration.js",
-    "bundle": "node ./node_modules/browserify/bin/cmd.js -s main client/main.js > public/app.js ",
-    "minify":"node ./node_modules/uglifyjs/bin/uglifyjs public/app.js --screw-ie8 --compress --output public/app.min.js",
-    "build2": "npm run tsc && npm run bundle && npm run minify",
+    "bundle": "browserify -s main client/main.js > public/app.js ",
+    "minify":"uglifyjs public/app.js --screw-ie8 --compress --output public/app.min.js",
     "build": "npm run tsc && node ./server/bin/build && npm run minify",
-    "postinstall": "node run build && npm run migrate"
+    "build1": "npm run tsc && npm run bundle && npm run minify",
+    "build2": "npm run tsci && npm run rollup && npm run bundle-es5 && npm run minify",
+    "postinstall": "npm run build && npm run migrate"
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.5",
@@ -51,10 +55,13 @@
     "reflect-metadata": "^0.1.3",
     "request": "*",
     "rxjs": "5.0.0-beta.6",
+    "rxjs-es":"5.0.0-beta.11",
     "serve-favicon": "~2.3.0",
     "systemjs": "0.19.27",
     "systemjs-builder": "^0.15.26",
     "typescript": "^1.9.0-dev",
-    "zone.js": "^0.6.12"
+    "zone.js": "^0.6.12",
+    "rollup": "^0.33.0",
+    "rollup-plugin-node-resolve": "^1.7.1"
   }
 }

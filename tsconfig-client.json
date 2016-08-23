@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "es5",
+    "sourceMap": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "removeComments": false,
+    "noImplicitAny": false,
+    "outFile": "public/app.js"
+  },
+  "exclude": [
+  ],
+  "files": [
+    "client/main.ts",
+    "typings/index.d.ts"
+  ] 
+}

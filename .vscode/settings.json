@@ -9,7 +9,9 @@
         "**/node_modules":true,
         "**/*.js": { "when": "$(basename).ts"},
         "**/*.map": true,
-        "**/*.css": { "when": "$(basename).less"}
+        "**/*.css": { "when": "$(basename).less"},
+        "**/*.metadata.json": true,
+        "**/*.ngfactory.ts" : true
 	},
     "editor.snippetSuggestions": "bottom",
     "typescript.tsdk": "c:/Users/Alexei/AppData/Roaming/npm/node_modules/typescript/lib"
