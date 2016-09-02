@@ -16,11 +16,11 @@
     "bundle-es5": "tsc --target es5 --allowJs client_temp/bundle.es2015.js --out public/app.js",
     "migrate": "node ./server/bin/migration.js",
     "bundle": "browserify -s main client/main.js > public/app.js ",
-    "minify":"uglifyjs public/app.js --screw-ie8 --compress --mangle --keep-fnames --output public/app.min.js",
+    "minify":"uglifyjs public/app.js --screw-ie8 --compress --mangle --output public/app.min.js",
     "build": "npm run tsc && node ./server/bin/build && npm run minify",
     "build1": "npm run tsc && npm run bundle && npm run minify",
     "build2": "npm run tsci && npm run rollup && npm run bundle-es5 && npm run minify",
-    "postinstall": "npm run build && npm run migrate"
+    "postinstall": "npm run build1 && npm run migrate"
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.6",
@@ -51,7 +51,7 @@
     "mongodb": "^2.2.4",
     "mongoose": "^4.5.7",
     "morgan": "~1.7.0",
-    "ng2-bootstrap": "*",
+    "ng2-bootstrap": "1.1.1",
     "reflect-metadata": "^0.1.3",
     "request": "*",
     "rxjs": "5.0.0-beta.11",
