@@ -16,7 +16,7 @@
     "bundle-es5": "tsc --target es5 --allowJs client_temp/bundle.es2015.js --out public/app.js",
     "migrate": "node ./server/bin/migration.js",
     "bundle": "browserify -s main client/main.js > public/app.js ",
-    "minify":"uglifyjs public/app.js --screw-ie8 --compress --output public/app.min.js",
+    "minify":"uglifyjs public/app.js --screw-ie8 --compress --mangle --keep-fnames --output public/app.min.js",
     "build": "npm run tsc && node ./server/bin/build && npm run minify",
     "build1": "npm run tsc && npm run bundle && npm run minify",
     "build2": "npm run tsci && npm run rollup && npm run bundle-es5 && npm run minify",
