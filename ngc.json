@@ -12,6 +12,6 @@
     "server"
   ],
   "angularCompilerOptions":{
-    "debug": false
+    "genDir": "./ngfactory"
   }
 }

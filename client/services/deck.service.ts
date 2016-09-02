@@ -37,15 +37,16 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    changeCardAvailability(cardId: string, count: number): Observable<boolean> {
+    changeCardAvailability(cardId: string, count: number) {
         return this.http.get(`api/changenumber/${enc(cardId)}/${count}`)
             .do(resp => {
                 this.cardChanged.next({ cardId, count });
             })
+            .map(resp => true)
             .catch(this.handleError);
     }
 
-    toggleUserDeck(deckId: string, status: boolean): Observable<boolean> {
+    toggleUserDeck(deckId: string, status: boolean) {
         return this.http.get(`api/toggleuserdeck/${enc(deckId)}/${status}`)
             .map(resp => true)
             .catch(this.handleError);

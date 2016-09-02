@@ -41,6 +41,7 @@ app.use("/interfaces", express.static(path.join(__dirname, "../interfaces")));
 //     app.use("/node_modules", express.static(path.join(__dirname, "../node_modules")));
 // }
 app.use("/node_modules", express.static(path.join(__dirname, "../node_modules")));
+//app.use("/ngfactory", express.static(path.join(__dirname, "../ngfactory")));
 
 app.use(json());
 app.use(urlencoded({ extended: false }));

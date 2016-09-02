@@ -9,7 +9,7 @@ export const appRoutes: Routes = [
   { path: "decks", component: DeckListComponent },
   { path: "cards", component: CardListComponent, canActivate: [AuthGuard] },
   { path: "cards-missing", component: CardMissingListComponent, canActivate: [AuthGuard] },
-  { path: "**", redirectTo: "decks", terminal: true }
+  { path: "**", redirectTo: "decks"}
 ];
 
 export const routing = RouterModule.forRoot(appRoutes);

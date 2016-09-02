@@ -17,7 +17,7 @@ import { CardListComponent } from "./components/card.library.component";
 import { DeckFilterComponent } from "./components/deck.filter.component";
 import { CardMissingListComponent } from "./components/card.missing.list.component";
 import { SpinnerComponent } from "./components/spinner.component";
-import {DROPDOWN_DIRECTIVES} from "ng2-bootstrap/components/dropdown";
+//import {DropdownModule } from "ng2-bootstrap/components/dropdown/dropdown.module";
 import { CardPipe } from "./pipes/card.pipe";
 
 @NgModule({
@@ -25,10 +25,10 @@ import { CardPipe } from "./pipes/card.pipe";
         BrowserModule,
         routing,
         ReactiveFormsModule,
-        HttpModule
+        HttpModule,
+        //DropdownModule
     ],
     declarations: [
-        DROPDOWN_DIRECTIVES,
         CardPipe,
         SpinnerComponent,
         CardComponent,

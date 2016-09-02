@@ -5,12 +5,6 @@ enableProdMode();
 platformBrowserDynamic().bootstrapModule(AppModule);
 
 
-// import { AppModuleNgFactory } from "./app.module.ngfactory";
-// // The browser platform without a compiler
+// import { AppModuleNgFactory } from "../ngfactory/client/app.module.ngfactory";
 // import { platformBrowser } from "@angular/platform-browser";
-// // import {enableProdMode}      from "@angular/core";
-// // enableProdMode();
-// // The app module factory produced by the static offline compiler
-
-// // Launch with the app module factory.
 // platformBrowser().bootstrapModuleFactory(AppModuleNgFactory);
