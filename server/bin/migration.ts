@@ -21,6 +21,7 @@ let updates: (() => Promise<void>)[] = [
 (function checkForUpdates() {
     console.log("check db for updates");
     version.getVersion().then(versionNumber => {
+
         let missingUpdates = updates.slice(versionNumber);
         if (!missingUpdates.length) {
             console.log("db is up to date");
@@ -124,7 +125,7 @@ function updateToVersion6(): Promise<void> {
 }
 
 function updateToVersion7(): Promise<void> {
-    let version = 6;
+    let version = 7;
     console.log(`apply ver${version}`);
     return Card.findById("arcanegiant").exec()
         .then(card => {
@@ -141,7 +142,7 @@ function updateToVersion7(): Promise<void> {
 }
 
 function updateToVersion8(): Promise<void> {
-    let version = 7;
+    let version = 8;
     console.log(`apply ver${version}`);
     return Card.find({ "cardSet": hstypes.CardSet.OneNightInKarazhan }).exec()
         .then(cards => {

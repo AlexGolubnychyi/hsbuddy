@@ -5,7 +5,7 @@ import * as hsTypes from "../../interfaces/hs-types";
 import mongoose from "../lib/mongoose";
 
 let hearthPwnUrl = "http://www.hearthpwn.com/cards?page=@@@";
-let icyVeinsUrl = "http://www.icy-veins.com/hearthstone/card-descriptions";
+let hearthPwnUrlExt = "http://www.hearthpwn.com/cards?display=1&filter-premium=1&page=@@@";
 
 export default function () {
     let cnt = 20,
@@ -98,45 +98,35 @@ export default function () {
 };
 
 function getAdditionalCardInfo(cards: { [id: string]: CardDB & mongoose.model<CardDB> }) {
-    return getContent(icyVeinsUrl)
-        .then($ => {
-            let unique = {};
-            $(`.page_content .nav_content_block_entry a`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
-            return Object.keys(unique);
-        })
-        .map(cardListUrl => {
+    let cnt = 15,
+        urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrlExt.replace("@@@", (inx + 1) + ""));
 
-            return getContent(cardListUrl).then($ => {
-                $(".card_table tr").each((inx, el) => {
-                    let $tds = $(el).find("td");
-                    if (!$tds.length) {
-                        return;
-                    }
+    return Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 })
+        .map(($: CheerioStatic) => {
+            $("table.listing.listing-cards-tabular>tbody tr").each((inx, el) => {
+                let $tr = $(el),
+                    name = $tr.find(".col-name").text().trim(),
+                    mana = +$tr.find(".col-cost").text().trim() || 0,
+                    attack = +$tr.find(".col-attack").text().trim() || 0,
+                    health = +$tr.find(".col-health").text().trim() || 0,
+                    card = cards[Card.generateId(name)];
 
-                    let name = $tds.eq(0).find("a").text(),
-                        mana = +$tds.eq(2).text().trim(),
-                        attack = +$tds.eq(3).text().trim(),
-                        health = +$tds.eq(4).text().trim(),
-                        card = cards[Card.generateId(name)];
+                if (!card) {
+                    console.log(`card not found ${name}`);
+                    return;
+                }
 
-                    if (!card) {
-                        console.log(`card not found ${name}`);
-                        return;
-                    }
-
-                    card.mana = mana;
-                    if (card.type === hsTypes.CardType.minion) {
-                        card.attack = attack;
-                        card.health = health;
-                    }
-                });
+                card.mana = mana;
+                if (card.type === hsTypes.CardType.minion) {
+                    card.attack = attack;
+                    card.health = health;
+                }
 
             });
-
-        }, { concurrency: 2 })
+        })
         .then(() => Card.insertMany(Object.keys(cards).map(key => cards[key])))
         .then(() => {
-            console.log("[done] loading additional card info from icy veins");
+            console.log("[done] loading additional card info");
         }).catch(e => {
             console.log(e);
         });

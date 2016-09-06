@@ -28,11 +28,6 @@ cardSchema.static("generateId", (name: string) => {
 cardSchema.static("getCardLibraryInfo", function (userId: string) {
     let model = this as mongoose.Model<CardDB>,
         userCards: { [cardId: string]: number },
-        standardSets = [
-            hstypes.CardSet.Basic, hstypes.CardSet.BlackrockMountain,
-            hstypes.CardSet.Expert, hstypes.CardSet.LeagueOfExplorers,
-            hstypes.CardSet.TheGrandTournament, hstypes.CardSet.WhispersoftheOldGods
-        ],
         result: contracts.CardLibraryInfo = {
             groups: <any>[],
             stats: {}
@@ -40,7 +35,7 @@ cardSchema.static("getCardLibraryInfo", function (userId: string) {
 
     return UserCard.getByUserId(userId)
         .then(uc => userCards = uc)
-        .then(() => model.find({ "cardSet": { "$in": standardSets } }).exec())
+        .then(() => model.find({ "cardSet": { "$in": hstypes.standardCardSets } }).exec())
         .then(cards => {
             cards.map(card => {
                 let userCard = userCards[card._id],
