@@ -9,7 +9,8 @@ module.exports = {
                 if (id.startsWith("rxjs/")) {
                     let result = `${__dirname}/node_modules/rxjs-es/${id.replace("rxjs/", "")}.js`;
 
-                    if (__dirname.indexOf("\\" >= 0)) {
+                    if (!__dirname.startsWith("/")) {
+                        console.log("fix pathes");
                         return result.replace(/\//g, "\\");
                     }
                     return result;
