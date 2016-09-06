@@ -14,10 +14,6 @@ export default function (app: express.Express) {
     res.render("about");
   });
 
-  // app.use("/cards", authChecks.url, function (req, res) {
-  //   res.render("index");
-  // });
-
   app.use("/", function (req, res) {
     res.render("index", {env: app.get("env")});
   });

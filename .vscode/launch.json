@@ -42,6 +42,26 @@
             "outDir": null
         },
         {
+            "name": "rollup",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceRoot}/node_modules/rollup/bin/rollup",
+            "stopOnEntry": false,
+            "args": ["-f", "iife", "-c", "-o","public/app.es2015.js"],
+            "cwd": "${workspaceRoot}",
+            "preLaunchTask": null,
+            "runtimeExecutable": null,
+            "runtimeArgs": [
+                "--nolazy"
+            ],
+            "env": {
+                "NODE_ENV": "development"
+            },
+            "console": "internalConsole",
+            "sourceMaps": true,
+            "outDir": null
+        },
+        {
             "name": "Attach",
             "type": "node",
             "request": "attach",

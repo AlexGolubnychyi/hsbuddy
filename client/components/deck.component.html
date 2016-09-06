@@ -18,7 +18,7 @@
         <button *ngIf="auth" (click)="changeAvailability()" class="btn btn-default btn-xs">
             {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
         </button>
-        <div class="btn-group" dropdown (click)="$event.preventDefault()">
+        <!--<div class="btn-group" dropdown (click)="$event.preventDefault()">
             <button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
             Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
             </button>
@@ -26,7 +26,11 @@
                 <li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
                 <li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
             </ul>
-        </div>
+        </div>-->
+        <select id="orderBy" class="form-control input-xs" formControlName="orderBy">
+            <option value="{{sortOptions.classic}}">Classic</option>
+            <option value="{{sortOptions.expense}}">Expense</option>
+        </select>
     </span>
 
     <div *ngIf="!hideDetails">

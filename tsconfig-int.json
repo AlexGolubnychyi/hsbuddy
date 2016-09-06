@@ -14,11 +14,10 @@
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
-    "noFallthroughCasesInSwitch": true,
-    "outDir": "./client_temp"
+    "noFallthroughCasesInSwitch": true
   },
   "compileOnSave": false,
   "files": [
-    "client/main.ts"
+    "client/main-prod.ts"
   ]
 }

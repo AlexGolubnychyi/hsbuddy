@@ -39,14 +39,17 @@ export class DeckComponent implements OnInit, OnDestroy {
             sort: SortOptions.classic
         };
 
-        this.form = this.fb.group(<Model>{
-            "userCollection": this.deck.userCollection
+        this.form = this.fb.group({
+            "userCollection": this.deck.userCollection,
+            "orderBy": this.filter.sort
         });
 
-        (this.form.valueChanges as Observable<Model>)
+        (this.form.get("userCollection").valueChanges as Observable<boolean>)
             .debounceTime(200)
-            .switchMap(val => this.deckService.toggleUserDeck(this.deck.id, val.userCollection))
+            .switchMap(val => this.deckService.toggleUserDeck(this.deck.id, val))
             .subscribe();
+
+        (this.form.get("orderBy").valueChanges as Observable<SortOptions>).subscribe(v => this.changeSort(+v));
     }
     ngOnDestroy() {
         this.cardChangedSubscription.unsubscribe();
@@ -108,8 +111,4 @@ export class DeckComponent implements OnInit, OnDestroy {
         }
     }
 
-}
-
-interface Model {
-    userCollection: boolean;
 }

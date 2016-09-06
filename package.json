@@ -8,19 +8,19 @@
   },
   "scripts": {
     "start": "node ./server/bin/index.js",
-    "tsc": "tsc",
-    "tscc": "tsc -p tsconfig-client.json",
     "tsci": "tsc -p tsconfig-int.json",
     "ngc": "ngc -p ngc.json",
-    "rollup": "rollup -f iife -c -o client_temp/bundle.es2015.js",
-    "bundle-es5": "tsc --target es5 --allowJs client_temp/bundle.es2015.js --out public/app.js",
+    "rollup": "rollup -f iife -c -o public/temp/app.es2015.js",
+    "convert-to-es5": "tsc --target es5 --allowJs public/temp/app.es2015.js --out public/temp/app.js",
     "migrate": "node ./server/bin/migration.js",
-    "bundle": "browserify -s main client/main.js > public/app.js ",
-    "minify":"uglifyjs public/app.js --screw-ie8 --compress --mangle --output public/app.min.js",
-    "build": "npm run tsc && node ./server/bin/build && npm run minify",
-    "build1": "npm run tsc && npm run bundle && npm run minify",
-    "build2": "npm run tsci && npm run rollup && npm run bundle-es5 && npm run minify",
-    "postinstall": "npm run build1 && npm run migrate"
+    "minify":"uglifyjs public/temp/app.js --screw-ie8 --compress --mangle --output public/app.min.js",
+    "clean": "del-cli public/temp",
+    "build": "npm run ngc && npm run tsci && npm run rollup && npm run convert-to-es5 && npm run minify && tsc && npm run clean",
+    "postinstall": "npm run build && npm run migrate",
+
+    "_bundle": "browserify -s main client/main.js > public/app.js ",
+    "_build": "tsc && node ./server/bin/build && npm run minify",
+    "_build1": "tsc && npm run _bundle && npm run minify"
   },
   "dependencies": {
     "@angular/common": "2.0.0-rc.6",
@@ -59,9 +59,11 @@
     "serve-favicon": "~2.3.0",
     "systemjs": "0.19.27",
     "systemjs-builder": "^0.15.26",
-    "typescript": "^1.9.0-dev",
+    "typescript": "2.0.2",
     "zone.js": "^0.6.17",
-    "rollup": "^0.33.0",
-    "rollup-plugin-node-resolve": "^1.7.1"
+    "rollup": "0.34.13",
+    "rollup-plugin-node-resolve": "2.0.0",
+    "del-cli": "0.2.0",
+    "compression":"1.6.2"
   }
 }

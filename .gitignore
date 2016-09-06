@@ -1,5 +1,8 @@
 node_modules/
+ngfactory/
 **/*.js
 **/*.js.map
+**/*.css
 server/db/*.json
 client/**/*.json
+interfaces/**/*.json
