@@ -14,7 +14,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion4,
     updateToVersion5,
     updateToVersion6,
-    updateToVersion7
+    updateToVersion7,
+    updateToVersion8
 ];
 
 (function checkForUpdates() {
@@ -136,5 +137,20 @@ function updateToVersion7(): Promise<void> {
                 console.log("db already contains One Night in Karazhan");
             }
         })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion8(): Promise<void> {
+    let version = 7;
+    console.log(`apply ver${version}`);
+    return Card.find({ "cardSet": hstypes.CardSet.OneNightInKarazhan }).exec()
+        .then(cards => {
+            console.log("fix OneNightInKarazhan cards: set cost to 0. Remove bad deck");
+            cards.forEach(c => c.cost = 0);
+            return cards;
+        })
+        .map((card: mongoose.model<CardDB>) => card.save())
+        .then(() => Deck.findById("84faab928966370df48ead085c6881a5ece742d4").exec())
+        .then(badDeck => badDeck.remove())
         .then(() => console.log(`ver${version} appplied successfully`));
 }

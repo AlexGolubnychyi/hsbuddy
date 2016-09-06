@@ -1,5 +1,5 @@
 import * as Promise from "bluebird";
-import Card, {CardDB} from "../db/card";
+import Card, { CardDB } from "../db/card";
 import getContent from "./utils";
 import * as hsTypes from "../../interfaces/hs-types";
 import mongoose from "../lib/mongoose";
@@ -72,7 +72,12 @@ export default function () {
                 });
 
                 if (typeof card.cost === "undefined") {
-                    if ([hsTypes.CardSet.Basic, hsTypes.CardSet.BlackrockMountain, hsTypes.CardSet.LeagueOfExplorers].indexOf(card.cardSet) >= 0) {
+                    if ([
+                        hsTypes.CardSet.Basic,
+                        hsTypes.CardSet.BlackrockMountain,
+                        hsTypes.CardSet.LeagueOfExplorers,
+                        hsTypes.CardSet.OneNightInKarazhan
+                    ].indexOf(card.cardSet) >= 0) {
                         card.cost = 0;
                     }
                     else {
@@ -131,8 +136,8 @@ function getAdditionalCardInfo(cards: { [id: string]: CardDB & mongoose.model<Ca
         }, { concurrency: 2 })
         .then(() => Card.insertMany(Object.keys(cards).map(key => cards[key])))
         .then(() => {
-        console.log("[done] loading additional card info from icy veins");
-    }).catch(e => {
-        console.log(e);
-    });
+            console.log("[done] loading additional card info from icy veins");
+        }).catch(e => {
+            console.log(e);
+        });
 }
