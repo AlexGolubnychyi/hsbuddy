@@ -1,6 +1,7 @@
 node_modules/
 ngfactory/
 **/*.js
+!rollup.config.js
 **/*.js.map
 **/*.css
 server/db/*.json

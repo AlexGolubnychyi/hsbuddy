@@ -58,7 +58,6 @@
     "rxjs-es":"5.0.0-beta.11",
     "serve-favicon": "~2.3.0",
     "systemjs": "0.19.27",
-    "systemjs-builder": "^0.15.26",
     "typescript": "2.0.2",
     "zone.js": "^0.6.17",
     "rollup": "0.34.13",
