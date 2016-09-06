@@ -1,14 +1,20 @@
 import mongoose from "../lib/mongoose";
-import Card, {CardDB} from "../db/card";
-import Deck, {DeckDB} from "../db/deck";
+import Card, { CardDB } from "../db/card";
+import Deck, { DeckDB } from "../db/deck";
 import * as hstypes from "../../interfaces/hs-types";
 import version from "../db/version";
-import parser, {ParseStatus} from "../parsers";
+import parser, { ParseStatus } from "../parsers";
 import * as Promise from "bluebird";
 
 
 let updates: (() => Promise<void>)[] = [
-    updateToVersion1, updateToVersion2, updateToVersion3, updateToVersion4, updateToVersion5, updateToVersion6
+    updateToVersion1,
+    updateToVersion2,
+    updateToVersion3,
+    updateToVersion4,
+    updateToVersion5,
+    updateToVersion6,
+    updateToVersion7
 ];
 
 (function checkForUpdates() {
@@ -116,3 +122,19 @@ function updateToVersion6(): Promise<void> {
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 
+function updateToVersion7(): Promise<void> {
+    let version = 6;
+    console.log(`apply ver${version}`);
+    return Card.findById("arcanegiant").exec()
+        .then(card => {
+            if (card === null) {
+                console.log("One Night in Karazhan set not found => repopulate!");
+                return Card.remove({}).exec()
+                    .then(() => parser.populateWithCards());
+            }
+            else {
+                console.log("db already contains One Night in Karazhan");
+            }
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
