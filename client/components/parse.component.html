@@ -7,7 +7,7 @@
             <button (click)="parse()" class="btn btn-default" [disabled]="!form.valid || loading">Process</button>
         </div>
     </div>
-    <p *ngIf="loading">parsing...</p>
+    <spinner *ngIf="loading"></spinner>
     <div *ngIf="results">
         <p>Results:</p>
         <div *ngFor="let result of results" class="alert" [class.alert-success]="result.status === status.success" 
