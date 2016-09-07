@@ -1,9 +1,0 @@
-extends layout
-
-block content
-    form(action="/parse", method="post")
-        p Links:
-        div.form-group
-          textarea.form-control(name="links" rows="5")
-        div.form-group
-          button.btn.btn-default(type='submit') Process

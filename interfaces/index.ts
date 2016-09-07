@@ -72,3 +72,18 @@ export interface CardLibraryInfo {
     stats: { [index: string]: [number, number] };
     groups: CardGroup[];
 }
+
+export interface AuthResult {
+    success: boolean;
+    error?: string;
+}
+
+export enum ParseStatus {
+    unknown, success, duplicate, fail
+}
+
+export interface ParseResult {
+    status: ParseStatus;
+    url: string;
+    error?: string;
+}

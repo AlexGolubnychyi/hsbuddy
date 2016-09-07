@@ -8,6 +8,7 @@ import "../rxjs-operators";
 import {Observable} from "rxjs/Observable";
 
 @Component({
+    //moduleId: module.id,
     selector: "card",
     templateUrl: "card.component.html",
 })

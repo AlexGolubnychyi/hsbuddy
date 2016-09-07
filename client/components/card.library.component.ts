@@ -4,6 +4,7 @@ import {CardLibraryInfo} from "../../interfaces/index";
 import {CardClass, CardRarity} from "../../interfaces/hs-types";
 
 @Component({
+    //moduleId: module.id,
     selector: "card-library",
     templateUrl: "card.library.component.html",
 })

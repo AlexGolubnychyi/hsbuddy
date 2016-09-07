@@ -11,8 +11,16 @@
         "**/*.map": true,
         "**/*.css": { "when": "$(basename).less"},
         "**/*.metadata.json": true,
-        "**/*.ngfactory.ts" : true
+        "**/*.ngfactory.*" : true,
+        "**/ngfactory":true
 	},
+    "search.exclude": {
+        "**/node_modules": true,
+        "**/bower_components": true,
+         "**/*.ngfactory.*" : true,
+        "**/ngfactory":true
+
+    },
     "editor.snippetSuggestions": "bottom",
     "typescript.tsdk": "c:/Users/Alexei/AppData/Roaming/npm/node_modules/typescript/lib"
 }

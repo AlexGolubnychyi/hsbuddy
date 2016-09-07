@@ -11,6 +11,7 @@
   },
   "exclude": [
     "node_modules",
-    "client/main-prod.ts"
+    "client/main-prod.ts",
+    "ngfactory"
   ]
 }

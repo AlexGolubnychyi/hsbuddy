@@ -11,31 +11,6 @@ html
     block scripts
     if user 
       script.
-        window._authenticated = true;
+        window._authenticated = "#{user}";
   body
-    nav.navbar.navbar-default(role='navigation') 
-      div.container-fluid
-        ul.nav.navbar-nav
-          li
-            a(href="/decks") Main
-          if user
-            li
-              a(href="/cards") Card Library
-            li
-              a(href="/cards-missing") Missing Cards
-            li
-              a(href="/parse") Parse
-          li
-            a(href="/about") About
-        ul.nav.navbar-nav.navbar-right
-          if user 
-            li 
-              a Welcome, #{user}!
-            li
-              a(href="/logout") Logout
-          else 
-            li
-              a(href="/login") Login
-            li
-              a(href="/register") Register  
     block content

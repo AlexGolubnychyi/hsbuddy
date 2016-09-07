@@ -4,6 +4,7 @@ import {CardMissing} from "../../interfaces/index";
 import {DeckFilterComponent} from "./deck.filter.component";
 
 @Component({
+    //moduleId: module.id,
     selector: "missing-card-list",
     templateUrl: "card.missing.list.component.html"
 })

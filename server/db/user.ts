@@ -23,7 +23,7 @@ userSchema.static("auth", function (userId, password) {
                 return <any>Promise.reject(new AuthError("invalid username or password"));
             }
 
-            return Promise.resolve(true);
+            return Promise.resolve();
         });
 });
 
@@ -96,7 +96,7 @@ export interface UserDB extends mongoose.Document {
 
 interface UserStatics {
     encrypt: (password: string) => string;
-    auth: (userId: string, password) => Promise<boolean>;
+    auth: (userId: string, password) => Promise<void>;
     createUser: (userId: string, password) => Promise<void>;
     getUserDeckIds: (userId: string) => Promise<string[]>;
     setUserDeck: (userId: string, deckId: string, set: boolean) => Promise<void>;

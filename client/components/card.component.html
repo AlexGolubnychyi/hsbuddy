@@ -11,7 +11,7 @@
     <div>Set: {{card.setName}}</div>
 
     <div [style.visibility]="enableAvailability ? 'visible' : 'hidden'" class="availability-container">
-        <select formControlName="numberAvailable" class="form-control availability-selector" [disabled]="loading">
+        <select formControlName="numberAvailable" class="form-control availability-selector">
             <option value="0">0 cards</option>
             <option value="1">1 card</option>
             <option value="2">2 cards</option>

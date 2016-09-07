@@ -52,6 +52,16 @@ export class DeckService {
             .catch(this.handleError);
     }
 
+    parseUrls(data: { urls: string }) {
+        return this.http.post("parse", data)
+            .map(resp => resp.json() as contracts.ParseResult[])
+            .catch(() => Observable.of(<contracts.ParseResult[]>[{
+                status: contracts.ParseStatus.unknown,
+                error: "unknow server error",
+                url: ""
+            }]));
+    }
+
     private withParams(url: string, options?: {}) {
         let queryParams;
 

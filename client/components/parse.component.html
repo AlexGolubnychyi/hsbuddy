@@ -1,0 +1,18 @@
+<form [formGroup]="form">
+    <p>Links:</p>
+    <div class="form-group">
+        <textarea id="" rows="5" class="form-control" formControlName="links"></textarea>
+        <p></p>
+        <div class="form-group">
+            <button (click)="parse()" class="btn btn-default" [disabled]="!form.valid || loading">Process</button>
+        </div>
+    </div>
+    <p *ngIf="loading">parsing...</p>
+    <div *ngIf="results">
+        <p>Results:</p>
+        <div *ngFor="let result of results" class="alert" [class.alert-success]="result.status === status.success" 
+           [class.alert-info]="result.status === status.duplicate" [class.alert-danger]="result.status === status.fail">
+            {{format(result)}}
+        </div>
+    </div>
+</form>

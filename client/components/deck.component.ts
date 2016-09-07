@@ -9,6 +9,7 @@ import { Subscription, Observable } from "rxjs";
 import "../rxjs-operators";
 
 @Component({
+    //moduleId: module.id,
     selector: "deck",
     templateUrl: "deck.component.html",
 })

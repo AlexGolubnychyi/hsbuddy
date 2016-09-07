@@ -17,6 +17,9 @@ import { CardListComponent } from "./components/card.library.component";
 import { DeckFilterComponent } from "./components/deck.filter.component";
 import { CardMissingListComponent } from "./components/card.missing.list.component";
 import { SpinnerComponent } from "./components/spinner.component";
+import {LoginComponent} from "./components/login.component";
+import {AboutComponent} from "./components/about.component";
+import {ParseComponent} from "./components/parse.component";
 //import {DropdownModule } from "ng2-bootstrap/components/dropdown/dropdown.module";
 import { CardPipe } from "./pipes/card.pipe";
 
@@ -37,6 +40,9 @@ import { CardPipe } from "./pipes/card.pipe";
         DeckListComponent,
         CardListComponent,
         CardMissingListComponent,
+        LoginComponent,
+        AboutComponent,
+        ParseComponent,
         AppComponent
     ],
     providers: [

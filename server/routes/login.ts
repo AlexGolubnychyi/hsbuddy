@@ -4,44 +4,34 @@ import User from "../db/user";
 
 let router = express.Router();
 
-router.get("/login", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    res.render("login");
-});
 
 router.post("/login", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    User.auth(req.body.username, req.body.password)
-        .then(result => {
-            if (result) {
-                req.session["user"] = req.body.username;
-                res.redirect("/");
-            }
-            else {
-                res.redirect("/login");
-            }
+     User.auth(req.body.username, req.body.password)
+        .then(() => {
+            req.session["user"] = req.body.username;
+            res.json({ success: true });
+            return null;
         })
         .catch(e => {
-            res.redirect("/login");
+            res.json({ success: false, error: e.message });
         });
 });
 
 
 router.get("/logout", (req: express.Request, res: express.Response, next: express.NextFunction) => {
     req.session.destroy(function (err) {
-        res.redirect("/");
+        res.redirect("/login");
     });
-});
-
-router.get("/register", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    res.render("register");
 });
 
 router.post("/register", (req: express.Request, res: express.Response, next: express.NextFunction) => {
     User.createUser(req.body.username, req.body.password)
         .then(() => {
             req.session["user"] = req.body.username;
-            res.redirect("/");
+            res.json({ success: true });
+            return null;
         }).catch(e => {
-            next(e);
+            res.json({ success: false, error: e.message });
         });
 });
 

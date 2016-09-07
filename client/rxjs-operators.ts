@@ -19,3 +19,4 @@ import "rxjs/add/operator/filter";
 //Observables
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/race";
+import "rxjs/add/observable/of";

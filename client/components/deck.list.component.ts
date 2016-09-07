@@ -5,6 +5,7 @@ import {Deck} from "../../interfaces/index";
 import {DeckFilterComponent} from "./deck.filter.component";
 
 @Component({
+    //moduleId: module.id,
     selector: "deck-list",
     templateUrl: "deck.list.component.html",
 })
