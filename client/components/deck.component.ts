@@ -1,8 +1,8 @@
 import { Component, Input, OnInit, OnDestroy } from "@angular/core";
 import { DeckService } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
+import { DeckUtilsService } from "../services/deck.utils.service";
 import { Deck, Card } from "../../interfaces/index";
-import { CardSet } from "../../interfaces/hs-types";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { Subscription, Observable } from "rxjs";
@@ -16,9 +16,11 @@ import "../rxjs-operators";
 export class DeckComponent implements OnInit, OnDestroy {
     @Input()
     deck: Deck;
+    @Input()
+    hideDetails = true;
+    @Input()
+    hideTitle = false;
     cards: Card[];
-    showUserCollectionFlag = false;
-    hideDetails: boolean;
     cardChangedSubscription: Subscription;
     title: string;
     sortOptions = SortOptions;
@@ -26,13 +28,16 @@ export class DeckComponent implements OnInit, OnDestroy {
     auth: boolean;
     form: FormGroup;
 
-    constructor(private deckService: DeckService, private authService: AuthService, private fb: FormBuilder) {
-        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDecks(cardId, count));
+    constructor(
+        private deckService: DeckService,
+        private authService: AuthService,
+        private utils: DeckUtilsService,
+        private fb: FormBuilder
+    ) {
+        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDeck(cardId, count));
     }
 
     ngOnInit() {
-        this.showUserCollectionFlag = this.authService.isAuthenticated();
-        this.hideDetails = true;
         this.updateTitle();
         this.auth = this.authService.isAuthenticated();
         this.filter = {
@@ -56,22 +61,6 @@ export class DeckComponent implements OnInit, OnDestroy {
         this.cardChangedSubscription.unsubscribe();
     }
 
-    updateTitle() {
-        if (this.deck.collected) {
-            this.title = `[${this.deck.className}] ${this.deck.name}`;
-            return;
-
-        }
-
-        if (this.deck.dustNeeded < this.deck.cost) {
-            this.title = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost}, remaining ${this.deck.dustNeeded})`;
-            return;
-        }
-
-        this.title = `[${this.deck.className}] ${this.deck.name} (${this.deck.cost})`;
-    }
-
-
     changeAvailability() {
         this.filter = {
             hideAvailable: !this.filter.hideAvailable,
@@ -86,30 +75,18 @@ export class DeckComponent implements OnInit, OnDestroy {
     }
 
 
-    formatDate(date: string | Date) {
-        if (typeof date !== "string") {
-            date = date.toISOString();
+    private updateDeck(cardId: string, newCount: number) {
+        if (!this.utils.updateDeckStats(this.deck, cardId, newCount)) {
+            return;
         }
-        return date.slice(0, 10);
-
+        this.updateTitle();
     }
 
-    private updateDecks(cardId: string, newCount: number) {
-        let collected = true,
-            containsChangedCard = false;
-        this.deck.cards.forEach(card => {
-            if (card.id === cardId) {
-                this.deck.dustNeeded -= card.cost * (Math.min(newCount, card.count) - Math.min(card.numberAvailable, card.count));
-                card.numberAvailable = newCount;
-                containsChangedCard = true;
-            }
-            collected = collected && (card.numberAvailable >= card.count || card.cardSet === CardSet.Basic);
-        });
-
-        if (containsChangedCard) {
-            this.deck.collected = collected;
-            this.updateTitle();
+    private updateTitle() {
+        if (this.hideTitle) {
+            return;
         }
+        this.title = this.utils.getDeckTitle(this.deck);
     }
 
 }

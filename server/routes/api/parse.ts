@@ -1,9 +1,9 @@
 "use strict";
 import * as Promise from "bluebird";
 import * as express from "express";
-import * as authChecks from "../middleware/authChecks";
-import parser, { ParseStatus } from "../parsers";
-import * as contracts from "../../interfaces";
+import * as authChecks from "../../middleware/authChecks";
+import parser, { ParseStatus } from "../../parsers";
+import * as contracts from "../../../interfaces";
 
 let router = express.Router();
 

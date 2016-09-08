@@ -4,7 +4,7 @@ import * as hstypes from "../../interfaces/hs-types";
 import * as contracts from "../../interfaces/";
 import * as Promise from "bluebird";
 import User from "./user";
-import Card, {CardDB, cardSchemaName} from "./card";
+import Card, { CardDB, cardSchemaName } from "./card";
 import UserCard from "./userCard";
 
 
@@ -19,6 +19,9 @@ const deckSchema = new mongoose.Schema({
         card: { type: String, ref: cardSchemaName },
         count: Number
     }],
+    deprecatedBy: String,
+    upgradeUpon: String,
+    deleted: Boolean,
     userId: String
 });
 
@@ -40,7 +43,9 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
         .then(uc => userCards = uc)
         .then(() => {
             if (params) {
-                let queryParts = [];
+                let queryParts: {}[] = [
+                    { "deleted": { "$ne": true } }
+                ];
 
                 if (params.userCollection === "true") {
                     queryParts.push({ "_id": { "$in": userDeckIds } });
@@ -64,35 +69,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
             return model.find(query).populate("cards.card").exec();
         })
         .then(decks => {
-            let result = decks.map(deck => {
-
-                let deckResult: contracts.Deck = {
-                    id: deck._id,
-                    name: deck.name,
-                    url: deck.url,
-                    dateAdded: deck.dateAdded,
-                    class: deck.class,
-                    className: hstypes.CardClass[deck.class],
-                    cost: deck.cost,
-                    dustNeeded: deck.cost,
-                    collected: true,
-                    cards: [],
-                    userCollection: userDeckIds.indexOf(deck._id) >= 0,
-                    userId: deck.userId
-                }, collected = true;
-
-                deckResult.cards = deck.cards.map(({card, count}: { card: CardDB, count: number }) => {
-                    let cardResult = cardToContract(card, userCards[card._id], count);
-
-                    deckResult.dustNeeded -= Math.min(cardResult.count, cardResult.numberAvailable) * card.cost;
-                    collected = collected && (cardResult.numberAvailable >= cardResult.count || cardResult.cardSet === hstypes.CardSet.Basic);
-                    return cardResult;
-                });
-
-                deckResult.collected = collected;
-
-                return deckResult;
-            });
+            let result = decks.map(deck => deckToContract(deck, userCards, userDeckIds));
             if (typeof dustNeededParam === "number") {
                 result = result.filter(d => d.dustNeeded <= dustNeededParam);
             }
@@ -102,6 +79,42 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
 
             return result.sort((f, s) => f.dustNeeded - s.dustNeeded);
         });
+});
+
+deckSchema.static("getDeckDetail", function (userId: string, deckId: string) {
+    let model = this as mongoose.Model<DeckDB>,
+        userCards: { [cardId: string]: number },
+        userDeckIds: string[];
+
+    return User.getUserDeckIds(userId)
+        .then(ids => userDeckIds = ids)
+        .then(() => UserCard.getByUserId(userId))
+        .then(uc => userCards = uc)
+        .then(() => model.findById(deckId).populate("cards.card").exec())
+        .then(deck => {
+            let deckResult = deckToContract(deck, userCards, userDeckIds);
+
+            return <contracts.DeckDetail>{
+                deck: deckResult,
+                deprecatedBy: null,
+                upgradeUpon: null,
+                similar: []
+            };
+        });
+});
+
+
+deckSchema.static("softDelete", function (userId: string, deckId: string) {
+    let model = this as mongoose.Model<DeckDB> & DeckStatics;
+
+    model.findById(deckId).exec().then(deck => {
+        if (!deck || (!!deck.userId && deck.userId !== userId)) {
+            return Promise.resolve(false);
+        }
+
+        deck.deleted = true;
+        deck.save().then(() => Promise.resolve(true));
+    });
 });
 
 
@@ -151,6 +164,37 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
         });
 });
 
+function deckToContract(deck: DeckDB, userCards: { [cardId: string]: number }, userDeckIds: string[]) {
+    let contract: contracts.Deck = {
+        id: deck._id,
+        name: deck.name,
+        url: deck.url,
+        dateAdded: deck.dateAdded,
+        class: deck.class,
+        className: hstypes.CardClass[deck.class],
+        cost: deck.cost,
+        dustNeeded: deck.cost,
+        collected: true,
+        cards: [],
+        userCollection: userDeckIds.indexOf(deck._id) >= 0,
+        userId: deck.userId,
+        deprecated: !!deck.deprecatedBy,
+        upgraded: !!deck.upgradeUpon
+    }, collected = true;
+
+    contract.cards = deck.cards.map(({card, count}: { card: CardDB, count: number }) => {
+        let cardResult = cardToContract(card, userCards[card._id], count);
+
+        contract.dustNeeded -= Math.min(cardResult.count, cardResult.numberAvailable) * card.cost;
+        collected = collected && (cardResult.numberAvailable >= cardResult.count || cardResult.cardSet === hstypes.CardSet.Basic);
+        return cardResult;
+    });
+
+    contract.collected = collected;
+
+    return contract;
+}
+
 function cardToContract(card: CardDB, numberAvailable: number, deckCount = 0): contracts.Card {
     return {
         id: card._id,
@@ -184,13 +228,17 @@ export interface DeckDB extends mongoose.Document {
     cards: { card: string | CardDB, count: number }[];
     dateAdded: Date;
     userId: string;
-
+    deprecatedBy: string;
+    upgradeUpon: string;
+    deleted: boolean;
 };
 
 interface DeckStatics {
     generateId: (cards: { [cardName: string]: number }) => string;
     getDecksByParams: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.Deck[]>;
+    getDeckDetail: (userId: string, deckId: string) => Promise<contracts.DeckDetail>;
     getMissingCards: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.CardMissing[]>;
+    softDelete: (userId: string, deckId: string) => Promise<boolean>
 }
 
 export const deckSchemaName = "Deck";

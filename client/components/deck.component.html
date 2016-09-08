@@ -1,19 +1,18 @@
 <div [formGroup]="form">
-    <hr/>
-    <h2>
-        <div class="deck-metadata">added {{formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
-        <a class="deck-title" [href]="deck.url">
+    <h2 *ngIf="!hideTitle">
+        <div class="deck-metadata">added {{utils.formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
+        <a class="deck-title" routerLink="/deck/{{deck.id}}">
             <span>{{title}}</span>
         </a><span class="label label-default" *ngIf="deck.collected">collected</span>
     </h2>
 
-    <div class="checkbox">
+    <div *ngIf="auth" class="checkbox">
         <label>
             <input type="checkbox" id="blankCheckbox" formControlName="userCollection">
             Include in personal collection
         </label>
     </div>
-    <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} details</button>
+    <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} cards</button>
     <span *ngIf="!hideDetails">
         <button *ngIf="auth" (click)="changeAvailability()" class="btn btn-default btn-xs">
             {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
@@ -28,8 +27,8 @@
             </ul>
         </div>-->
         <select id="orderBy" class="form-control input-xs" formControlName="orderBy">
-            <option value="{{sortOptions.classic}}">Classic</option>
-            <option value="{{sortOptions.expense}}">Expense</option>
+            <option value="{{sortOptions.classic}}">Classic sort</option>
+            <option value="{{sortOptions.expense}}">Expense sort</option>
         </select>
     </span>
 

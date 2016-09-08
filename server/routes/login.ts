@@ -4,7 +4,6 @@ import User from "../db/user";
 
 let router = express.Router();
 
-
 router.post("/login", (req: express.Request, res: express.Response, next: express.NextFunction) => {
      User.auth(req.body.username, req.body.password)
         .then(() => {

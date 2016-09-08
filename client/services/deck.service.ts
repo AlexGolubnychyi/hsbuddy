@@ -15,7 +15,7 @@ export class DeckService {
     }
 
     getDecks(options?: contracts.DeckQuery): Observable<contracts.Deck[]> {
-        let url = this.withParams("api/decks", options);
+        let url = this.withParams("api/deck", options);
 
 
         return this.http.get(url)
@@ -23,14 +23,30 @@ export class DeckService {
             .catch(this.handleError);
     }
 
+    getDeckDetail(deckId: string): Observable<contracts.DeckDetail> {
+        let url = `api/deck/${deckId}`;
+
+        return this.http.get(url)
+            .map(resp => resp.json())
+            .catch(this.handleError);
+    }
+
+    changeDescription(deckId: string, description: { name: string, date: string }): Observable<boolean> {
+        let url = `api/deck/${deckId}`;
+
+        return this.http.post(url, description)
+            .map(resp => (resp.json() as { result: boolean }).result)
+            .catch(this.handleError);
+    }
+
     getCardLibraryInfo(): Observable<contracts.CardLibraryInfo> {
-        return this.http.get("api/cardslibrary")
+        return this.http.get("api/card/library")
             .map(resp => resp.json())
             .catch(this.handleError);
     }
 
     getMissingCards(options?: contracts.DeckQuery): Observable<contracts.CardMissing[]> {
-        let url = this.withParams("api/missingcards", options);
+        let url = this.withParams("api/card/missing", options);
 
         return this.http.get(url)
             .map(resp => resp.json())
@@ -38,7 +54,7 @@ export class DeckService {
     }
 
     changeCardAvailability(cardId: string, count: number) {
-        return this.http.get(`api/changenumber/${enc(cardId)}/${count}`)
+        return this.http.get(`api/card/changenumber/${enc(cardId)}/${count}`)
             .do(resp => {
                 this.cardChanged.next({ cardId, count });
             })
@@ -47,13 +63,13 @@ export class DeckService {
     }
 
     toggleUserDeck(deckId: string, status: boolean) {
-        return this.http.get(`api/toggleuserdeck/${enc(deckId)}/${status}`)
+        return this.http.get(`api/deck/collection/${enc(deckId)}/${status}`)
             .map(resp => true)
             .catch(this.handleError);
     }
 
     parseUrls(data: { urls: string }) {
-        return this.http.post("parse", data)
+        return this.http.post("api/parse", data)
             .map(resp => resp.json() as contracts.ParseResult[])
             .catch(() => Observable.of(<contracts.ParseResult[]>[{
                 status: contracts.ParseStatus.unknown,

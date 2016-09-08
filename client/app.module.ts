@@ -8,6 +8,7 @@ import { HttpModule } from "@angular/http";
 import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./services/auth.service";
 import { DeckService } from "./services/deck.service";
+import { DeckUtilsService } from "./services/deck.utils.service";
 
 import { AppComponent } from "./components/app.component";
 import { CardComponent } from "./components/card.component";
@@ -20,6 +21,7 @@ import { SpinnerComponent } from "./components/spinner.component";
 import {LoginComponent} from "./components/login.component";
 import {AboutComponent} from "./components/about.component";
 import {ParseComponent} from "./components/parse.component";
+import { DeckDetailComponent } from "./components/deck.detail.component";
 //import {DropdownModule } from "ng2-bootstrap/components/dropdown/dropdown.module";
 import { CardPipe } from "./pipes/card.pipe";
 
@@ -43,12 +45,14 @@ import { CardPipe } from "./pipes/card.pipe";
         LoginComponent,
         AboutComponent,
         ParseComponent,
+        DeckDetailComponent,
         AppComponent
     ],
     providers: [
         AuthGuard,
         AuthService,
-        DeckService
+        DeckService,
+        DeckUtilsService
     ],
     bootstrap: [AppComponent]
 })

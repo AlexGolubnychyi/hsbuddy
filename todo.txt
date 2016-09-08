@@ -18,6 +18,9 @@
 (done) deck list: show only missing cards
 (done) sort by deck date
 (done) prod: pack js 
+
+- REMOVE / UPDATE deck
+
 - think of the way to distinguish old deck from new decks
 - hide decks per user 
 - mana curve, spell/minion break down

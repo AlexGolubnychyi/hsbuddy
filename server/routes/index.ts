@@ -1,22 +1,20 @@
 
 import * as express from "express";
-//import * as authChecks from "../middleware/authChecks";
-import apiRouter from "./api";
-import parserRouter from "./parsers";
+import parserRouter from "./api/parse";
+import deckRouter from "./api/deck";
+import cardRouter from "./api/card";
 import loginRouter from "./login";
 
 export default function (app: express.Express) {
   app.use("/", loginRouter);
 
-  app.use("/api", apiRouter);
-  app.use("/parse", parserRouter);
-  // app.use("/about", function (req, res) {
-  //   res.render("about");
-  // });
+  app.use("/api/deck", deckRouter);
+  app.use("/api/card", cardRouter);
+  app.use("/api/parse", parserRouter);
 
+  //default
   app.use("/", function (req, res) {
     res.render("index", {env: app.get("env")});
   });
-
 };
 

@@ -1,6 +1,6 @@
 import * as hstypes from "./hs-types";
 
-export enum OrderBy {date, dust};
+export enum OrderBy { date, dust };
 
 export interface Card {
     id: string;
@@ -37,6 +37,29 @@ export interface Deck {
     cards: Card[];
     userCollection: boolean;
     userId: string;
+    deprecated: boolean;
+    upgraded: boolean;
+}
+
+export interface DeckDetail {
+    deck: Deck;
+    similar: DeckDiff[];
+    upgradeUpon: DeckDiff;
+    deprecatedBy: DeckDiff;
+}
+
+export interface DeckDiff {
+    id: string;
+    name: string;
+    url: string;
+    cardAddition: Card[];
+    cardRemoval: Card[];
+}
+
+export interface DeckChange {
+    id: string;
+    name: string;
+    dateAdded: Date;
 }
 
 export interface CardMissing {

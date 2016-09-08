@@ -1,7 +1,8 @@
 import { Component, ViewChild, AfterViewInit } from "@angular/core";
-import {DeckService} from "../services/deck.service";
-import {CardMissing} from "../../interfaces/index";
-import {DeckFilterComponent} from "./deck.filter.component";
+import { DeckService } from "../services/deck.service";
+import { DeckUtilsService } from "../services/deck.utils.service";
+import { CardMissing } from "../../interfaces/index";
+import { DeckFilterComponent } from "./deck.filter.component";
 
 @Component({
     //moduleId: module.id,
@@ -9,7 +10,10 @@ import {DeckFilterComponent} from "./deck.filter.component";
     templateUrl: "card.missing.list.component.html"
 })
 export class CardMissingListComponent implements AfterViewInit {
-    constructor(private deckService: DeckService) { }
+    constructor(
+        private deckService: DeckService,
+        private utils: DeckUtilsService
+    ) { }
     loading: boolean = true;
     missingCards: CardMissing[];
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;

@@ -1,0 +1,32 @@
+<spinner *ngIf="!deck && loading"></spinner>
+<div class="deck-detail" *ngIf="deck">
+    <div *ngIf="!edit">
+        <h2 (click)="edit=!edit">
+            <div class="deck-metadata">added {{utils.formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
+            <a class="deck-title">
+                <span>{{utils.getDeckTitle(deck)}}</span>
+            </a><span class="label label-default" *ngIf="deck.collected">collected</span>
+        </h2>
+    </div>
+    <form *ngIf="edit" [formGroup]="form">
+        <div *ngIf="error" class="alert alert-danger" role="alert">
+            <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+            <span class="sr-only">Error:</span> {{error}}
+        </div>
+        <div class="form-group">
+            <label>Name: </label>
+            <input type="text" class="form-control" formControlName="name" aria-describedby="basic-addon1">
+        </div>
+        <div class="form-group">
+            <label>Date: </label>
+            <input type="date" class="form-control" formControlName="date" aria-describedby="basic-addon2">
+        </div>
+        <button (click)="change()" class="btn btn-default" [disabled]="!form.valid || loading || !form.dirty">Change</button>
+        <button (click)="cancelEdit()" class="btn btn-default">Cancel</button>
+        <spinner *ngIf="loading"></spinner>
+    </form>
+    <div>
+        <a [href]="deck.url" class="deck-url">{{deck.url}}</a>
+    </div>
+    <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true"></deck>
+</div>
