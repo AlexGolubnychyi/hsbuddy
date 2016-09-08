@@ -5,6 +5,7 @@ import { AuthService } from "../services/auth.service";
 import * as contracts from "../../interfaces/index";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { DeckUtilsService } from "../services/deck.utils.service";
+import { Observable } from "rxjs/Observable";
 
 @Component({
     //moduleId: module.id,
@@ -16,6 +17,8 @@ export class DeckDetailComponent implements OnInit {
     loading: boolean;
     form: FormGroup;
     edit = false;
+    editError: string;
+    confirmDeletion = false;
 
     constructor(
         private route: ActivatedRoute,
@@ -46,12 +49,50 @@ export class DeckDetailComponent implements OnInit {
     }
 
     change() {
-        this.deckService.changeDescription(this.deck.id, this.form.value);
+        this.deckService.setDescription(this.deck.id, <contracts.DeckChange>this.form.value).subscribe(result => {
+            if (result) {
+
+                this.deck.name = this.form.get("name").value;
+                this.deck.dateAdded = this.form.get("date").value;
+                this.cancelEdit();
+                return;
+            }
+            this.editError = "failed to change deck description";
+        });
+    }
+    delete() {
+        if (!this.confirmDeletion) {
+            this.confirmDeletion = true;
+            return;
+        }
+
+        this.loading = true;
+        (this.deck.userCollection
+            ? this.deckService.toggleUserDeck(this.deck.id, false)
+            : Observable.of(<contracts.CollectionChangeStatus>{ success: true }))
+            .do(result => this.loading = result.success)
+            .filter(result => result.success)
+            .switchMap(() => this.deckService.deleteDeck(this.deck.id))
+            .subscribe(result => {
+                this.loading = false;
+                if (result) {
+                    this.router.navigateByUrl("/decks");
+                    return;
+                }
+
+                this.editError = "failed to delete";
+            });
+    }
+
+    onDeleteDeck(deckId: string) {
+        this.router.navigateByUrl("/decks");
     }
 
     cancelEdit() {
+        this.editError = null;
         this.setDefaults();
         this.edit = false;
+        this.confirmDeletion = false;
     }
 
     private setDefaults() {

@@ -37,15 +37,12 @@ export interface Deck {
     cards: Card[];
     userCollection: boolean;
     userId: string;
-    deprecated: boolean;
-    upgraded: boolean;
+    deleted?: boolean; 
 }
 
 export interface DeckDetail {
     deck: Deck;
     similar: DeckDiff[];
-    upgradeUpon: DeckDiff;
-    deprecatedBy: DeckDiff;
 }
 
 export interface DeckDiff {
@@ -57,9 +54,8 @@ export interface DeckDiff {
 }
 
 export interface DeckChange {
-    id: string;
     name: string;
-    dateAdded: Date;
+    date: string;
 }
 
 export interface CardMissing {
@@ -101,6 +97,11 @@ export interface AuthResult {
     error?: string;
 }
 
+export interface Result {
+    success: boolean;
+    error?: string;
+}
+
 export enum ParseStatus {
     unknown, success, duplicate, fail
 }
@@ -109,4 +110,9 @@ export interface ParseResult {
     status: ParseStatus;
     url: string;
     error?: string;
+}
+
+export interface CollectionChangeStatus {
+    success: boolean;
+    deckDeleted?: boolean;
 }

@@ -5,13 +5,15 @@
             <div class="deck-metadata">added {{utils.formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
             <a class="deck-title">
                 <span>{{utils.getDeckTitle(deck)}}</span>
-            </a><span class="label label-default" *ngIf="deck.collected">collected</span>
+            </a>
+            <span class="label label-default" *ngIf="deck.collected">collected</span>
+            <span class="label label-warning" *ngIf="deck.deleted">deleted</span>
         </h2>
     </div>
     <form *ngIf="edit" [formGroup]="form">
-        <div *ngIf="error" class="alert alert-danger" role="alert">
+        <div *ngIf="editError" class="alert alert-danger" role="alert">
             <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-            <span class="sr-only">Error:</span> {{error}}
+            <span class="sr-only">Error:</span> {{editError}}
         </div>
         <div class="form-group">
             <label>Name: </label>
@@ -22,11 +24,13 @@
             <input type="date" class="form-control" formControlName="date" aria-describedby="basic-addon2">
         </div>
         <button (click)="change()" class="btn btn-default" [disabled]="!form.valid || loading || !form.dirty">Change</button>
+        <button *ngIf="!deck.deleted" (click)="delete()" class="btn" 
+                [class.btn-default]="!confirmDeletion" [class.btn-danger]="confirmDeletion">{{confirmDeletion ? 'Confirm delete' : 'Delete'}}</button>
         <button (click)="cancelEdit()" class="btn btn-default">Cancel</button>
         <spinner *ngIf="loading"></spinner>
     </form>
     <div>
         <a [href]="deck.url" class="deck-url">{{deck.url}}</a>
     </div>
-    <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true"></deck>
+    <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event)></deck>
 </div>

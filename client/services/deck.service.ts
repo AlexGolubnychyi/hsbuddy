@@ -31,12 +31,12 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    changeDescription(deckId: string, description: { name: string, date: string }): Observable<boolean> {
+    setDescription(deckId: string, description: contracts.DeckChange): Observable<boolean> {
         let url = `api/deck/${deckId}`;
 
         return this.http.post(url, description)
-            .map(resp => (resp.json() as { result: boolean }).result)
-            .catch(this.handleError);
+            .map(resp => (resp.json() as contracts.Result).success)
+            .catch(() => Observable.of(false));
     }
 
     getCardLibraryInfo(): Observable<contracts.CardLibraryInfo> {
@@ -64,8 +64,14 @@ export class DeckService {
 
     toggleUserDeck(deckId: string, status: boolean) {
         return this.http.get(`api/deck/collection/${enc(deckId)}/${status}`)
+            .map(resp => resp.json() as contracts.CollectionChangeStatus)
+            .catch(() => Observable.of(<contracts.CollectionChangeStatus>{ success: false }));
+    }
+
+    deleteDeck(deckId: string) {
+        return this.http.delete(`api/deck/${enc(deckId)}`)
             .map(resp => true)
-            .catch(this.handleError);
+            .catch(() => Observable.of(false));
     }
 
     parseUrls(data: { urls: string }) {

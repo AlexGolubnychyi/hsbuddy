@@ -1,9 +1,10 @@
 "use strict";
 
 import * as crypto from "crypto";
-import {AuthError} from "../error";
+import { AuthError } from "../error";
 import mongoose from "../lib/mongoose";
-import {DeckDB, deckSchemaName} from "./deck";
+import Deck, { DeckDB, deckSchemaName } from "./deck";
+import * as contracts from "../../interfaces";
 
 const salt = "everything is better with salt";
 
@@ -62,7 +63,11 @@ userSchema.static("getUserDeckIds", function (userId) {
 });
 
 userSchema.static("setUserDeck", function (userId, deckId, set: boolean) {
-    let model = (this as mongoose.Model<UserDB> & UserStatics);
+    let model = (this as mongoose.Model<UserDB> & UserStatics),
+        result: contracts.CollectionChangeStatus = {
+            success: true,
+            deckDeleted: false
+        };
 
     return model.findById(userId).exec().then(user => {
         let decks = user.decks as string[],
@@ -70,22 +75,23 @@ userSchema.static("setUserDeck", function (userId, deckId, set: boolean) {
 
         if (set) {
             if (index >= 0) {
-                return;
+                return result;
             }
             decks.push(deckId);
-            return user.save();
+            return user.save().then(() => result);
         }
 
         if (index < 0) {
-            return;
+            return result;
         }
 
         decks.splice(index, 1);
-        return user.save();
-
+        return user.save().then(() => Deck.recycle(deckId)).then(rez => {
+            result.deckDeleted = rez;
+            return result;
+        });
     });
 });
-
 
 
 export interface UserDB extends mongoose.Document {
@@ -99,7 +105,7 @@ interface UserStatics {
     auth: (userId: string, password) => Promise<void>;
     createUser: (userId: string, password) => Promise<void>;
     getUserDeckIds: (userId: string) => Promise<string[]>;
-    setUserDeck: (userId: string, deckId: string, set: boolean) => Promise<void>;
+    setUserDeck: (userId: string, deckId: string, set: boolean) => Promise<contracts.CollectionChangeStatus>;
 }
 export const userSchemaName = "User";
 export default mongoose.model<UserDB>(userSchemaName, userSchema) as mongoose.Model<UserDB> & UserStatics;

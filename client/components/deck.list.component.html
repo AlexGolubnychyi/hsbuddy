@@ -4,6 +4,6 @@
 
 <div *ngFor="let deck of decks">
     <hr/>
-    <deck [deck]="deck"></deck>
+    <deck [deck]="deck" (onDeleteDeck)="onDeleteDeck($event)"></deck>
 </div>
 <h3 [class.hidden]="loading || (decks && decks.length)">nothing found..</h3>

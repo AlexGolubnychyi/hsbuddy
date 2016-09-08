@@ -19,8 +19,18 @@ const deckSchema = new mongoose.Schema({
         card: { type: String, ref: cardSchemaName },
         count: Number
     }],
-    deprecatedBy: String,
-    upgradeUpon: String,
+    revisions: [{
+        number: Number,
+        dateAdded: Date,
+        cardAdditions: [{
+            card: { type: String, ref: cardSchemaName },
+            count: Number
+        }],
+        cardRemovals: [{
+            card: { type: String, ref: cardSchemaName },
+            count: Number
+        }]
+    }],
     deleted: Boolean,
     userId: String
 });
@@ -43,9 +53,9 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
         .then(uc => userCards = uc)
         .then(() => {
             if (params) {
-                let queryParts: {}[] = [
-                    { "deleted": { "$ne": true } }
-                ];
+                let queryParts: {}[] = [];
+                //     { "deleted": { "$ne": true } }
+                // ];
 
                 if (params.userCollection === "true") {
                     queryParts.push({ "_id": { "$in": userDeckIds } });
@@ -69,7 +79,9 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
             return model.find(query).populate("cards.card").exec();
         })
         .then(decks => {
-            let result = decks.map(deck => deckToContract(deck, userCards, userDeckIds));
+            let result = decks.map(deck => deckToContract(deck, userCards, userDeckIds))
+                .filter(deck => !deck.deleted || deck.userCollection);
+
             if (typeof dustNeededParam === "number") {
                 result = result.filter(d => d.dustNeeded <= dustNeededParam);
             }
@@ -104,19 +116,50 @@ deckSchema.static("getDeckDetail", function (userId: string, deckId: string) {
 });
 
 
-deckSchema.static("softDelete", function (userId: string, deckId: string) {
-    let model = this as mongoose.Model<DeckDB> & DeckStatics;
+deckSchema.static("setDescription", function (userId: string, deckId: string, description: contracts.DeckChange) {
+    let model = this as mongoose.Model<DeckDB>;
 
-    model.findById(deckId).exec().then(deck => {
-        if (!deck || (!!deck.userId && deck.userId !== userId)) {
-            return Promise.resolve(false);
-        }
+    return model.findById(deckId).exec()
+        .then(deck => {
+            if (!deck || !description) {
+                return false;
+            }
 
-        deck.deleted = true;
-        deck.save().then(() => Promise.resolve(true));
-    });
+            let date = new Date(description.date),
+                {name} = description;
+
+            if (!date || !name) {
+                return false;
+            }
+
+            deck.name = name;
+            deck.dateAdded = date;
+            return deck.save().then(() => true);
+        });
 });
 
+deckSchema.static("recycle", function (deckId: string, forceDelete = false) {
+    let model = this as mongoose.Model<DeckDB> & DeckStatics;
+
+    return model.findById(deckId).exec().then(deck => {
+        if (!deck || !(deck.deleted || forceDelete)) {
+            return false;
+        }
+
+        return User.find({ decks: deck._id }).exec().then(users => {
+            if (users && users.length) {
+                if (deck.deleted) {
+                    return false;
+                }
+                //soft delete
+                deck.deleted = true;
+                return deck.save().then(() => false);
+            }
+            //hard delete
+            return model.findByIdAndRemove(deckId).exec().then(() => true);
+        });
+    });
+});
 
 deckSchema.static("getMissingCards", function (userId: string, params?: contracts.DeckQuery) {
     let model = this as mongoose.Model<DeckDB> & DeckStatics,
@@ -178,8 +221,7 @@ function deckToContract(deck: DeckDB, userCards: { [cardId: string]: number }, u
         cards: [],
         userCollection: userDeckIds.indexOf(deck._id) >= 0,
         userId: deck.userId,
-        deprecated: !!deck.deprecatedBy,
-        upgraded: !!deck.upgradeUpon
+        deleted: deck.deleted
     }, collected = true;
 
     contract.cards = deck.cards.map(({card, count}: { card: CardDB, count: number }) => {
@@ -228,8 +270,6 @@ export interface DeckDB extends mongoose.Document {
     cards: { card: string | CardDB, count: number }[];
     dateAdded: Date;
     userId: string;
-    deprecatedBy: string;
-    upgradeUpon: string;
     deleted: boolean;
 };
 
@@ -237,8 +277,10 @@ interface DeckStatics {
     generateId: (cards: { [cardName: string]: number }) => string;
     getDecksByParams: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.Deck[]>;
     getDeckDetail: (userId: string, deckId: string) => Promise<contracts.DeckDetail>;
+    setDescription: (userId: string, deckId: string, description: contracts.DeckChange) => Promise<boolean>;
     getMissingCards: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.CardMissing[]>;
-    softDelete: (userId: string, deckId: string) => Promise<boolean>
+    softDelete: (userId: string, deckId: string) => Promise<boolean>;
+    recycle: (deckId: string, forceDelete?: boolean) => Promise<boolean>;
 }
 
 export const deckSchemaName = "Deck";

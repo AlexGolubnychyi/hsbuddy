@@ -3,7 +3,9 @@
         <div class="deck-metadata">added {{utils.formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
         <a class="deck-title" routerLink="/deck/{{deck.id}}">
             <span>{{title}}</span>
-        </a><span class="label label-default" *ngIf="deck.collected">collected</span>
+        </a>
+        <span class="label label-default" *ngIf="deck.collected">collected</span>
+        <span class="label label-warning" *ngIf="deck.deleted">deleted</span>
     </h2>
 
     <div *ngIf="auth" class="checkbox">

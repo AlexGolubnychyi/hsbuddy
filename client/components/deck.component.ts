@@ -1,4 +1,4 @@
-import { Component, Input, OnInit, OnDestroy } from "@angular/core";
+import { Component, Input, Output, OnInit, OnDestroy, EventEmitter } from "@angular/core";
 import { DeckService } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
 import { DeckUtilsService } from "../services/deck.utils.service";
@@ -6,6 +6,8 @@ import { Deck, Card } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { Subscription, Observable } from "rxjs";
+import * as contracts from "../../interfaces/index";
+
 import "../rxjs-operators";
 
 @Component({
@@ -20,6 +22,9 @@ export class DeckComponent implements OnInit, OnDestroy {
     hideDetails = true;
     @Input()
     hideTitle = false;
+    @Output()
+    onDeleteDeck = new EventEmitter<string>();
+
     cards: Card[];
     cardChangedSubscription: Subscription;
     title: string;
@@ -53,7 +58,11 @@ export class DeckComponent implements OnInit, OnDestroy {
         (this.form.get("userCollection").valueChanges as Observable<boolean>)
             .debounceTime(200)
             .switchMap(val => this.deckService.toggleUserDeck(this.deck.id, val))
-            .subscribe();
+            .subscribe((rez: contracts.CollectionChangeStatus) => {
+                if (this.deck.deleted || rez.deckDeleted) {
+                   this.onDeleteDeck.emit(this.deck.id);
+                }
+            });
 
         (this.form.get("orderBy").valueChanges as Observable<SortOptions>).subscribe(v => this.changeSort(+v));
     }
