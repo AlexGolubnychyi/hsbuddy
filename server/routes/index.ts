@@ -1,9 +1,10 @@
 
 import * as express from "express";
-import parserRouter from "./api/parse";
+
 import deckRouter from "./api/deck";
 import cardRouter from "./api/card";
 import loginRouter from "./login";
+import parserRouter from "./api/parse";
 
 export default function (app: express.Express) {
   app.use("/", loginRouter);
@@ -14,7 +15,7 @@ export default function (app: express.Express) {
 
   //default
   app.use("/", function (req, res) {
-    res.render("index", {env: app.get("env")});
+    res.render("index", { env: app.get("env") });
   });
 };
 
