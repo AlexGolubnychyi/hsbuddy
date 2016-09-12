@@ -28,27 +28,21 @@ export interface Deck {
     id: string;
     name: string;
     url: string;
-    dateAdded: Date;
-    class: hstypes.CardClass;
     className: string;
     cost: number;
     dustNeeded: number;
     collected: boolean;
+    dateAdded: Date;
+    class: hstypes.CardClass;
     cards: Card[];
     userCollection: boolean;
     userId: string;
-    deleted?: boolean; 
-}
-
-export interface DeckDetail {
-    deck: Deck;
-    similar: DeckDiff[];
+    deleted?: boolean;
 }
 
 export interface DeckDiff {
-    id: string;
-    name: string;
-    url: string;
+    deck: Deck;
+    diff: number;
     cardAddition: Card[];
     cardRemoval: Card[];
 }

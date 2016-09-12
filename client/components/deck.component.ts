@@ -5,7 +5,8 @@ import { DeckUtilsService } from "../services/deck.utils.service";
 import { Deck, Card } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { FormGroup, FormBuilder } from "@angular/forms";
-import { Subscription, Observable } from "rxjs";
+import { Subscription } from "rxjs/Subscription";
+import { Observable } from "rxjs/Observable";
 import * as contracts from "../../interfaces/index";
 
 import "../rxjs-operators";
@@ -22,6 +23,8 @@ export class DeckComponent implements OnInit, OnDestroy {
     hideDetails = true;
     @Input()
     hideTitle = false;
+    @Input()
+    disableCardChangedListener = false;
     @Output()
     onDeleteDeck = new EventEmitter<string>();
 
@@ -38,9 +41,7 @@ export class DeckComponent implements OnInit, OnDestroy {
         private authService: AuthService,
         private utils: DeckUtilsService,
         private fb: FormBuilder
-    ) {
-        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDeck(cardId, count));
-    }
+    ) { }
 
     ngOnInit() {
         this.updateTitle();
@@ -60,14 +61,19 @@ export class DeckComponent implements OnInit, OnDestroy {
             .switchMap(val => this.deckService.toggleUserDeck(this.deck.id, val))
             .subscribe((rez: contracts.CollectionChangeStatus) => {
                 if (this.deck.deleted || rez.deckDeleted) {
-                   this.onDeleteDeck.emit(this.deck.id);
+                    this.onDeleteDeck.emit(this.deck.id);
                 }
             });
 
         (this.form.get("orderBy").valueChanges as Observable<SortOptions>).subscribe(v => this.changeSort(+v));
+        if (!this.disableCardChangedListener) {
+            this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDeck(cardId, count));
+        }
     }
     ngOnDestroy() {
-        this.cardChangedSubscription.unsubscribe();
+        if (this.cardChangedSubscription) {
+            this.cardChangedSubscription.unsubscribe();
+        }
     }
 
     changeAvailability() {

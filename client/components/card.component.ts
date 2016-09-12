@@ -17,6 +17,8 @@ export class CardComponent implements OnInit {
     card: Card;
     @Input()
     showCount: boolean;
+    @Input()
+    simpleView = false;
     enableAvailability: boolean;
     loading: boolean;
     form: FormGroup;

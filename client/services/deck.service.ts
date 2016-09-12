@@ -23,8 +23,16 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    getDeckDetail(deckId: string): Observable<contracts.DeckDetail> {
+    getDeck(deckId: string): Observable<contracts.Deck> {
         let url = `api/deck/${deckId}`;
+
+        return this.http.get(url)
+            .map(resp => resp.json())
+            .catch(this.handleError);
+    }
+
+     getSimilar(deckId: string): Observable<contracts.DeckDiff[]> {
+        let url = `api/deck/${deckId}/similar`;
 
         return this.http.get(url)
             .map(resp => resp.json())

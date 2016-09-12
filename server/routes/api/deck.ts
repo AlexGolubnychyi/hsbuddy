@@ -12,7 +12,10 @@ router.get("/", (req: express.Request, res: express.Response, next: express.Next
 });
 
 router.get("/:deckId", (req: express.Request, res: express.Response, next: express.NextFunction) => {
-    Deck.getDeckDetail(req.user, req.params.deckId).then(deck => res.json(deck));
+    Deck.getDeck(req.user, req.params.deckId).then(deck => res.json(deck));
+});
+router.get("/:deckId/similar", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+    Deck.getSimilarDecks(req.user, req.params.deckId).then(deck => res.json(deck));
 });
 
 router.delete("/:deckId", (req: express.Request, res: express.Response, next: express.NextFunction) => {

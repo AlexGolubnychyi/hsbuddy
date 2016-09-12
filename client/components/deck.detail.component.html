@@ -24,13 +24,38 @@
             <input type="date" class="form-control" formControlName="date" aria-describedby="basic-addon2">
         </div>
         <button (click)="change()" class="btn btn-default" [disabled]="!form.valid || loading || !form.dirty">Change</button>
-        <button *ngIf="!deck.deleted" (click)="delete()" class="btn" 
-                [class.btn-default]="!confirmDeletion" [class.btn-danger]="confirmDeletion">{{confirmDeletion ? 'Confirm delete' : 'Delete'}}</button>
+        <button *ngIf="!deck.deleted" (click)="delete()" class="btn" [class.btn-default]="!confirmDeletion" [class.btn-danger]="confirmDeletion">{{confirmDeletion ? 'Confirm delete' : 'Delete'}}</button>
         <button (click)="cancelEdit()" class="btn btn-default">Cancel</button>
         <spinner *ngIf="loading"></spinner>
     </form>
     <div>
         <a [href]="deck.url" class="deck-url">{{deck.url}}</a>
     </div>
-    <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event)></deck>
+    <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [disableCardChangedListener]="true"></deck>
+    <br>
+    <button (click)="toggleSimilarDecks()" [disabled]="loadingSimilarDecks" class="btn btn-default">{{similarDecks ? "< Hide similar decks" : "Show similar decks >"}} </button>
+    <spinner *ngIf="loadingSimilarDecks"></spinner>
+    <div *ngIf="similarDecks" class="similar-decks">
+        <h3 *ngIf="!similarDecks.length">No similar decks found..</h3>
+        <div *ngFor="let simDeck of similarDecks">
+            <h2>
+                <div class="deck-metadata">added {{utils.formatDate(simDeck.deck.dateAdded)}} by {{simDeck.deck.userId || "~magic~"}}</div>
+                <a class="deck-title" routerLink="/deck/{{simDeck.deck.id}}">
+                    <span>{{utils.getDeckTitle(simDeck.deck)}}</span>
+                </a>
+                <span class="label label-default" *ngIf="simDeck.deck.collected">collected</span>
+                <span class="label label-warning" *ngIf="simDeck.deck.deleted">deleted</span>
+            </h2>
+            <a [href]="simDeck.deck.url" class="deck-url">{{simDeck.deck.url}}</a>
+            <h4>added (+):</h4>
+            <div class="card-details">
+                <card *ngFor="let card of simDeck.cardAddition | cardpipe" [card]="card" [showCount]="true"></card>
+            </div>
+            <h4>removed (-):</h4>
+            <div class="card-details">
+                <card *ngFor="let card of simDeck.cardRemoval | cardpipe" [card]="card" [showCount]="true"></card>
+            </div>
+            <hr/>
+        </div>
+    </div>
 </div>

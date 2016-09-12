@@ -1,11 +1,11 @@
-<div class="card-container" 
+<div *ngIf="!simpleView" class="card-container" 
     [formGroup] = "form"
     [class.available]="getStatus() === 'available'"  
     [class.notavailable]="getStatus() === 'notavailable'">
     <div>
         <a [href]="card.url"><img [src]="card.img" [title]="card.flavorText" class="card-image"></a>
     </div>
-    <div class="card-name">{{card.name}} {{showCount ? "x "+card.count : ""}}</div>
+    <div class="card-name"><span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x "+card.count : ""}}</div>
     <div [class.hidden]="!card.className">Class: {{card.className}}</div>
     <div>Dust: {{card.cost}}</div>
     <div>Set: {{card.setName}}</div>
@@ -16,5 +16,10 @@
             <option value="1">1 card</option>
             <option value="2">2 cards</option>
         </select>
+    </div>
+</div>
+<div *ngIf="simpleView">
+    <div style="float:left;padding: .5rem;margin: .5rem;border: 1px solid gray;" class="card-name">
+        <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x "+card.count : ""}}
     </div>
 </div>

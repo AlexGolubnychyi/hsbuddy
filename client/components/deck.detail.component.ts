@@ -1,24 +1,31 @@
-import { Component, OnInit } from "@angular/core";
+import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { DeckService } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
 import * as contracts from "../../interfaces/index";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { DeckUtilsService } from "../services/deck.utils.service";
+import { Subscription } from "rxjs/Subscription";
 import { Observable } from "rxjs/Observable";
+import { DeckComponent } from "./deck.component";
+
 
 @Component({
     //moduleId: module.id,
     selector: "selector",
     templateUrl: "deck.detail.component.html"
 })
-export class DeckDetailComponent implements OnInit {
+export class DeckDetailComponent implements OnInit, OnDestroy {
     deck: contracts.Deck;
+    similarDecks: contracts.DeckDiff[];
     loading: boolean;
+    loadingSimilarDecks: boolean;
     form: FormGroup;
     edit = false;
     editError: string;
     confirmDeletion = false;
+    cardChangedSubscription: Subscription;
+    @ViewChild(DeckComponent) deckComponent: DeckComponent;
 
     constructor(
         private route: ActivatedRoute,
@@ -37,14 +44,44 @@ export class DeckDetailComponent implements OnInit {
             date: ["", Validators.required]
         });
 
+        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDecks(cardId, count));
+
         this.route.params
             .map(params => params["id"])
-            .switchMap<contracts.DeckDetail>(id => this.deckService.getDeckDetail(id))
-            .subscribe(deckInfo => {
-                this.deck = deckInfo.deck;
+            .switchMap<contracts.Deck>(id => this.deckService.getDeck(id))
+            .subscribe(deck => {
+                this.deck = deck;
                 this.loading = false;
-
+                this.similarDecks = null;
+                if (this.deckComponent) {
+                    this.deckComponent.hideDetails = false;
+                }
                 this.setDefaults();
+            });
+    }
+
+    ngOnDestroy() {
+        if (this.cardChangedSubscription) {
+            this.cardChangedSubscription.unsubscribe();
+        }
+    }
+
+
+    toggleSimilarDecks() {
+        if (this.similarDecks) {
+            this.similarDecks = null;
+            return;
+        }
+        this.loadingSimilarDecks = true;
+
+        this.deckService.getSimilar(this.deck.id)
+            .timeout(5000)
+            .catch(() => Observable.of(null))
+            .subscribe(similarDecks => {
+                this.loadingSimilarDecks = false;
+                if (similarDecks) {
+                    this.similarDecks = similarDecks;
+                }
             });
     }
 
@@ -93,6 +130,13 @@ export class DeckDetailComponent implements OnInit {
         this.setDefaults();
         this.edit = false;
         this.confirmDeletion = false;
+    }
+
+    private updateDecks(cardId: string, newCount: number) {
+        this.utils.updateDeckStats(this.deck, cardId, newCount);
+        if (this.similarDecks && this.similarDecks.length) {
+            this.similarDecks.map(sm => sm.deck).forEach(d => this.utils.updateDeckStats(d, cardId, newCount));
+        }
     }
 
     private setDefaults() {
