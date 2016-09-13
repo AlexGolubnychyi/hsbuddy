@@ -4,13 +4,17 @@ import { Observable } from "rxjs/Observable";
 import "../rxjs-operators";
 import { Router } from "@angular/router";
 import * as contracts from "../../interfaces/index";
+import { Subject } from "rxjs/Subject";
 
 @Injectable()
 export class AuthService {
     redirectUrl: string;
     private _userName: string;
+    public authChanged: Subject<AuthChanged>;
 
-    constructor(private router: Router, private http: Http) { }
+    constructor(private router: Router, private http: Http) {
+        this.authChanged = new Subject<AuthChanged>();
+    }
 
     isAuthenticated() {
         return !!this.userName;
@@ -26,6 +30,10 @@ export class AuthService {
             .map(result => {
                 if (result.success) {
                     this._userName = data.username;
+                    this.authChanged.next({
+                        auth: true,
+                        username: this._userName
+                    });
                     this.router.navigateByUrl(this.redirectUrl || "");
                 }
                 return result;
@@ -39,6 +47,10 @@ export class AuthService {
             .map(result => {
                 if (result.success) {
                     this._userName = data.username;
+                    this.authChanged.next({
+                        auth: true,
+                        username: this._userName
+                    });
                     this.router.navigateByUrl(this.redirectUrl || "");
                 }
                 return result;
@@ -49,4 +61,9 @@ export class AuthService {
     private onFail() {
         return Observable.of(<contracts.AuthResult>{ success: false, error: "unknown server error, please try again soon" });
     }
+}
+
+interface AuthChanged {
+    auth: boolean;
+    username: string;
 }

@@ -8,6 +8,7 @@ import { HttpModule } from "@angular/http";
 import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./services/auth.service";
 import { DeckService } from "./services/deck.service";
+import { ConfigService } from "./services/config.service";
 import { DeckUtilsService } from "./services/deck.utils.service";
 
 import { AppComponent } from "./components/app.component";
@@ -22,7 +23,7 @@ import {LoginComponent} from "./components/login.component";
 import {AboutComponent} from "./components/about.component";
 import {ParseComponent} from "./components/parse.component";
 import { DeckDetailComponent } from "./components/deck.detail.component";
-//import {DropdownModule } from "ng2-bootstrap/components/dropdown/dropdown.module";
+//import {TooltipModule } from "./components/ng2-bootstrap/tooltip/tooltip.module";
 import { CardPipe } from "./pipes/card.pipe";
 
 @NgModule({
@@ -31,6 +32,7 @@ import { CardPipe } from "./pipes/card.pipe";
         routing,
         ReactiveFormsModule,
         HttpModule,
+     //   TooltipModule
      //   DropdownModule
     ],
     declarations: [
@@ -52,7 +54,8 @@ import { CardPipe } from "./pipes/card.pipe";
         AuthGuard,
         AuthService,
         DeckService,
-        DeckUtilsService
+        DeckUtilsService,
+        ConfigService
     ],
     bootstrap: [AppComponent]
 })

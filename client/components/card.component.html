@@ -1,16 +1,16 @@
-<div *ngIf="!simpleView" class="card-container" 
-    [formGroup] = "form"
-    [class.available]="getStatus() === 'available'"  
+<div *ngIf="style() !== cardStyles.textOnly" class="card-container" [formGroup]="form" [class.available]="getStatus() === 'available'"
     [class.notavailable]="getStatus() === 'notavailable'">
     <div>
-        <a [href]="card.url"><img [src]="card.img" [title]="card.flavorText" class="card-image"></a>
+        <a [href]="card.url">
+            <img [src]="card.img" [title]="card.flavorText" class="card-image" [class.small-image]="style() === cardStyles.compact"/></a>
     </div>
     <div class="card-name"><span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x "+card.count : ""}}</div>
-    <div [class.hidden]="!card.className">Class: {{card.className}}</div>
-    <div>Dust: {{card.cost}}</div>
-    <div>Set: {{card.setName}}</div>
-
-    <div [style.visibility]="enableAvailability ? 'visible' : 'hidden'" class="availability-container">
+    <div *ngIf="style() === cardStyles.default">
+        <div [class.hidden]="!card.className">Class: {{card.className}}</div>
+        <div>Dust: {{card.cost}}</div>
+        <div class="card-set">Set: {{card.setName}}</div>
+    </div>
+    <div *ngIf="showAvailability()" [style.visibility]="!basic ? 'visible' : 'hidden'" class="availability-container">
         <select formControlName="numberAvailable" class="form-control availability-selector">
             <option value="0">0 cards</option>
             <option value="1">1 card</option>
@@ -18,8 +18,13 @@
         </select>
     </div>
 </div>
-<div *ngIf="simpleView">
-    <div style="float:left;padding: .5rem;margin: .5rem;border: 1px solid gray;" class="card-name">
-        <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x "+card.count : ""}}
+<div *ngIf="style() === cardStyles.textOnly">
+    <div class="card-name-text-only">
+        <a [href]="card.url" [title]="'(mana: ' + card.mana + ') '+card.description">
+            <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x "+card.count : ""}}
+           
+        </a>
+        <img [src]="'/images/'+ card.id + '.png'">
+        
     </div>
 </div>
