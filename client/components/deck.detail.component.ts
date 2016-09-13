@@ -8,6 +8,7 @@ import { DeckUtilsService } from "../services/deck.utils.service";
 import { Subscription } from "rxjs/Subscription";
 import { Observable } from "rxjs/Observable";
 import { DeckComponent } from "./deck.component";
+import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 
 
 @Component({
@@ -25,6 +26,10 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
     editError: string;
     confirmDeletion = false;
     cardChangedSubscription: Subscription;
+    cardFilterOpts: CardPipeArg = {
+        hideAvailable: false,
+        sort: SortOptions.classic
+    };
     @ViewChild(DeckComponent) deckComponent: DeckComponent;
 
     constructor(
