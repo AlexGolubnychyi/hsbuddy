@@ -5,7 +5,7 @@ import * as contracts from "../../interfaces/index";
 export class CardToolTipDirective {
     tooltipEl: HTMLDivElement;
     timeoutId = 0;
-    height = 300;
+    height = 300 + 20;
     width = 217;
     offset = 10;
     lastMouseEvent: MouseEvent;
@@ -36,12 +36,22 @@ export class CardToolTipDirective {
     }
 
     private createTooltip() {
-        let imgEl = document.createElement("img");
-        imgEl.className = "card-image";
-        imgEl.setAttribute("src", this.card.img);
+        // let imgEl = document.createElement("img");
+        // imgEl.className = "card-image";
+        // imgEl.setAttribute("src", this.card.img);
+        // let setEl = document.createElement("div");
+        // setEl.innerText = this.card.setName;
         this.tooltipEl = document.createElement("div");
         this.tooltipEl.className = "card-tooltip";
-        this.tooltipEl.appendChild(imgEl);
+
+        this.tooltipEl.innerHTML = `
+            <img class="card-image" src="${this.card.img}" />
+            <div>
+                <span class="set-name">${this.card.setName}</span>
+            </div>
+        `;
+        // this.tooltipEl.appendChild(imgEl);
+        // this.tooltipEl.appendChild(setEl);
     }
 
     private updateTooltipPosition() {

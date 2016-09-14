@@ -2,6 +2,7 @@ import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { DeckService } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
+import { ConfigService, cardStyles } from "../services/config.service";
 import * as contracts from "../../interfaces/index";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { DeckUtilsService } from "../services/deck.utils.service";
@@ -30,6 +31,7 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
         hideAvailable: false,
         sort: SortOptions.classic
     };
+
     @ViewChild(DeckComponent) deckComponent: DeckComponent;
 
     constructor(
@@ -37,6 +39,7 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
         private router: Router,
         private deckService: DeckService,
         private authService: AuthService,
+        private configService: ConfigService,
         private utils: DeckUtilsService,
         private fb: FormBuilder
     ) { }
@@ -135,6 +138,10 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
         this.setDefaults();
         this.edit = false;
         this.confirmDeletion = false;
+    }
+
+    textOnlyMode() {
+        return this.configService.config.cardStyle === cardStyles.textOnly;
     }
 
     private updateDecks(cardId: string, newCount: number) {
