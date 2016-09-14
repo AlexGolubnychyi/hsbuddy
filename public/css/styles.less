@@ -32,14 +32,6 @@ card {
     .availability-selector {
       padding-left: 30%;
     }
-    .card-image {
-      height: 300px;
-      width: 217px;
-      &.small-image {
-        height: 198px;
-        width: 143.36px;
-      }
-    }
     .card-name {
       font-weight: bold;
       padding: 0 .5rem .5rem .5rem;
@@ -48,24 +40,42 @@ card {
       padding: 0 .5rem;
     }
   }
-
   .card-name-text-only {
-     // float: left;
-      padding: 0 0 .5rem .5rem;;
-      margin: .5rem;
-      border: 1px solid lightgray;
-      width:300px;
-      background-color: rgba(204, 204, 204, 0.32);
-      
-      img {
-        float: right;
-      }
-
-      >a {
-        text-decoration: none;
-        color: #000;
-      }
+    // float: left;
+    padding: 0 0 .5rem .5rem;
+    ;
+    margin: .5rem;
+    border: 1px solid lightgray;
+    width: 300px;
+    background-color: rgba(204, 204, 204, 0.32);
+    img {
+      float: right;
     }
+    >a {
+      text-decoration: none;
+      color: #000;
+    }
+  }
+}
+
+.card-tooltip {
+  position: absolute;
+}
+
+.card-library {
+  .card-name-text-only {
+    float: left;
+    height: 27px;
+  }
+}
+
+.card-image {
+  height: 300px;
+  width: 217px;
+  &.small-image {
+    height: 198px;
+    width: 143.36px;
+  }
 }
 
 deck {

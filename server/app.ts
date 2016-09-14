@@ -13,17 +13,18 @@ import * as connectMongo from "connect-mongo";
 import mongoose from "./lib/mongoose";
 
 let compression = require("compression"),
-    less = require("less-middleware");
+    less = require("less-middleware"),
+    favicon = require("serve-favicon");
 
-// var favicon = require("serve-favicon");
+
 const app = express();
 app.use(compression());
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-// uncomment after placing your favicon in /public
-// app.use(favicon(path.join(__dirname, "public", "favicon.ico")));
+
+app.use(favicon(path.join(__dirname, "../public", "favicon.ico")));
 app.use(logger("dev"));
 
 //LESS

@@ -61,6 +61,10 @@ export class CardComponent implements OnInit {
     showAvailability() {
         return this.configService.config.enableCardAvailSelector;
     }
+
+    getCardTooltipHtml() {
+        return `<div style=""></div>`;
+    }
 }
 
 interface Model {

@@ -19,12 +19,10 @@
     </div>
 </div>
 <div *ngIf="style() === cardStyles.textOnly">
-    <div class="card-name-text-only">
-        <a [href]="card.url" [title]="'(mana: ' + card.mana + ') '+card.description">
-            <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x "+card.count : ""}}
-           
+    <div class="card-name-text-only" [cardTooltip]="card">
+        <a [href]="card.url">
+            <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x "+card.count : ""}}       
         </a>
         <img [src]="'/images/'+ card.id + '.png'">
-        
     </div>
 </div>

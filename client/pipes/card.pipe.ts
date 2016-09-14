@@ -5,7 +5,6 @@ import { Card } from "../../interfaces";
 @Pipe({ name: "cardpipe" })
 export class CardPipe implements PipeTransform {
   transform(cards: Card[], options: CardPipeArg) {
-    options = options || { hideAvailable: false, sort: SortOptions.classic };
     return cards
       .filter(card => !options.hideAvailable || card.numberAvailable < card.count)
       .sort(options.sort === SortOptions.expense ? this.expenseSort : this.classicSort);
