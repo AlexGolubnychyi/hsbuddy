@@ -39,6 +39,16 @@ card {
     .card-set {
       padding: 0 .5rem;
     }
+    &.compact {
+      .card-name {
+        width: 140px;
+        height: 40px;
+      }
+      .card-image {
+        height: 198px;
+        width: 143.36px;
+      }
+    }
   }
   .card-name-text-only {
     // float: left;
@@ -61,7 +71,6 @@ card {
 .card-tooltip {
   position: absolute;
   text-align: center;
-  
   .set-name {
     height: 20px;
     background-color: #938576;
@@ -81,10 +90,6 @@ card {
 .card-image {
   height: 300px;
   width: 217px;
-  &.small-image {
-    height: 198px;
-    width: 143.36px;
-  }
 }
 
 deck {
