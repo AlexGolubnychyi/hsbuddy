@@ -6,8 +6,8 @@ let router = express.Router();
 
 router.post("/login", (req: express.Request, res: express.Response, next: express.NextFunction) => {
      User.auth(req.body.username, req.body.password)
-        .then(() => {
-            req.session["user"] = req.body.username;
+        .then(user => {
+            req.session["user"] = user.id;
             res.json({ success: true });
             return null;
         })
@@ -25,8 +25,8 @@ router.get("/logout", (req: express.Request, res: express.Response, next: expres
 
 router.post("/register", (req: express.Request, res: express.Response, next: express.NextFunction) => {
     User.createUser(req.body.username, req.body.password)
-        .then(() => {
-            req.session["user"] = req.body.username;
+        .then(user => {
+            req.session["user"] = user.id;
             res.json({ success: true });
             return null;
         }).catch(e => {

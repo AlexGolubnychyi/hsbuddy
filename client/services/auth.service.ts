@@ -29,7 +29,7 @@ export class AuthService {
             .map(resp => resp.json() as contracts.AuthResult)
             .map(result => {
                 if (result.success) {
-                    this._userName = data.username;
+                    this._userName = data.username.toLowerCase();
                     this.authChanged.next({
                         auth: true,
                         username: this._userName
@@ -46,7 +46,7 @@ export class AuthService {
             .map(resp => resp.json() as contracts.AuthResult)
             .map(result => {
                 if (result.success) {
-                    this._userName = data.username;
+                    this._userName = data.username.toLowerCase();
                     this.authChanged.next({
                         auth: true,
                         username: this._userName

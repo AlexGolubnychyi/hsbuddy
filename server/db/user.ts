@@ -16,21 +16,23 @@ const userSchema = new mongoose.Schema({
 
 userSchema.static("encrypt", (password: string) => crypto.createHmac("sha1", salt).update(password).digest("hex"));
 
-userSchema.static("auth", function (userId, password) {
+userSchema.static("auth", function (userId: string, password: string) {
+    userId = userId && userId.toLowerCase().trim();
     let model = (this as mongoose.Model<UserDB> & UserStatics);
-    return model.findById(userId).exec()
+    return model
+        .findById(userId).exec()
         .then(user => {
             if (!user || model.encrypt(password) !== user.passwordHash) {
                 return <any>Promise.reject(new AuthError("invalid username or password"));
             }
 
-            return Promise.resolve();
+            return Promise.resolve(user);
         });
 });
 
-userSchema.static("createUser", function (userId, password) {
+userSchema.static("createUser", function (userId: string, password) {
     let model = (this as mongoose.Model<UserDB> & UserStatics);
-    userId = userId && userId.trim();
+    userId = userId && userId.toLowerCase().trim();
     password = password && password.trim();
     if (!userId || !password) {
         return Promise.reject(new AuthError("Cannot create user: name/password cannot be empty"));
@@ -38,13 +40,13 @@ userSchema.static("createUser", function (userId, password) {
 
     return model.findById(userId).exec().then(user => {
         if (user) {
-            return Promise.reject(new AuthError("Cannot create user: user already exists"));
+            return <any>Promise.reject(new AuthError("Cannot create user: user already exists"));
         }
 
         user = new model();
         user._id = userId;
         user.passwordHash = model.encrypt(password);
-        return <Promise<void>>(user.save() as any);
+        return user.save().then(() => user);
     });
 });
 
@@ -102,8 +104,8 @@ export interface UserDB extends mongoose.Document {
 
 interface UserStatics {
     encrypt: (password: string) => string;
-    auth: (userId: string, password) => Promise<void>;
-    createUser: (userId: string, password) => Promise<void>;
+    auth: (userId: string, password) => Promise<UserDB>;
+    createUser: (userId: string, password) => Promise<UserDB>;
     getUserDeckIds: (userId: string) => Promise<string[]>;
     setUserDeck: (userId: string, deckId: string, set: boolean) => Promise<contracts.CollectionChangeStatus>;
 }
