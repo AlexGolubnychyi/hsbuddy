@@ -10,9 +10,9 @@
     <spinner *ngIf="loading"></spinner>
     <div *ngIf="results">
         <p>Results:</p>
-        <div *ngFor="let result of results" class="alert" [class.alert-success]="result.status === status.success" 
+        <div *ngFor="let result of results" class="alert" [class.alert-success]="result.status === status.success || result.status === status.upgrade" 
            [class.alert-info]="result.status === status.duplicate" [class.alert-danger]="result.status === status.fail">
-            {{format(result)}}
+            {{format(result)}} <span *ngIf="result.deckId"><a routerLink="/deck/{{result.deckId}}">[deck]</a></span>
         </div>
     </div>
 </form>

@@ -18,22 +18,23 @@
 (done) deck list: show only missing cards
 (done) sort by deck date
 (done) prod: pack js 
+(done) find similar decks (25-30 cards match)
+(done) improve UI to single page app
+(done) prod: pack htlm
+(done) REMOVE / UPDATE deck
+(done) explore prod setup
 
-- REMOVE / UPDATE deck
 
-- think of the way to distinguish old deck from new decks
+(partial) diff decks
+(partial, added compression) prod reduce response sizes (at the moment: 450kb !)
+
+-ability to set deck alias
+- think of the way to distinguish old deck from new decks (http://hearthstone.metabomb.net/deck-guides/control-warrior-standard-deck-list-and-guide-hearthstone-july)
 - hide decks per user 
 - mana curve, spell/minion break down
 - custom deck lists
-- find similar decks (25-30 cards match)
-- improve UI to single page app
 - improve UI to support server prerender
-
-- diff decks
-- prod: pack htlm
-- prod reduce response sizes (at the moment: 450kb !)
--ability to set deck alias
 - more info on card missing (how to obtain from hs json db)
-
-- explore prod setup
 - error handling (bluebird vs express).txt
+
+- compress images (atleast for compact mode)

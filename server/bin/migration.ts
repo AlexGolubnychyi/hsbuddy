@@ -2,8 +2,9 @@ import mongoose from "../lib/mongoose";
 import Card, { CardDB } from "../db/card";
 import Deck, { DeckDB } from "../db/deck";
 import * as hstypes from "../../interfaces/hs-types";
+import * as contracts from "../../interfaces";
 import version from "../db/version";
-import parser, { ParseStatus } from "../parsers";
+import parser from "../parsers";
 import * as Promise from "bluebird";
 
 
@@ -114,11 +115,11 @@ function updateToVersion6(): Promise<void> {
         })
         .then(() => parser.parse(void 0, urls))
         .then(reports => {
-            let failed = reports.filter(r => r.status !== ParseStatus.success);
+            let failed = reports.filter(r => r.status !== contracts.ParseStatus.success);
             if (failed.length) {
                 console.log(`failed to parse ${failed.length}/${reports.length - failed.length} items`);
                 console.log("---------------------------------------------------------");
-                failed.forEach(r => console.log(`${ParseStatus[r.status]}, url: ${r.url}, \nreason: ${r.reason}`));
+                failed.forEach(r => console.log(`${contracts.ParseStatus[r.status]}, url: ${r.url}, \nreason: ${r.reason}`));
             }
         })
         .then(() => console.log(`ver${version} appplied successfully`));

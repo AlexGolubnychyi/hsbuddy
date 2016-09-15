@@ -39,7 +39,7 @@ class MetaBombParser extends BaseDeckParser {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
-            let name = $("main>article>header>h1").text(),
+            let name = $("h1.title").text(),
                 cards: { [cardName: string]: number } = {},
                 date = new Date($("span[itemprop=datePublished]").attr("content"));
 

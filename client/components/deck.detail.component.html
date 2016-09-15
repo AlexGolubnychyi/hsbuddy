@@ -33,6 +33,31 @@
     </div>
     <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [disableCardChangedListener]="true"></deck>
     <br>
+    <div *ngIf="deck.revisions && deck.revisions.length">
+        <button (click)="showRevision = !showRevision" class="btn btn-default">{{!!showRevision ? "< Hide deck history" : "Show deck history >"}}</button>
+        <div *ngIf="showRevision">
+            <div *ngFor="let rev of deck.revisions"> 
+                <hr/>
+                <div class="deck-metadata">added {{utils.formatDate(rev.dateAdded)}} by {{rev.userId || "~magic~"}}</div>
+                <div class="deck-title">Changes from Revision {{rev.number}}</div>
+                <div class="row">
+                    <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
+                        <h4>added (+):</h4>
+                        <div class="card-details">
+                            <card *ngFor="let card of rev.cardRemoval | cardpipe: cardFilterOpts" [card]="card" [showCount]="true"></card>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
+                        <h4>removed (-):</h4>
+                        <div class="card-details">
+                            <card *ngFor="let card of rev.cardAddition | cardpipe: cardFilterOpts" [card]="card" [showCount]="true"></card>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr/>
+    </div>
     <button (click)="toggleSimilarDecks()" [disabled]="loadingSimilarDecks" class="btn btn-default">{{similarDecks ? "< Hide similar decks" : "Show similar decks >"}} </button>
     <spinner *ngIf="loadingSimilarDecks"></spinner>
     <div *ngIf="similarDecks" class="similar-decks">
@@ -61,15 +86,6 @@
                     </div>
                 </div>
             </div>
-            <!--<h4>added (+):</h4>
-            <div class="card-details">
-                <card *ngFor="let card of simDeck.cardAddition | cardpipe" [card]="card" [showCount]="true"></card>
-            </div>
-            <h4>removed (-):</h4>
-            <div class="card-details">
-                <card *ngFor="let card of simDeck.cardRemoval | cardpipe" [card]="card" [showCount]="true"></card>
-            </div>
-            <hr/>-->
         </div>
     </div>
 </div>

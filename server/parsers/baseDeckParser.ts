@@ -1,7 +1,8 @@
 
 import * as hstypes from "../../interfaces/hs-types";
 import * as Promise from "bluebird";
-import {ParseError, ParseReportItem, ParseStatus} from "./index";
+import { ParseError, ParseReportItem } from "./index";
+import { ParseStatus } from "../../interfaces";
 import Deck from "../db/deck";
 import Card from "../db/card";
 
@@ -23,7 +24,7 @@ export abstract class BaseDeckParser {
         return Deck.findById(deck._id).exec()
             .then(existing => {
                 if (existing) {
-                    return Promise.reject(new ParseError("", ParseStatus.duplicate, url));
+                    return Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id));
                 }
             })
             .then(() => Promise.map(cardNames, cardName => Card.findById(Card.generateId(cardName))))
@@ -31,10 +32,10 @@ export abstract class BaseDeckParser {
                 for (let i = 0; i < cardNames.length; i++) {
                     let card = cardDbs[i];
                     if (card === null) {
-                        return Promise.reject(new ParseError(`card not found: ${cardNames[i]}`, ParseStatus.failed, url));
+                        return Promise.reject(new ParseError(`card not found: ${cardNames[i]}`, ParseStatus.fail, url));
                     }
                     deck.cards.push({
-                        card: card._id,
+                        card: card.id,
                         count: cards[cardNames[i]]
                     });
                     deck.cost += card.cost * cards[cardNames[i]];
@@ -46,26 +47,30 @@ export abstract class BaseDeckParser {
             .then(() => {
                 let cardTotal = deck.cards.reduce((acc, card) => acc + card.count, 0);
                 if (cardTotal !== 30) {
-                    return Promise.reject(new ParseError(`card amount is ${cardTotal} instead of 30`, ParseStatus.deckMalformed, url));
+                    return Promise.reject(new ParseError(`deck malformed: card amount is ${cardTotal} instead of 30`, ParseStatus.fail, url));
                 }
             })
-            .then(() => deck.save())
-            .then(() => {
-                return <ParseReportItem>{ status: ParseStatus.success, reason: "", url: url };
+            .then(() => Deck.findOne({ "url": deck.url }))
+            .then(existing => {
+                if (!existing) {
+                    return deck.save().then(() => <ParseReportItem>{ status: ParseStatus.success, reason: "", url, id: deck.id });
+                }
+
+                return Deck.upgradeDeck(existing, deck).then(() => <ParseReportItem>{ status: ParseStatus.upgrade, reason: "", url, id: deck.id });
             })
             .catch((rejection: Error | ParseError) => {
                 if (rejection instanceof ParseError) {
                     return rejection.getParseStatusReportItem();
                 }
-                return <ParseReportItem>{ status: ParseStatus.failed, reason: rejection.message, url: url };
+                return <ParseReportItem>{ status: ParseStatus.fail, reason: rejection.message, url };
             });
     }
 
     protected reportUnrecognized(url) {
-        return Promise.resolve([<ParseReportItem>{ status: ParseStatus.urlNotRecognized, url: url, reason: "" }]);
+        return Promise.resolve([<ParseReportItem>{ status: ParseStatus.fail, url, reason: "url not recognized" }]);
     }
 
-     protected reportParserNotFound(url) {
-        return Promise.resolve([<ParseReportItem>{ status: ParseStatus.parserNotFound, url: url, reason: "" }]);
+    protected reportParserNotFound(url) {
+        return Promise.resolve([<ParseReportItem>{ status: ParseStatus.fail, url: url, reason: "url not supported" }]);
     }
 }

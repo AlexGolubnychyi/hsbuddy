@@ -38,10 +38,18 @@ export interface Deck {
     userCollection: boolean;
     userId: string;
     deleted?: boolean;
+    revisions?: ({
+        number: number;
+        dateAdded: Date;
+        userId: string;
+    } & Diff)[];
 }
 
-export interface DeckDiff {
+export interface DeckDiff extends Diff {
     deck: Deck;
+}
+
+export interface Diff {
     diff: number;
     cardAddition: Card[];
     cardRemoval: Card[];
@@ -97,10 +105,11 @@ export interface Result {
 }
 
 export enum ParseStatus {
-    unknown, success, duplicate, fail
+    unknown, success, upgrade, duplicate, fail
 }
 
 export interface ParseResult {
+    deckId?: string;
     status: ParseStatus;
     url: string;
     error?: string;

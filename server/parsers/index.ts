@@ -2,6 +2,7 @@
 import * as Promise from "bluebird";
 import cardParse from "./cardParse";
 import metaBombParser from "./metaBombParser";
+import {ParseStatus} from "../../interfaces";
 
 import hearthpwnParser from "./hearthPwnParser";
 import manaCrystalsParser from "./manaCrystalsParser";
@@ -33,7 +34,7 @@ class Parser {
 
         return Promise.all(tasks)
             .then(reports => reports.reduce((f, s) => f.concat(s)))
-            .catch(e => [<ParseReportItem>{ status: ParseStatus.failed, url: "", reason: e.message }]);
+            .catch(e => [<ParseReportItem>{ status: ParseStatus.fail, url: "", reason: e.message }]);
     }
 
     populateWithCards() {
@@ -61,22 +62,19 @@ export interface ParseReportItem {
     status: ParseStatus;
     reason?: string;
     url: string;
-}
-
-export enum ParseStatus {
-    success = 0, failed, duplicate, parserNotFound, urlNotRecognized, deckMalformed
+    id?: string;
 }
 
 export class ParseError extends Error {
     name = "ParseError";
 
-    constructor(public message, public status: ParseStatus, public url: string) {
+    constructor(public message, public status: ParseStatus, public url: string, public deckId?: string) {
         super(message);
         Error.captureStackTrace(this, ParseError);
     }
 
     getParseStatusReportItem() {
-        return <ParseReportItem>{ reason: this.message, status: this.status, url: this.url };
+        return <ParseReportItem>{ reason: this.message, status: this.status, url: this.url, id: this.deckId };
     }
 }
 

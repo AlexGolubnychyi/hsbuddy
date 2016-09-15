@@ -1,5 +1,5 @@
 import { NgModule } from "@angular/core";
-import { ReactiveFormsModule } from "@angular/forms";
+import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
 
 import { routing } from "./app.routing";
@@ -31,6 +31,7 @@ import { CardToolTipDirective} from "./directives/card.tooltip.directive";
         BrowserModule,
         routing,
         ReactiveFormsModule,
+        FormsModule,
         HttpModule,
         DropdownModule
     ],

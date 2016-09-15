@@ -1,4 +1,4 @@
-<div *ngIf="style() !== cardStyles.textOnly" class="card-container" [formGroup]="form" [class.available]="getStatus() === 'available'"
+<div *ngIf="style() !== cardStyles.textOnly" class="card-container"  [class.available]="getStatus() === 'available'"
     [class.notavailable]="getStatus() === 'notavailable'" [class.compact]="style() === cardStyles.compact">
     <div>
         <a [href]="card.url">
@@ -11,7 +11,7 @@
         <div class="card-set">Set: {{card.setName}}</div>
     </div>
     <div *ngIf="showAvailability()" [style.visibility]="!basic ? 'visible' : 'hidden'" class="availability-container">
-        <select formControlName="numberAvailable" class="form-control availability-selector">
+        <select class="form-control availability-selector" [ngModel]="card.numberAvailable" [disabled]="loading" (ngModelChange)="changeAvailability($event)">
             <option value="0">0 cards</option>
             <option value="1">1 card</option>
             <option value="2">2 cards</option>

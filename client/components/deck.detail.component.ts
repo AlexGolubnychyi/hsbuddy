@@ -149,6 +149,11 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
         if (this.similarDecks && this.similarDecks.length) {
             this.similarDecks.map(sm => sm.deck).forEach(d => this.utils.updateDeckStats(d, cardId, newCount));
         }
+        if (this.deck.revisions) {
+            this.deck.revisions.forEach(rev => {
+                rev.cardAddition.concat(rev.cardRemoval).filter(c => c.id === cardId).forEach(c => c.numberAvailable = newCount);
+            });
+        }
     }
 
     private setDefaults() {

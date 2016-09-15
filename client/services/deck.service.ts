@@ -86,7 +86,7 @@ export class DeckService {
         return this.http.post("api/parse", data)
             .map(resp => resp.json() as contracts.ParseResult[])
             .catch(() => Observable.of(<contracts.ParseResult[]>[{
-                status: contracts.ParseStatus.unknown,
+                status: contracts.ParseStatus.fail,
                 error: "unknow server error",
                 url: ""
             }]));
