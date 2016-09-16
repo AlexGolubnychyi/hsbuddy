@@ -39,7 +39,8 @@
             <div *ngFor="let rev of deck.revisions"> 
                 <hr/>
                 <div class="deck-metadata">added {{utils.formatDate(rev.dateAdded)}} by {{rev.userId || "~magic~"}}</div>
-                <div class="deck-title">Changes from Revision {{rev.number}}</div>
+                <div class="deck-title">Changes from Revision {{rev.number}} <span class="label label-default" *ngIf="rev.collected">collected</span></div>  
+               
                 <div class="row">
                     <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                         <h4>added (+):</h4>

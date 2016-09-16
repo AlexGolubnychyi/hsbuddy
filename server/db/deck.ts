@@ -109,73 +109,56 @@ deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<
 });
 
 
-deckSchema.static("upgradeDeck", function (oldDeckId: string, newDeck: mongoose._mongoose.Model<DeckDB>): Promise<boolean> {
+deckSchema.static("upgradeDeck", function (oldDeck: mongoose._mongoose.Model<DeckDB>, newDeck: mongoose._mongoose.Model<DeckDB>): Promise<boolean> {
 
-    let model = this as mongoose.Model<DeckDB>;
+    let model = this as mongoose.Model<DeckDB> & DeckStatics,
+        revisions: {
+            userId: string;
+            date: Date;
+            number: number,
+            cards: CardCountMin[]
+        }[] = [];
 
-    return model
-        .findById(oldDeckId).exec()
-        .then(oldDeck => {
-            let revisions: {
-                userId: string;
-                date: Date;
-                number: number,
-                cards: CardCountMin[]
-            }[] = [];
+    //deck diffs => deck cards 
+    if (oldDeck.revisions && oldDeck.revisions.length) {
+        revisions = oldDeck.revisions.map(rev => {
 
-            //deck diffs => deck cards 
-            if (oldDeck.revisions && oldDeck.revisions.length) {
-                revisions = oldDeck.revisions.map(rev => {
-                    let cardHash: { [index: string]: number } = {};
-                    oldDeck.cards.forEach((card) => cardHash[card.card as string] = card.count);
-
-                    rev.cardAddition.forEach(addition => {
-                        let id = addition.card as string;
-                        if (cardHash[id]) {
-                            cardHash[id] += addition.count;
-                            return;
-                        }
-                        cardHash[id] = addition.count;
-                    });
-
-                    rev.cardRemoval.forEach(removal => {
-                        cardHash[removal.card as string] -= removal.count;
-                    });
-
-                    return {
-                        userId: rev.userId,
-                        date: rev.dateAdded,
-                        number: rev.number,
-                        cards: Object.keys(cardHash).map(card => ({ card, count: cardHash[card] })).filter(cardCount => cardCount.count > 0)
-                    };
-                });
-            }
-
-            revisions.unshift({
-                userId: oldDeck.userId,
-                date: oldDeck.dateAdded,
-                number: revisions.length + 1,
-                cards: oldDeck.cards as CardCountMin[]
-            });
-
-            let refCardHash: { [index: string]: number } = {};
-            (newDeck.cards as CardCountMin[]).forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
-
-            //deck cards => new deck diffs
-            newDeck.revisions = revisions.map(rev => {
-                let diff = calcDiff(newDeck.cards as CardCountMin[], rev.cards, refCardHash);
-                return {
-                    userId: rev.userId,
-                    number: rev.number,
-                    dateAdded: rev.date,
-                    diff: diff.diff,
-                    cardAddition: diff.cardAddition as any,
-                    cardRemoval: diff.cardRemoval as any
-                };
-            });
-
-            return newDeck.save().then(() => oldDeck.remove()).then(() => true);
+            return {
+                userId: rev.userId,
+                date: rev.dateAdded,
+                number: rev.number,
+                cards: reverseDiff<CardCountMin>(<CardCountMin[]>oldDeck.cards, <CardCountMin[]>rev.cardAddition, <CardCountMin[]>rev.cardRemoval)
+            };
         });
+    }
+
+    revisions.unshift({
+        userId: oldDeck.userId,
+        date: oldDeck.dateAdded,
+        number: revisions.length + 1,
+        cards: oldDeck.cards as CardCountMin[]
+    });
+
+    let refCardHash: { [index: string]: number } = {};
+    (newDeck.cards as CardCountMin[]).forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
+
+    //deck cards => new deck diffs
+    newDeck.revisions = revisions.map(rev => {
+        let diff = calcDiff(newDeck.cards as CardCountMin[], rev.cards, refCardHash);
+        return {
+            userId: rev.userId,
+            number: rev.number,
+            dateAdded: rev.date,
+            diff: diff.diff,
+            cardAddition: diff.cardAddition,
+            cardRemoval: diff.cardRemoval
+        };
+    });
+
+    return newDeck.save()
+        .then(() => model.recycle(oldDeck.id, true, newDeck.id))
+        .then(() => true);
+
 
 });
 
@@ -234,8 +217,8 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): 
         });
 });
 
-function calcDiff(
-    refCards: (CardCountMin | contracts.Card)[],
+function calcDiff<T extends CardCountMin | contracts.Card>(
+    refCards: T[],
     otherCards: (CardCountMin | CardCount)[],
     refCardHash?: { [index: string]: number },
     cardAvailability?: { [cardId: string]: number }
@@ -252,8 +235,8 @@ function calcDiff(
     let otherCardHash: { [index: string]: number } = {},
         diff: {
             diff: number,
-            cardAddition: (CardCountMin | contracts.Card)[],
-            cardRemoval: (CardCountMin | contracts.Card)[]
+            cardAddition: T[],
+            cardRemoval: T[]
         } = {
                 diff: 0,
                 cardAddition: [],
@@ -273,23 +256,47 @@ function calcDiff(
         if (numDiff > 0) {
             diff.diff += numDiff;
             if (minimal) {
-                diff.cardAddition.push({ card: cardId, count: numDiff });
+                diff.cardAddition.push({ card: cardId, count: numDiff } as T);
                 return;
             }
-            diff.cardAddition.push(cardToContract(card, cardAvailability[card.id], numDiff));
+            diff.cardAddition.push(cardToContract(card, cardAvailability[card.id], numDiff) as T);
             return;
         }
 
         if (minimal) {
-            diff.cardRemoval.push({ card: cardId, count: -numDiff });
+            diff.cardRemoval.push({ card: cardId, count: -numDiff } as T);
             return;
         }
 
-        diff.cardRemoval.push(cardToContract(card, cardAvailability[card.id], -numDiff));
+        diff.cardRemoval.push(cardToContract(card, cardAvailability[card.id], -numDiff) as T);
     });
 
     refCards.filter(c => !otherCardHash[getId2(c)]).forEach(c => diff.cardRemoval.push(c));
     return diff;
+}
+
+function reverseDiff<T extends CardCountMin | contracts.Card>(refCards: T[], cardAddition: T[], cardRemoval: T[]): T[] {
+    let cardHash: { [index: string]: T } = {},
+        minimal = !!(refCards[0] as CardCountMin).card,
+        getId = (obj: CardCountMin | contracts.Card) => minimal ? (obj as CardCountMin).card : (obj as contracts.Card).id;
+
+    refCards.map(c => Object.assign({}, c) as T).forEach(card => cardHash[getId(card)] = card);
+
+    cardAddition.forEach(addition => {
+        let id = getId(addition);
+        if (cardHash[id]) {
+            cardHash[id].count += addition.count;
+            return;
+        }
+        cardHash[id] = addition;
+    });
+
+    cardRemoval.forEach(removal => {
+        cardHash[getId(removal)].count -= removal.count;
+    });
+
+    return Object.keys(cardHash).map(card => cardHash[card]).filter(cardCount => cardCount.count > 0);
+
 }
 
 
@@ -315,7 +322,7 @@ deckSchema.static("setDescription", function (userId: string, deckId: string, de
         });
 });
 
-deckSchema.static("recycle", function (deckId: string, forceDelete = false) {
+deckSchema.static("recycle", function (deckId: string, forceDelete = false, replaceWithDeckId?: string) {
     let model = this as mongoose.Model<DeckDB> & DeckStatics;
 
     return model.findById(deckId).exec().then(deck => {
@@ -324,16 +331,28 @@ deckSchema.static("recycle", function (deckId: string, forceDelete = false) {
         }
 
         return User.find({ decks: deck._id }).exec().then(users => {
+            let promise = Promise.resolve() as Promise<any>;
+
             if (users && users.length) {
-                if (deck.deleted) {
-                    return false;
+                if (!replaceWithDeckId) {
+                    if (deck.deleted) {
+                        //already soft deleted
+                        return false;
+                    }
+                    //soft delete
+                    deck.deleted = true;
+                    return deck.save().then(() => false);
                 }
-                //soft delete
-                deck.deleted = true;
-                return deck.save().then(() => false);
+                else {
+                    promise = Promise.all(users.map(user => {
+                        //replace deckId in user collections (when upgrading deck)
+                        user.decks = (user.decks as string[]).map((innerId) => innerId === deckId ? replaceWithDeckId : deckId);
+                        return user.save();
+                    }));
+                }
             }
-            //hard delete
-            return model.findByIdAndRemove(deckId).exec().then(() => true);
+
+            return promise.then(() => model.findByIdAndRemove(deckId).exec()).then(() => true); //hard delete
         });
     });
 });
@@ -385,6 +404,9 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
 });
 
 function deckToContract(deck: DeckDB, cardAvailability: { [cardId: string]: number }, userDeckIds: string[]) {
+    if (!deck) {
+        return null;
+    }
     let contract: contracts.Deck = {
         id: deck._id,
         name: deck.name,
@@ -400,6 +422,8 @@ function deckToContract(deck: DeckDB, cardAvailability: { [cardId: string]: numb
         userId: deck.userId,
         deleted: deck.deleted,
         revisions: deck.revisions.map(rev => ({
+            collected: false,
+            cards: [],
             userId: rev.userId,
             number: rev.number,
             dateAdded: rev.dateAdded,
@@ -418,6 +442,12 @@ function deckToContract(deck: DeckDB, cardAvailability: { [cardId: string]: numb
     });
 
     contract.collected = collected;
+
+    //restore rev cards
+    contract.revisions.forEach(rev => {
+        rev.cards = reverseDiff(contract.cards, rev.cardAddition, rev.cardRemoval);
+        rev.collected = rev.cards.every(c => c.numberAvailable >= c.count);
+    });
 
     return contract;
 }
@@ -490,7 +520,7 @@ interface DeckStatics {
     setDescription: (userId: string, deckId: string, description: contracts.DeckChange) => Promise<boolean>;
     getMissingCards: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.CardMissing[]>;
     softDelete: (userId: string, deckId: string) => Promise<boolean>;
-    recycle: (deckId: string, forceDelete?: boolean) => Promise<boolean>;
+    recycle: (deckId: string, forceDelete?: boolean, replaceWithDeckId?: string) => Promise<boolean>;
 }
 
 export const deckSchemaName = "Deck";

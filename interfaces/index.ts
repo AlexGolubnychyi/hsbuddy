@@ -42,6 +42,8 @@ export interface Deck {
         number: number;
         dateAdded: Date;
         userId: string;
+        cards: Card[];
+        collected?: boolean;
     } & Diff)[];
 }
 

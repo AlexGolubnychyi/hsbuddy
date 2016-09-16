@@ -21,7 +21,7 @@ export abstract class BaseDeckParser {
         deck.dateAdded = (date && !isNaN(date.valueOf())) ? date : new Date();
         deck.userId = userId;
 
-        return Deck.findById(deck._id).exec()
+        return Deck.findById(deck.id).exec()
             .then(existing => {
                 if (existing) {
                     return Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id));

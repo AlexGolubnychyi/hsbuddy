@@ -58,6 +58,9 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
             .map(params => params["id"])
             .switchMap<contracts.Deck>(id => this.deckService.getDeck(id))
             .subscribe(deck => {
+                if (!deck) {
+                    this.router.navigateByUrl("/");
+                }
                 this.deck = deck;
                 this.loading = false;
                 this.similarDecks = null;
@@ -121,7 +124,7 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
             .subscribe(result => {
                 this.loading = false;
                 if (result) {
-                    this.router.navigateByUrl("/decks");
+                    this.router.navigateByUrl("/");
                     return;
                 }
 
@@ -130,7 +133,7 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
     }
 
     onDeleteDeck(deckId: string) {
-        this.router.navigateByUrl("/decks");
+        this.router.navigateByUrl("/");
     }
 
     cancelEdit() {
@@ -147,11 +150,20 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
     private updateDecks(cardId: string, newCount: number) {
         this.utils.updateDeckStats(this.deck, cardId, newCount);
         if (this.similarDecks && this.similarDecks.length) {
-            this.similarDecks.map(sm => sm.deck).forEach(d => this.utils.updateDeckStats(d, cardId, newCount));
+            this.similarDecks.forEach(sm => {
+                sm.cardAddition.concat(sm.cardRemoval).filter(c => c.id === cardId).forEach(c => c.numberAvailable = newCount);
+                this.utils.updateDeckStats(sm.deck, cardId, newCount);
+            });
         }
         if (this.deck.revisions) {
             this.deck.revisions.forEach(rev => {
                 rev.cardAddition.concat(rev.cardRemoval).filter(c => c.id === cardId).forEach(c => c.numberAvailable = newCount);
+                rev.collected = rev.cards.every(c => {
+                    if (c.id === cardId) {
+                        c.numberAvailable = newCount;
+                    }
+                    return c.numberAvailable >= c.count;
+                });
             });
         }
     }
