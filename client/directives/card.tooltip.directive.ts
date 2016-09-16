@@ -46,6 +46,7 @@ export class CardToolTipDirective {
 
         this.tooltipEl.innerHTML = `
             <img class="card-image" src="${this.card.img}" />
+            <div class="avail">${this.card.numberAvailable}</div>
             <div>
                 <span class="set-name">${this.card.setName}</span>
             </div>
