@@ -1,8 +1,8 @@
 import { Component, OnInit } from "@angular/core";
-import {DeckService} from "../services/deck.service";
-import {CardLibraryInfo} from "../../interfaces/index";
-import {CardClass, CardRarity} from "../../interfaces/hs-types";
-
+import { DeckService } from "../services/deck.service";
+import { CardLibraryInfo } from "../../interfaces/index";
+import { CardClass, CardRarity } from "../../interfaces/hs-types";
+import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 @Component({
     //moduleId: module.id,
     selector: "card-library",
@@ -16,6 +16,7 @@ export class CardListComponent implements OnInit {
     stats: {};
     rarity = CardRarity;
     classes = CardClass;
+    filter: CardPipeArg = { hideAvailable: false, sort: SortOptions.keepOrder };
 
     ngOnInit() {
         this.refreshCards();
@@ -40,5 +41,12 @@ export class CardListComponent implements OnInit {
             .map(key => enumerable[key])
             .filter(name => !!this.info.stats[name])
             .map(name => ({ count: this.info.stats[name][0], total: this.info.stats[name][1], name }));
+    }
+
+    changAvailFilter() {
+        this.filter = {
+            hideAvailable: !this.filter.hideAvailable,
+            sort: SortOptions.keepOrder
+        };
     }
 }

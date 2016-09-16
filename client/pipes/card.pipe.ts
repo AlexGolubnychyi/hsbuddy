@@ -5,9 +5,11 @@ import { Card } from "../../interfaces";
 @Pipe({ name: "cardpipe" })
 export class CardPipe implements PipeTransform {
   transform(cards: Card[], options: CardPipeArg) {
-    return cards
-      .filter(card => !options.hideAvailable || card.numberAvailable < card.count)
-      .sort(options.sort === SortOptions.expense ? this.expenseSort : this.classicSort);
+    let filtered = cards.filter(card => !options.hideAvailable || card.numberAvailable < card.count)
+    if (options.sort === SortOptions.keepOrder) {
+      return filtered;
+    }
+    return filtered.sort(options.sort === SortOptions.expense ? this.expenseSort : this.classicSort);
   }
 
 
@@ -44,4 +46,4 @@ export interface CardPipeArg {
   hideAvailable: boolean;
 }
 
-export enum SortOptions { classic, expense };
+export enum SortOptions { classic, expense, keepOrder };

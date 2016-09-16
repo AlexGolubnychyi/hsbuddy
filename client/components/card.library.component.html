@@ -1,6 +1,9 @@
-<h1>Card Library</h1>
+<h1>Card Library 
+    <button (click)="changAvailFilter()" class="btn" [class.btn-default]="!filter.hideAvailable" [class.btn-warning]="filter.hideAvailable"> {{filter.hideAvailable ? "Show" : "Hide"}} available cards</button>
+</h1>
 <spinner *ngIf="loading"></spinner>
 <div *ngIf="!loading" class="card-library">
+    
     <h2>Statistics</h2>
     <button (click)="statsCollapsed = !statsCollapsed" class="btn btn-default"> {{statsCollapsed ? "Show" : "Hide"}} stats</button>
     <div class="card-stats" *ngIf="!statsCollapsed">
@@ -25,7 +28,7 @@
         <h2 class="card-group-name">{{group.name}}</h2>
         <button (click)="group.collapsed = !group.collapsed" class="btn btn-default"> {{group.collapsed ? "Show" : "Hide"}} cards</button>
         <div class="card-details" *ngIf="!group.collapsed">
-            <card *ngFor="let card of group.cards" [card]="card"></card>
+            <card *ngFor="let card of group.cards | cardpipe: filter" [card]="card"></card>
         </div>
         <hr/>
     </div>

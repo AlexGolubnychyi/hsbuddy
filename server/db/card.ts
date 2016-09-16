@@ -57,7 +57,7 @@ cardSchema.static("getCardLibraryInfo", function (userId: string) {
                         mana: card.mana,
                         attack: card.attack,
                         health: card.health,
-                        numberAvailable: userCard || 0,
+                        numberAvailable: card.cardSet === hstypes.CardSet.Basic ? 2 : (userCard || 0),
                         count: card.rarity === hstypes.CardRarity.legendary ? 1 : 2
                     };
                 //stats
