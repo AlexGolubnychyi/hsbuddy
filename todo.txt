@@ -28,6 +28,8 @@
 (partial) diff decks
 (partial, added compression) prod reduce response sizes (at the moment: 450kb !)
 
+- add advanced filters for Card Lib
+
 -ability to set deck alias
 - think of the way to distinguish old deck from new decks (http://hearthstone.metabomb.net/deck-guides/control-warrior-standard-deck-list-and-guide-hearthstone-july)
 - hide decks per user 
