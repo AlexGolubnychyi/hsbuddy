@@ -346,7 +346,7 @@ deckSchema.static("recycle", function (deckId: string, forceDelete = false, repl
                 else {
                     promise = Promise.all(users.map(user => {
                         //replace deckId in user collections (when upgrading deck)
-                        user.decks = (user.decks as string[]).map((innerId) => innerId === deckId ? replaceWithDeckId : deckId);
+                        user.decks = (user.decks as string[]).map((innerId) => innerId === deckId ? replaceWithDeckId : innerId);
                         return user.save();
                     }));
                 }
