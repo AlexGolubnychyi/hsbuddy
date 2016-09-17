@@ -16,7 +16,11 @@ export class CardListComponent implements OnInit {
     stats: {};
     rarity = CardRarity;
     classes = CardClass;
-    filter: CardPipeArg = { hideAvailable: false, sort: SortOptions.keepOrder };
+    filter: CardPipeArg = {
+        hideAvailable: false,
+        rarity: CardRarity.unknown,
+        sort: SortOptions.keepOrder
+    };
 
     ngOnInit() {
         this.refreshCards();
@@ -42,11 +46,26 @@ export class CardListComponent implements OnInit {
             .filter(name => !!this.info.stats[name])
             .map(name => ({ count: this.info.stats[name][0], total: this.info.stats[name][1], name }));
     }
+    enumKvp(enumerable: { [index: number]: string }) {
+        return Object.keys(enumerable).filter(key => !isNaN(parseInt(key))).map(key => ({ name: enumerable[key], value: key }));
+    }
 
-    changAvailFilter() {
-        this.filter = {
-            hideAvailable: !this.filter.hideAvailable,
-            sort: SortOptions.keepOrder
-        };
+    changeAvail() {
+        this.filter.hideAvailable = !this.filter.hideAvailable;
+        this.applyFilter();
+    }
+
+    changeMana(mana?: number) {
+        this.filter.mana = (this.filter.mana === mana) ? undefined : mana;
+        this.applyFilter();
+    }
+
+    changeRarity(rarity?: number) {
+        this.filter.rarity = +rarity;
+        this.applyFilter();
+    }
+
+    applyFilter() {
+        this.filter = Object.assign({}, this.filter);
     }
 }

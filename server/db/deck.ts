@@ -391,7 +391,7 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
             return Object.keys(resultObj)
                 .map(cardId => resultObj[cardId])
                 .map(card => {
-                    card.decks = card.decks.sort((d1,d2) => d1.dustNeeded - d2.dustNeeded);
+                    card.decks = card.decks.sort((d1, d2) => d1.dustNeeded - d2.dustNeeded);
                     return card;
                 })
                 .sort((card1, card2) => {

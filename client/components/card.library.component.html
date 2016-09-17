@@ -1,6 +1,42 @@
-<h1>Card Library 
-    <button (click)="changAvailFilter()" class="btn" [class.btn-default]="!filter.hideAvailable" [class.btn-warning]="filter.hideAvailable"> {{filter.hideAvailable ? "Show" : "Hide"}} available cards</button>
-</h1>
+<h1>Card Library </h1>
+
+<div class="form-group card-filter">
+    <div class="row">
+        <div class="col-sm-3 cols-md-2">
+            <div class="row">
+                <label for="selectedClass" class="col-sm-12 control-label">Rarity:</label>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <select ngClass="{{'rarity-'+rarity[filter.rarity]}}" class="form-control" [ngModel]="filter.rarity" (ngModelChange)="changeRarity($event)" style="text-transform:capitalize">
+                      <option *ngFor="let kvp of enumKvp(rarity)" [value]="kvp.value"ngClass="{{'rarity-'+kvp.name}}"><span class="rarity-title">{{kvp.name}}</span></option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <p class="visible-xs"></p>
+        <div class="col-sm-5 cols-md-4">
+            <div class="row">
+                <label class="col-sm-12 control-label">Mana:</label>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <ul class="mana-filter" [class.selected]="filter.mana >= 0">
+                        <li (click)=changeMana(mana) [style.background-position]="-33*mana+'px'" [class.selected]="filter.mana === mana" *ngFor="let mana of [0,1,2,3,4,5,6,7]"></li>
+                    </ul> 
+                </div>
+            </div>
+        </div> 
+    </div>
+    <br/>
+    <div class="row">
+        <div class="col-xs-12">
+            <button (click)="changeAvail()" class="btn" [class.btn-default]="!filter.hideAvailable" [class.btn-warning]="filter.hideAvailable"> {{filter.hideAvailable ? "Show" : "Hide"}} available cards</button>
+        </div>
+    </div>
+</div>
+
+
 <spinner *ngIf="loading"></spinner>
 <div *ngIf="!loading" class="card-library">
     

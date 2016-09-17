@@ -161,6 +161,28 @@ card-library {
   .rarity-title {
     font-weight: bold;
   }
+  .mana-filter {
+    list-style: none;
+    padding: 0;
+
+    li {
+      float: left;
+      display: block;
+      position: relative;
+      cursor: pointer;
+      background: url(../images/other.png);
+      width: 33px;
+      height: 32px;
+    }
+    &.selected {
+      li {
+        opacity: .4;
+        &.selected {
+          opacity: 1;
+        }
+      }
+    }
+  }
 }
 
 .rarity-common, .rarity-2 {
@@ -181,6 +203,10 @@ card-library {
 
 .rarity-legendary, .rarity-5 {
   color: #F07000;
+}
+
+.rarity-unknown, .rarity-0 {
+  color: #000;
 }
 
 select.input-xs {
