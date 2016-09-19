@@ -16,8 +16,7 @@ export class CardToolTipDirective {
     @HostListener("mouseenter", ["$event"]) onMouseEnter($event: MouseEvent) {
         this.lastMouseEvent = $event;
         //preload image
-        this.createTooltip();
-        this.timeoutId = setTimeout(() => this.mountTooltip(), 200) as any;
+        this.timeoutId = setTimeout(() => this.createTooltip(), 200) as any;
     }
 
     @HostListener("mousemove", ["$event"]) onMouseMove($event: MouseEvent) {
@@ -51,6 +50,7 @@ export class CardToolTipDirective {
                 <span class="set-name">${this.card.setName}</span>
             </div>
         `;
+        this.timeoutId = setTimeout(() => this.mountTooltip(), 150) as any;
         // this.tooltipEl.appendChild(imgEl);
         // this.tooltipEl.appendChild(setEl);
     }

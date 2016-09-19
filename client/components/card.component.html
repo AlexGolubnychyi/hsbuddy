@@ -21,7 +21,8 @@
 <div *ngIf="style() === cardStyles.textOnly">
     <div class="card-name-text-only" [cardTooltip]="card">
         <a [href]="card.url">
-            <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x"+card.count : ""}}       
+            <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x"+card.count : ""}}   
+            <!--<img [src]="'/images/'+ card.id + '.png'">      -->
         </a>
         <img [src]="'/images/'+ card.id + '.png'">
     </div>
