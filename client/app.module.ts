@@ -9,6 +9,7 @@ import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./services/auth.service";
 import { DeckService } from "./services/deck.service";
 import { ConfigService } from "./services/config.service";
+import { CardHashService } from "./services/card.hash.service";
 import { DeckUtilsService } from "./services/deck.utils.service";
 
 import { AppComponent } from "./components/app.component";
@@ -56,7 +57,8 @@ import { CardToolTipDirective} from "./directives/card.tooltip.directive";
         AuthService,
         DeckService,
         DeckUtilsService,
-        ConfigService
+        ConfigService,
+        CardHashService
     ],
     bootstrap: [AppComponent]
 })

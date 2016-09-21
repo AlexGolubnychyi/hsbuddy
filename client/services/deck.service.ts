@@ -4,38 +4,51 @@ import { Observable } from "rxjs/Observable";
 import * as contracts from "../../interfaces/index";
 import "../rxjs-operators";
 import { Subject } from "rxjs/Subject";
+import {CardHashService} from "./card.hash.service";
 
 const enc = encodeURIComponent;
 
 @Injectable()
 export class DeckService {
     public cardChanged: Subject<CardChanged>;
-    constructor(private http: Http) {
+    constructor(private http: Http, private cardHashService: CardHashService) {
         this.cardChanged = new Subject<CardChanged>();
     }
 
-    getDecks(options?: contracts.DeckQuery): Observable<contracts.Deck[]> {
+    getDecks(options?: contracts.DeckQuery): Observable<contracts.DeckInflated[]> {
         let url = this.withParams("api/deck", options);
 
 
         return this.http.get(url)
-            .map(resp => resp.json())
+            .map(resp => resp.json() as contracts.DeckResult<contracts.Deck[]>)
+            .map(deckResult => {
+                this.cardHashService.feedHash(deckResult.cardHash);
+                return deckResult.result.map(deck => this.cardHashService.inflateDeck(deck));
+            })
             .catch(this.handleError);
     }
 
-    getDeck(deckId: string): Observable<contracts.Deck> {
+    getDeck(deckId: string): Observable<contracts.DeckInflated> {
         let url = `api/deck/${deckId}`;
 
         return this.http.get(url)
-            .map(resp => resp.json())
+            .map(resp => resp.json() as contracts.DeckResult<contracts.Deck>)
+            .map(deckResult => {
+                this.cardHashService.feedHash(deckResult.cardHash);
+                return this.cardHashService.inflateDeck(deckResult.result);
+            })
             .catch(this.handleError);
     }
 
-     getSimilar(deckId: string): Observable<contracts.DeckDiff[]> {
+     getSimilar(deckId: string): Observable<contracts.DeckDiffInflated[]> {
         let url = `api/deck/${deckId}/similar`;
 
         return this.http.get(url)
-            .map(resp => resp.json())
+            .map(resp => resp.json() as contracts.DeckResult<contracts.DeckDiff[]>)
+            .map(deckResult => {
+                this.cardHashService.feedHash(deckResult.cardHash);
+                return deckResult.result.map(diff => this.cardHashService.inflateDiff(diff));
+            })
             .catch(this.handleError);
     }
 
@@ -61,10 +74,10 @@ export class DeckService {
             .catch(this.handleError);
     }
 
-    changeCardAvailability(cardId: string, count: number) {
-        return this.http.get(`api/card/changenumber/${enc(cardId)}/${count}`)
+    changeCardAvailability(cardId: string, cardAvail: number, prevCardAvail: number) {
+        return this.http.get(`api/card/changenumber/${enc(cardId)}/${cardAvail}`)
             .do(resp => {
-                this.cardChanged.next({ cardId, count });
+                this.cardChanged.next({ cardId, cardAvail, prevCardAvail });
             })
             .map(resp => true)
             .catch(this.handleError);
@@ -115,5 +128,6 @@ export class DeckService {
 
 export interface CardChanged {
     cardId: string;
-    count: number;
+    cardAvail: number;
+    prevCardAvail: number;
 }

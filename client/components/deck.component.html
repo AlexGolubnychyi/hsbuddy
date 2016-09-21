@@ -36,7 +36,7 @@
 
     <div *ngIf="!hideDetails">
         <div class="card-details">
-            <card *ngFor="let card of deck.cards | cardpipe: filter" [card]="card" [showCount]="true"></card>
+            <card *ngFor="let card of deck.cards | cardpipe: filter" [cardCount]="card" [showCount]="true"></card>
         </div>
     </div>
 </div>

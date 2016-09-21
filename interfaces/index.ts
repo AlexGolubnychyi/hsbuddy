@@ -21,7 +21,6 @@ export interface Card {
     attack?: number;
     health?: number;
     numberAvailable?: number;
-    count: number;
 }
 
 export interface Deck {
@@ -34,7 +33,7 @@ export interface Deck {
     collected: boolean;
     dateAdded: Date;
     class: hstypes.CardClass;
-    cards: Card[];
+    cards: CardCountMin[];
     userCollection: boolean;
     userId: string;
     deleted?: boolean;
@@ -42,19 +41,62 @@ export interface Deck {
         number: number;
         dateAdded: Date;
         userId: string;
-        cards: Card[];
+        cards: CardCountMin[];
         collected?: boolean;
     } & Diff)[];
+}
+
+export interface DeckInflated {
+    id: string;
+    name: string;
+    url: string;
+    className: string;
+    cost: number;
+    dustNeeded: number;
+    collected: boolean;
+    dateAdded: Date;
+    class: hstypes.CardClass;
+    cards: CardCount[];
+    userCollection: boolean;
+    userId: string;
+    deleted?: boolean;
+    revisions?: ({
+        number: number;
+        dateAdded: Date;
+        userId: string;
+        cards: CardCount[];
+        collected?: boolean;
+    } & DiffInflated)[];
 }
 
 export interface DeckDiff extends Diff {
     deck: Deck;
 }
 
+export interface DeckDiffInflated extends DiffInflated {
+    deck: DeckInflated;
+}
+
 export interface Diff {
     diff: number;
-    cardAddition: Card[];
-    cardRemoval: Card[];
+    cardAddition: CardCountMin[];
+    cardRemoval: CardCountMin[];
+}
+
+export interface DiffInflated {
+    diff: number;
+    cardAddition: CardCount[];
+    cardRemoval: CardCount[];
+}
+
+export interface CardCount {
+    card: Card;
+    count: number;
+}
+
+export interface CardCountMin {
+    card: string;
+    count: number;
 }
 
 export interface DeckChange {
@@ -62,8 +104,17 @@ export interface DeckChange {
     date: string;
 }
 
+export interface DeckResult<T> {
+    result: T;
+    cardHash: CardHash;
+}
+
+export interface CardHash {
+    [index: string]: Card;
+}
+
 export interface CardMissing {
-    card: Card;
+    cardCount: CardCount;
     decks: [
         {
             id: string,
@@ -87,7 +138,7 @@ export interface DeckQuery {
 export interface CardGroup {
     name: string;
     class: hstypes.CardClass;
-    cards: Card[];
+    cards: CardCount[];
     collapsed?: boolean;
 }
 

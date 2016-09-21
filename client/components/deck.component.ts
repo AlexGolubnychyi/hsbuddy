@@ -1,8 +1,8 @@
 import { Component, Input, Output, OnInit, OnDestroy, EventEmitter } from "@angular/core";
-import { DeckService } from "../services/deck.service";
+import { DeckService, CardChanged } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
 import { DeckUtilsService } from "../services/deck.utils.service";
-import { Deck, Card } from "../../interfaces/index";
+import { DeckInflated, Card } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { Subscription } from "rxjs/Subscription";
@@ -18,7 +18,7 @@ import "../rxjs-operators";
 })
 export class DeckComponent implements OnInit, OnDestroy {
     @Input()
-    deck: Deck;
+    deck: DeckInflated;
     @Input()
     hideDetails = true;
     @Input()
@@ -48,7 +48,8 @@ export class DeckComponent implements OnInit, OnDestroy {
         this.auth = this.authService.isAuthenticated();
         this.filter = {
             hideAvailable: false,
-            sort: SortOptions.classic
+            sort: SortOptions.classic,
+            mana: 0
         };
 
         this.form = this.fb.group({
@@ -67,7 +68,7 @@ export class DeckComponent implements OnInit, OnDestroy {
 
         (this.form.get("orderBy").valueChanges as Observable<SortOptions>).subscribe(v => this.changeSort(+v));
         if (!this.disableCardChangedListener) {
-            this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDeck(cardId, count));
+            this.cardChangedSubscription = this.deckService.cardChanged.subscribe(cardChanged => this.updateDeck(cardChanged));
         }
     }
     ngOnDestroy() {
@@ -79,19 +80,21 @@ export class DeckComponent implements OnInit, OnDestroy {
     changeAvailability() {
         this.filter = {
             hideAvailable: !this.filter.hideAvailable,
-            sort: this.filter.sort
+            sort: this.filter.sort,
+            mana: 0
         };
     }
     changeSort(sort: SortOptions) {
         this.filter = {
             hideAvailable: this.filter.hideAvailable,
-            sort: sort
+            sort: sort,
+            mana: 0
         };
     }
 
 
-    private updateDeck(cardId: string, newCount: number) {
-        if (!this.utils.updateDeckStats(this.deck, cardId, newCount)) {
+    private updateDeck(cardChanged: CardChanged) {
+        if (!this.utils.updateDeckStats(this.deck, cardChanged)) {
             return;
         }
         this.updateTitle();

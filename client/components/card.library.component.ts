@@ -16,10 +16,12 @@ export class CardListComponent implements OnInit {
     stats: {};
     rarity = CardRarity;
     classes = CardClass;
+
     filter: CardPipeArg = {
         hideAvailable: false,
         rarity: CardRarity.unknown,
-        sort: SortOptions.keepOrder
+        sort: SortOptions.keepOrder,
+        mana: 0
     };
 
     ngOnInit() {
@@ -55,9 +57,21 @@ export class CardListComponent implements OnInit {
         this.applyFilter();
     }
 
-    changeMana(mana?: number) {
-        this.filter.mana = (this.filter.mana === mana) ? undefined : mana;
+    changeMana(mana: number, $event: MouseEvent) {
+        if ($event.shiftKey) { //add/remove mana from selection
+            this.filter.mana = this.filter.mana || 255; //both 0 and 255 mean all cards are selected
+            this.filter.mana = this.isManaSelected(mana) ? this.filter.mana - mana : this.filter.mana + mana;
+        }
+        else {
+            //if any other mana selected - select this one, otherwise - select all
+            this.filter.mana = this.filter.mana === 0 || (this.filter.mana - (this.filter.mana & mana)) > 0 ? mana : 0;
+        }
+
         this.applyFilter();
+    }
+
+    isManaSelected(mana: number) {
+        return (this.filter.mana & mana) > 0;
     }
 
     changeRarity(rarity?: number) {

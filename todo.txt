@@ -41,4 +41,4 @@
 
 - compress images (atleast for compact mode)
 
-- client operates with cardHash?? (card storage service, no need to sync cards then)
+(done, validate) client operates with cardHash?? (card storage service, no need to sync cards then)

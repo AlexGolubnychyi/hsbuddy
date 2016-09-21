@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
-import { DeckService } from "../services/deck.service";
+import { DeckService, CardChanged } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService, cardStyles } from "../services/config.service";
 import * as contracts from "../../interfaces/index";
@@ -18,8 +18,8 @@ import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
     templateUrl: "deck.detail.component.html"
 })
 export class DeckDetailComponent implements OnInit, OnDestroy {
-    deck: contracts.Deck;
-    similarDecks: contracts.DeckDiff[];
+    deck: contracts.DeckInflated;
+    similarDecks: contracts.DeckDiffInflated[];
     loading: boolean;
     loadingSimilarDecks: boolean;
     form: FormGroup;
@@ -29,7 +29,8 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
     cardChangedSubscription: Subscription;
     cardFilterOpts: CardPipeArg = {
         hideAvailable: false,
-        sort: SortOptions.classic
+        sort: SortOptions.classic,
+        mana: 0
     };
 
     @ViewChild(DeckComponent) deckComponent: DeckComponent;
@@ -52,11 +53,11 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
             date: ["", Validators.required]
         });
 
-        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(({cardId, count}) => this.updateDecks(cardId, count));
+        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(cardChanged => this.updateDecks(cardChanged));
 
         this.route.params
             .map(params => params["id"])
-            .switchMap<contracts.Deck>(id => this.deckService.getDeck(id))
+            .switchMap<contracts.DeckInflated>(id => this.deckService.getDeck(id))
             .subscribe(deck => {
                 if (!deck) {
                     this.router.navigateByUrl("/");
@@ -147,23 +148,14 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
         return this.configService.config.cardStyle === cardStyles.textOnly;
     }
 
-    private updateDecks(cardId: string, newCount: number) {
-        this.utils.updateDeckStats(this.deck, cardId, newCount);
+    private updateDecks(cardChanged: CardChanged) {
+        this.utils.updateDeckStats(this.deck, cardChanged);
         if (this.similarDecks && this.similarDecks.length) {
-            this.similarDecks.forEach(sm => {
-                sm.cardAddition.concat(sm.cardRemoval).filter(c => c.id === cardId).forEach(c => c.numberAvailable = newCount);
-                this.utils.updateDeckStats(sm.deck, cardId, newCount);
-            });
+            this.similarDecks.forEach(sm => this.utils.updateDeckStats(sm.deck, cardChanged));
         }
         if (this.deck.revisions) {
             this.deck.revisions.forEach(rev => {
-                rev.cardAddition.concat(rev.cardRemoval).filter(c => c.id === cardId).forEach(c => c.numberAvailable = newCount);
-                rev.collected = rev.cards.every(c => {
-                    if (c.id === cardId) {
-                        c.numberAvailable = newCount;
-                    }
-                    return c.numberAvailable >= c.count;
-                });
+                rev.collected = rev.cards.every(c => c.card.numberAvailable >= c.count);
             });
         }
     }

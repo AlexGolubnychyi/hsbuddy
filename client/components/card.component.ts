@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from "@angular/core";
-import { Card } from "../../interfaces";
+import { Card, CardCount } from "../../interfaces";
 import { CardSet } from "../../interfaces/hs-types";
 import { DeckService } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
@@ -13,12 +13,14 @@ import "../rxjs-operators";
 })
 export class CardComponent implements OnInit {
     @Input()
-    card: Card;
+    cardCount: CardCount;
     @Input()
     showCount: boolean;
     basic: boolean;
     loading: boolean;
     cardImgName: string;
+    card: Card;
+    count: number;
 
     cardStyles = cardStyles;
 
@@ -28,11 +30,13 @@ export class CardComponent implements OnInit {
         private configService: ConfigService) { }
 
     ngOnInit() {
+        this.card = this.cardCount.card;
+        this.count = this.cardCount.count;
         this.basic = this.card.cardSet === CardSet.Basic;
     }
 
     getStatus() {
-        return (this.basic || !this.authService.isAuthenticated()) ? "" : (this.card.count <= this.card.numberAvailable ? "available" : "notavailable");
+        return (this.basic || !this.authService.isAuthenticated()) ? "" : (this.count <= this.card.numberAvailable ? "available" : "notavailable");
     }
 
     style() {
@@ -43,12 +47,14 @@ export class CardComponent implements OnInit {
         return this.configService.config.enableCardAvailSelector;
     }
 
-    changeAvailability(number: number) {
+    changeAvailability(cardAvail: number) {
+        let prevCardAvail = this.card.numberAvailable;
+        cardAvail = +cardAvail;
+        this.card.numberAvailable = cardAvail;
         this.loading = true;
         this.deckService
-            .changeCardAvailability(this.card.id, +number)
+            .changeCardAvailability(this.card.id, cardAvail, prevCardAvail)
             .subscribe(() => {
-                 this.card.numberAvailable = +number;
                 this.loading = false;
             });
     }

@@ -21,8 +21,12 @@
             </div>
             <div class="row">
                 <div class="col-sm-12">
-                    <ul class="mana-filter" [class.selected]="filter.mana >= 0">
-                        <li (click)=changeMana(mana) [style.background-position]="-33*mana+'px'" [class.selected]="filter.mana === mana" *ngFor="let mana of [0,1,2,3,4,5,6,7]"></li>
+                    <ul class="mana-filter" [class.selected]="filter.mana > 0">
+                        <li (click)="changeMana(mana, $event)" 
+                            [style.background-position]="-33*inx+'px'" 
+                            [class.selected]="isManaSelected(mana)" 
+                            *ngFor="let mana of [1,2,4,8,16,32,64,128]; let inx = index">
+                        </li>
                     </ul> 
                 </div>
             </div>
@@ -64,7 +68,7 @@
         <h2 class="card-group-name">{{group.name}}</h2>
         <button (click)="group.collapsed = !group.collapsed" class="btn btn-default"> {{group.collapsed ? "Show" : "Hide"}} cards</button>
         <div class="card-details" *ngIf="!group.collapsed">
-            <card *ngFor="let card of group.cards | cardpipe: filter" [card]="card"></card>
+            <card *ngFor="let card of group.cards | cardpipe: filter" [cardCount]="card"></card>
         </div>
         <hr/>
     </div>

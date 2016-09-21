@@ -1,11 +1,12 @@
 import { Injectable } from "@angular/core";
 import * as contracts from "../../interfaces/index";
 import { CardSet } from "../../interfaces/hs-types";
+import {CardChanged} from "./deck.service";
 
 @Injectable()
 export class DeckUtilsService {
 
-    getDeckTitle(deck: contracts.Deck) {
+    getDeckTitle(deck: contracts.DeckInflated) {
         if (deck.collected) {
             return `[${deck.className}] ${deck.name}`;
         }
@@ -17,16 +18,15 @@ export class DeckUtilsService {
         return `[${deck.className}] ${deck.name} (${deck.cost})`;
     }
 
-    updateDeckStats(deck: contracts.Deck, cardId: string, newCount: number) {
+    updateDeckStats(deck: contracts.DeckInflated, cardChanged: CardChanged) {
         let collected = true,
             containsChangedCard = false;
-        deck.cards.forEach(card => {
-            if (card.id === cardId) {
-                deck.dustNeeded -= card.cost * (Math.min(newCount, card.count) - Math.min(card.numberAvailable, card.count));
-                card.numberAvailable = newCount;
+        deck.cards.forEach(({card, count}) => {
+            if (card.id === cardChanged.cardId) {
+                deck.dustNeeded -= card.cost * (Math.min(cardChanged.cardAvail, count) - Math.min(cardChanged.prevCardAvail, count));
                 containsChangedCard = true;
             }
-            collected = collected && (card.numberAvailable >= card.count || card.cardSet === CardSet.Basic);
+            collected = collected && (card.numberAvailable >= count || card.cardSet === CardSet.Basic);
         });
 
         if (containsChangedCard) {

@@ -1,7 +1,7 @@
 import { Component, ViewChild, AfterViewInit } from "@angular/core";
 import { DeckService } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
-import { Deck } from "../../interfaces/index";
+import { DeckInflated } from "../../interfaces/index";
 import { DeckFilterComponent } from "./deck.filter.component";
 
 @Component({
@@ -10,7 +10,7 @@ import { DeckFilterComponent } from "./deck.filter.component";
     templateUrl: "deck.list.component.html",
 })
 export class DeckListComponent implements AfterViewInit {
-    decks: Deck[] = [];
+    decks: DeckInflated[] = [];
     loading: boolean = true;
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;
 
@@ -18,7 +18,7 @@ export class DeckListComponent implements AfterViewInit {
     ngAfterViewInit() {
         this.filter.filter$
             .do(() => this.loading = true)
-            .switchMap<Deck[]>(params => this.deckService.getDecks(params))
+            .switchMap<DeckInflated[]>(params => this.deckService.getDecks(params))
             .subscribe(decks => {
                 this.decks = decks;
                 this.loading = false;

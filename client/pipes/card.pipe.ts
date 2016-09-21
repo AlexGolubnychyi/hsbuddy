@@ -1,11 +1,11 @@
 import { Pipe, PipeTransform } from "@angular/core";
 
-import { Card } from "../../interfaces";
+import { CardCount } from "../../interfaces";
 import { CardRarity } from "../../interfaces/hs-types";
 
 @Pipe({ name: "cardpipe" })
 export class CardPipe implements PipeTransform {
-  transform(cards: Card[], options: CardPipeArg) {
+  transform(cards: CardCount[], options: CardPipeArg) {
     let filtered = cards.filter(c => this.filter(c, options));
     if (options.sort === SortOptions.keepOrder) {
       return filtered;
@@ -13,24 +13,23 @@ export class CardPipe implements PipeTransform {
     return filtered.sort(options.sort === SortOptions.expense ? this.expenseSort : this.classicSort);
   }
 
-  private filter(card: Card, options: CardPipeArg) {
-    if (options.hideAvailable && card.numberAvailable >= card.count) {
+  private filter(cardCount: CardCount, options: CardPipeArg) {
+    if (options.hideAvailable && cardCount.card.numberAvailable >= cardCount.count) {
       return false;
     }
 
-    if (options.rarity && card.rarity !== options.rarity) {
+    if (options.rarity && cardCount.card.rarity !== options.rarity) {
       return false;
     }
 
-    if (typeof options.mana !== "undefined" && card.mana !== options.mana) {
-      return options.mana === 7 && card.mana > 7;
-    }
-
-    return true;
+    return options.mana === 0 || (Math.pow(2, Math.min(cardCount.card.mana, 7)) & options.mana) > 0;
   }
 
-  private expenseSort(card1: Card, card2: Card) {
-    let diff = card1.rarity - card2.rarity;
+  private expenseSort(cardCount1: CardCount, cardCount2: CardCount) {
+    let card1 = cardCount1.card,
+      card2 = cardCount2.card,
+      diff = card1.rarity - card2.rarity;
+
     if (diff) {
       return diff;
     }
@@ -43,8 +42,11 @@ export class CardPipe implements PipeTransform {
     return card1.name > card2.name ? 1 : -1;
   }
 
-  private classicSort(card1: Card, card2: Card) {
-    let diff = card2.class - card1.class;
+  private classicSort(cardCount1: CardCount, cardCount2: CardCount) {
+    let card1 = cardCount1.card,
+      card2 = cardCount2.card,
+      diff = card2.class - card1.class;
+
     if (diff) {
       return diff;
     }
@@ -60,7 +62,7 @@ export class CardPipe implements PipeTransform {
 export interface CardPipeArg {
   sort: SortOptions;
   hideAvailable: boolean;
-  mana?: number;
+  mana: number;
   rarity?: CardRarity;
 }
 

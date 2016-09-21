@@ -45,13 +45,13 @@
                     <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                         <h4>added (+):</h4>
                         <div class="card-details">
-                            <card *ngFor="let card of rev.cardRemoval | cardpipe: cardFilterOpts" [card]="card" [showCount]="true"></card>
+                            <card *ngFor="let card of rev.cardRemoval | cardpipe: cardFilterOpts" [cardCount]="card" [showCount]="true"></card>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                         <h4>removed (-):</h4>
                         <div class="card-details">
-                            <card *ngFor="let card of rev.cardAddition | cardpipe: cardFilterOpts" [card]="card" [showCount]="true"></card>
+                            <card *ngFor="let card of rev.cardAddition | cardpipe: cardFilterOpts" [cardCount]="card" [showCount]="true"></card>
                         </div>
                     </div>
                 </div>
@@ -77,13 +77,13 @@
                 <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                     <h4>removed (-):</h4>
                     <div class="card-details">
-                        <card *ngFor="let card of simDeck.cardRemoval | cardpipe: cardFilterOpts" [card]="card" [showCount]="true"></card>
+                        <card *ngFor="let card of simDeck.cardRemoval | cardpipe: cardFilterOpts" [cardCount]="card" [showCount]="true"></card>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                     <h4>added (+):</h4>
                     <div class="card-details">
-                        <card *ngFor="let card of simDeck.cardAddition | cardpipe: cardFilterOpts" [card]="card" [showCount]="true"></card>
+                        <card *ngFor="let card of simDeck.cardAddition | cardpipe: cardFilterOpts" [cardCount]="card" [showCount]="true"></card>
                     </div>
                 </div>
             </div>
