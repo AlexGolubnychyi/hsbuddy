@@ -24,6 +24,9 @@ export abstract class BaseDeckParser {
         return Deck.findById(deck.id).exec()
             .then(existing => {
                 if (existing) {
+                    if (existing.deleted){
+                        return existing.remove();
+                    }
                     return Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id));
                 }
             })
