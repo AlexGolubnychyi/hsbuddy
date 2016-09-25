@@ -4,7 +4,6 @@
 // Definitions: https://github.com/DefinitelyTyped/DefinitelyTyped
 
 /// <reference types="mongodb" />
-/// <reference types="mpromise" />
 /// <reference types="node" />
 
 /*
