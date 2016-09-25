@@ -61,7 +61,7 @@ function updateToVersion2(): Promise<void> {
             console.log("add Deck.dateAdded");
             decks.forEach(d => d.dateAdded = d.dateAdded || new Date());
             return decks;
-        }).map((deck: mongoose.model<DeckDB>) => deck.save())
+        }).map((deck: DeckDB) => deck.save())
         .then(() => console.log("ver2 appplied successfully"));
 }
 
@@ -72,7 +72,7 @@ function updateToVersion3(): Promise<void> {
             console.log("fix Naxx cards");
             cards.forEach(c => c.cardSet = hstypes.CardSet.Naxxramas);
             return cards;
-        }).map((card: mongoose.model<CardDB>) => card.save())
+        }).map((card: CardDB) => card.save())
         .then(() => console.log("ver3 appplied successfully"));
 }
 
@@ -151,7 +151,7 @@ function updateToVersion8(): Promise<void> {
             cards.forEach(c => c.cost = 0);
             return cards;
         })
-        .map((card: mongoose.model<CardDB>) => card.save())
+        .map((card: CardDB) => card.save())
         .then(() => Deck.findById("84faab928966370df48ead085c6881a5ece742d4").exec())
         .then(badDeck => badDeck.remove())
         .then(() => console.log(`ver${version} appplied successfully`));

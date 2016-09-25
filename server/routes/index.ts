@@ -13,3 +13,6 @@ export default function (app: express.Express) {
   });
 };
 
+export interface Request extends express.Request {
+  user: string;
+}

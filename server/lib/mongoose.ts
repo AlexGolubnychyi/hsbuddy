@@ -1,6 +1,7 @@
 
-import * as mongoose from "mongoose";
-import * as Promise from "bluebird";
+   import mongoose = require("mongoose");
+   import * as Promise from "bluebird";
+   mongoose.Promise = Promise;
 let connection  = process.env.NODE_ENV === "prod" ? "mongodb://hsuser2:558222546@ds031915.mlab.com:31915/hsdb" : "mongodb://localhost/hearthstonedb";
 
 mongoose.connect(connection, {
@@ -15,8 +16,6 @@ mongoose.connect(connection, {
         throw err;
     }
 });
-//wrong mongoose typings
-(mongoose as any).Promise = Promise;
 
 
 export default mongoose;

@@ -120,7 +120,7 @@ deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<
 });
 
 
-deckSchema.static("upgradeDeck", function (oldDeck: mongoose._mongoose.Model<DeckDB>, newDeck: mongoose._mongoose.Model<DeckDB>): Promise<boolean> {
+deckSchema.static("upgradeDeck", function (oldDeck: DeckDB, newDeck: DeckDB): Promise<boolean> {
 
     let model = this as mongoose.Model<DeckDB> & DeckStatics,
         revisions: {

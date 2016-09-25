@@ -22,7 +22,7 @@ userCardSchema.static("getByUserId", function (userId: string) {
 
 userCardSchema.static("setWithChecks", function (userId: string, cardId: string, count: number) {
     let model = (this as mongoose.Model<UserCardDB>),
-        card: mongoose.model<CardDB>;
+        card: CardDB;
 
     return cardModel.findById(cardId).exec()
         .then(c => card = c)

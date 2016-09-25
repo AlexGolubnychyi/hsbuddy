@@ -115,17 +115,15 @@ export interface CardHash {
 
 export interface CardMissing {
     cardCount: CardCount;
-    decks: [
-        {
-            id: string,
-            name: string,
-            count: number,
-            url: string,
-            cost: number;
-            dustNeeded: number;
-            className: string;
-        }
-    ];
+    decks: [{
+        id: string;
+        name: string;
+        count: number;
+        url: string;
+        cost: number;
+        dustNeeded: number;
+        className: string;
+    }];
 }
 
 export interface DeckQuery {

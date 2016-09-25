@@ -10,7 +10,7 @@ let hearthPwnUrlExt = "http://www.hearthpwn.com/cards?display=1&filter-premium=1
 export default function () {
     let cnt = 20,
         urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrl.replace("@@@", (inx + 1) + "")),
-        cards: { [id: string]: CardDB & mongoose.model<CardDB> } = {};
+        cards: { [id: string]: CardDB } = {};
 
     return Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 })
         .map(($: CheerioStatic) => {
@@ -97,7 +97,7 @@ export default function () {
         .then(() => getAdditionalCardInfo(cards));
 };
 
-function getAdditionalCardInfo(cards: { [id: string]: CardDB & mongoose.model<CardDB> }) {
+function getAdditionalCardInfo(cards: { [id: string]: CardDB }) {
     let cnt = 15,
         urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrlExt.replace("@@@", (inx + 1) + ""));
 

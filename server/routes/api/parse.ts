@@ -4,10 +4,10 @@ import * as express from "express";
 import * as authChecks from "../../middleware/authChecks";
 import parser from "../../parsers";
 import * as contracts from "../../../interfaces";
-
+import {Request} from "../index";
 let router = express.Router();
 
-router.post("/", authChecks.api, (req: express.Request, res: express.Response, next: express.NextFunction) => {
+router.post("/", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
     let links = (req.body.links as string).replace(/[\n|\r]+/g, "|").split("|");
 
     let promises = links.map(link => parser.parse(req.user, [link]));

@@ -36,7 +36,7 @@ class TempoStormParser extends BaseDeckParser {
                 return this.addDeckUnsafe(userId, tier.name, deckUrl, cards, date);
             });
 
-            return Promise.all(promises as PromiseLike<ParseReportItem>[]);
+            return Promise.all(promises);
         });
     }
 

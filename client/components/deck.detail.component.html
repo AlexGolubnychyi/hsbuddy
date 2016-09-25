@@ -31,7 +31,7 @@
     <div>
         <a [href]="deck.url" class="deck-url">{{deck.url}}</a>
     </div>
-    <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [disableCardChangedListener]="true"></deck>
+    <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [disableCardChangedListener]="true" [showManaCurve]="true"></deck>
     <br>
     <div *ngIf="deck.revisions && deck.revisions.length">
         <button (click)="showRevision = !showRevision" class="btn btn-default">{{!!showRevision ? "< Hide deck history" : "Show deck history >"}}</button>

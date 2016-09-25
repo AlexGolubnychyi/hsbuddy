@@ -2,12 +2,12 @@ import { Component, Input, Output, OnInit, OnDestroy, EventEmitter } from "@angu
 import { DeckService, CardChanged } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
 import { DeckUtilsService } from "../services/deck.utils.service";
-import { DeckInflated, Card } from "../../interfaces/index";
+import { DeckInflated, Card, CollectionChangeStatus } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { FormGroup, FormBuilder } from "@angular/forms";
 import { Subscription } from "rxjs/Subscription";
 import { Observable } from "rxjs/Observable";
-import * as contracts from "../../interfaces/index";
+import { ConfigService, cardStyles } from "../services/config.service";
 
 import "../rxjs-operators";
 
@@ -24,21 +24,24 @@ export class DeckComponent implements OnInit, OnDestroy {
     @Input()
     hideTitle = false;
     @Input()
+    showManaCurve = false;
+    @Input()
     disableCardChangedListener = false;
     @Output()
     onDeleteDeck = new EventEmitter<string>();
 
-    cards: Card[];
     cardChangedSubscription: Subscription;
     title: string;
     sortOptions = SortOptions;
     filter: CardPipeArg;
     auth: boolean;
     form: FormGroup;
+    cardStyle = cardStyles;
 
     constructor(
         private deckService: DeckService,
         private authService: AuthService,
+        private configService: ConfigService,
         private utils: DeckUtilsService,
         private fb: FormBuilder
     ) { }
@@ -60,7 +63,7 @@ export class DeckComponent implements OnInit, OnDestroy {
         (this.form.get("userCollection").valueChanges as Observable<boolean>)
             .debounceTime(200)
             .switchMap(val => this.deckService.toggleUserDeck(this.deck.id, val))
-            .subscribe((rez: contracts.CollectionChangeStatus) => {
+            .subscribe((rez: CollectionChangeStatus) => {
                 if (this.deck.deleted || rez.deckDeleted) {
                     this.onDeleteDeck.emit(this.deck.id);
                 }
@@ -92,6 +95,9 @@ export class DeckComponent implements OnInit, OnDestroy {
         };
     }
 
+    style() {
+        return this.configService.config.cardStyle;
+    }
 
     private updateDeck(cardChanged: CardChanged) {
         if (!this.utils.updateDeckStats(this.deck, cardChanged)) {

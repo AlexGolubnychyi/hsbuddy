@@ -24,6 +24,7 @@ import {LoginComponent} from "./components/login.component";
 import {AboutComponent} from "./components/about.component";
 import {ParseComponent} from "./components/parse.component";
 import { DeckDetailComponent } from "./components/deck.detail.component";
+import { ManaCurveComponent } from "./components/mana.curve.component";
 import {DropdownModule } from "./components/ng2-bootstrap/dropdown/dropdown.module";
 import { CardPipe } from "./pipes/card.pipe";
 import { CardToolTipDirective} from "./directives/card.tooltip.directive";
@@ -37,6 +38,7 @@ import { CardToolTipDirective} from "./directives/card.tooltip.directive";
         DropdownModule
     ],
     declarations: [
+        ManaCurveComponent,
         CardToolTipDirective,
         CardPipe,
         SpinnerComponent,

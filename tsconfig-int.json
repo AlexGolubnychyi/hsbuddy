@@ -7,14 +7,14 @@
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "sourceMap": true,
-    "pretty": true,
+    "sourceMap": false,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false,
     "noImplicitAny": false,
     "noImplicitReturns": true,
     "noImplicitUseStrict": false,
-    "noFallthroughCasesInSwitch": true
+    "noFallthroughCasesInSwitch": true,
+    "lib": ["dom","es5","es6"]
   },
   "compileOnSave": false,
   "files": [

@@ -9,12 +9,13 @@ import setRoutes from "./routes";
 
 import loadUserInfo from "./middleware/loadUserInfo";
 import * as logger from "morgan";
-import * as connectMongo from "connect-mongo";
+//import * as connectMongo from "connect-mongo";
 import mongoose from "./lib/mongoose";
 
 let compression = require("compression"),
     less = require("less-middleware"),
-    favicon = require("serve-favicon");
+    favicon = require("serve-favicon"),
+    connectMongo = require("connect-mongo");
 
 
 const app = express();

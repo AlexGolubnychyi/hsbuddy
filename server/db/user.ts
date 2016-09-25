@@ -5,6 +5,7 @@ import { AuthError } from "../error";
 import mongoose from "../lib/mongoose";
 import Deck, { DeckDB, deckSchemaName } from "./deck";
 import * as contracts from "../../interfaces";
+import * as Promise from "bluebird";
 
 const salt = "everything is better with salt";
 

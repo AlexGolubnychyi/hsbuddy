@@ -16,27 +16,35 @@
     </div>
     <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} cards</button>
     <span *ngIf="!hideDetails">
-        <button *ngIf="auth" (click)="changeAvailability()" class="btn btn-default btn-xs">
+        <button *ngIf="auth && (!deck.collected || filter.hideAvailable)" (click)="changeAvailability()" class="btn btn-default btn-xs">
             {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
         </button>
         <div class="btn-group" dropdown (click)="$event.preventDefault()">
             <button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
             Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" dropdownMenu>
-                <li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
-                <li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
-            </ul>
-        </div>
-        <!--<select id="orderBy" class="form-control input-xs" formControlName="orderBy">
-            <option value="{{sortOptions.classic}}">Classic sort</option>
-            <option value="{{sortOptions.expense}}">Expense sort</option>
-        </select>-->
+        </button>
+        <ul class="dropdown-menu" dropdownMenu>
+            <li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
+            <li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
+        </ul>
+    </div>
+    <!--<select id="orderBy" class="form-control input-xs" formControlName="orderBy">
+                <option value="{{sortOptions.classic}}">Classic sort</option>
+                <option value="{{sortOptions.expense}}">Expense sort</option>
+            </select>-->
     </span>
 
     <div *ngIf="!hideDetails">
-        <div class="card-details">
-            <card *ngFor="let card of deck.cards | cardpipe: filter" [cardCount]="card" [showCount]="true"></card>
+        <div class="row">
+            <div class="col-xs-12" [class.col-md-4]="style() === cardStyle.textOnly" [class.col-md-push-5]="style() === cardStyle.textOnly">
+                <mana-curve *ngIf="showManaCurve" [cardCounts]="deck.cards"></mana-curve>
+            </div>
+            <div class="col-xs-12" [class.col-md-5]="style() === cardStyle.textOnly" [class.col-md-pull-4]="style() === cardStyle.textOnly">
+                <div class="card-details">
+                    <card *ngFor="let card of deck.cards | cardpipe: filter" [cardCount]="card" [showCount]="true"></card>
+                </div>
+            </div>
         </div>
+
     </div>
 </div>

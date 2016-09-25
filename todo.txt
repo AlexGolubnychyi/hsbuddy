@@ -23,13 +23,16 @@
 (done) prod: pack htlm
 (done) REMOVE / UPDATE deck
 (done) explore prod setup
-
+(done) add advanced filters for Card Lib
 
 (partial) diff decks
 (partial, added compression) prod reduce response sizes (at the moment: 450kb !)
 
-- add advanced filters for Card Lib
 
+
+- navbar collapse on mobile
+- config - push notifications
+- merge deck component and deck detail component ?
 -ability to set deck alias
 - think of the way to distinguish old deck from new decks (http://hearthstone.metabomb.net/deck-guides/control-warrior-standard-deck-list-and-guide-hearthstone-july)
 - hide decks per user 

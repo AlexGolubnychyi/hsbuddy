@@ -2,7 +2,7 @@ import mongoose from "../lib/mongoose";
 import * as hstypes from "../../interfaces/hs-types";
 import UserCard from "./userCard";
 import * as contracts from "../../interfaces/";
-
+import * as Promise from "bluebird";
 const cardSchema = new mongoose.Schema({
     _id: String,
     name: String,

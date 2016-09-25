@@ -1,0 +1,9 @@
+<div class="deck-mana-curve">
+	<ul class="deck-graph-bars">
+		<li *ngFor="let i of [0,1,2,3,4,5,6,7]">
+            <div class="bar-value">{{values[i]}}</div>
+			<span [style.height]="percentages[i]+'%'"></span>
+			<div [style.background-position]="-24*i+'px'" class="mana-crystal"></div>
+		</li>
+	</ul>
+</div>
