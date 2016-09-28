@@ -1,32 +1,53 @@
-import { Component, OnInit } from "@angular/core";
-import { DeckService } from "../services/deck.service";
-import { CardLibraryInfo } from "../../interfaces/index";
-import { CardClass, CardRarity } from "../../interfaces/hs-types";
-import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
+import { Component } from "@angular/core";
+import { DeckService, CardChanged } from "../services/deck.service";
+import { CardHashService } from "../services/card.hash.service";
+import { ConfigService } from "../services/config.service";
+import { CardLibraryInfo, Card } from "../../interfaces/index";
+import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, mana as manaConst, standardCardSets } from "../../interfaces/hs-types";
+import { isEmpty, SortOptions, CardPipeArg } from "../pipes/card.pipe";
+import { RootComponentBase } from "./root.component.base";
+import { BarChartData } from "./bar.chart.component";
+import { PillowChartData } from "./pillow.chart.component";
 @Component({
     //moduleId: module.id,
     selector: "card-library",
     templateUrl: "card.library.component.html",
 })
-export class CardListComponent implements OnInit {
-    constructor(private deckService: DeckService) { }
+export class CardListComponent extends RootComponentBase {
+    constructor(
+        deckService: DeckService,
+        configService: ConfigService,
+        private cardHashService: CardHashService) {
+        super(configService, deckService);
+    }
     loading: boolean;
     statsCollapsed: boolean;
-    info: CardLibraryInfo;
-    stats: {};
+    info: CardLibraryInfo<Card>;
+    cardSetKvp: { name: string, value: string | number }[];
     rarity = CardRarity;
-    classes = CardClass;
+    rarityChartData: BarChartData;
+    classChartData: BarChartData;
+    cardSetChartData: BarChartData;
+    summaryStats: PillowChartData[] = [];
+    mergeCards: boolean = false;
+    isEmpty = isEmpty;
 
     filter: CardPipeArg = {
         hideAvailable: false,
         rarity: CardRarity.unknown,
-        sort: SortOptions.keepOrder,
-        mana: 0
+        sort: SortOptions.classic,
+        mana: 0,
+        cardSet: CardSet.unknown
     };
 
     ngOnInit() {
+        super.ngOnInit();
         this.refreshCards();
         this.statsCollapsed = true;
+        this.cardSetKvp = [CardSet.unknown].concat(standardCardSets).map(key => ({
+            name: hsTypeConverter.cardSet(key) as string,
+            value: key
+        }));
 
     }
 
@@ -38,18 +59,80 @@ export class CardListComponent implements OnInit {
                 this.info = info;
                 this.info.groups.forEach((group, inx) => group.collapsed = inx > 0);
                 this.loading = false;
+                this.populateChartData();
             });
     }
 
-    enumerate(enumerable: { [index: number]: string }) {
-        return Object.keys(enumerable)
-            .filter(key => !isNaN(parseInt(key)))
-            .map(key => enumerable[key])
-            .filter(name => !!this.info.stats[name])
-            .map(name => ({ count: this.info.stats[name][0], total: this.info.stats[name][1], name }));
+    populateChartData() {
+        let rarityColors = ["", "darkgray", "gray", "#198EFF", "#AB48EE", "#F07000"];
+        this.rarityChartData = {
+            valueStyle: "value",
+            image: {
+                backSize: 24,
+                offsetY: 24,
+                src: "/images/other/gems_sprite.png"
+            },
+            values: Object.keys(this.rarity).filter(key => +key > 0).map(key => ({
+                value: (this.info.stats[this.rarity[key]] || [0, 0])[0],
+                maxValue: (this.info.stats[this.rarity[key]] || [0, 0])[1],
+                barColor: rarityColors[key],
+                legend: this.rarity[key]
+            }))
+        };
+
+        this.classChartData = {
+            valueStyle: "value",
+            image: {
+                backSize: 25,
+                offsetY: 25,
+                src: "/images/other/class_sprite2.png",
+            },
+            values: Object.keys(CardClass).filter(key => +key > 0).map(key => ({
+                value: (this.info.stats[CardClass[key]] || [0, 0])[0],
+                maxValue: (this.info.stats[CardClass[key]] || [0, 0])[1],
+                barColor: "gray",
+                legend: CardClass[key]
+            }))
+        };
+
+        this.cardSetChartData = {
+            valueStyle: "value",
+            values: Object.keys(CardSet).filter(key => +key > 1 && !!this.info.stats[CardSet[key]]).map(key => ({
+                value: (this.info.stats[CardSet[key]] || [0, 0])[0],
+                maxValue: (this.info.stats[CardSet[key]] || [0, 0])[1],
+                barColor: +key === 1 ? "darkgray" : "gray",
+                legend: <string>hsTypeConverter.cardSet(+key),
+                imageSrc: `/images/other/exp${key}.png`
+            }))
+        };
+        this.calculateSummaryStats();
     }
+
+    calculateSummaryStats() {
+        //reWritE!!!
+        let weapon = this.info.stats[CardType[CardType.weapon]],
+            ability = this.info.stats[CardType[CardType.ability]],
+            minion = this.info.stats[CardType[CardType.minion]],
+            mana = this.info.stats[manaConst],
+            total = [weapon[0] + ability[0] + minion[0], weapon[1] + ability[1] + minion[1]];
+
+        this.summaryStats = [
+            { legend: "Total: ", value: total[0], maxValue: total[1], showValues: true },
+            { legend: "Mana:", value: mana[0], maxValue: mana[1], showValues: true },
+            { legend: "Weapons:", value: weapon[0], maxValue: weapon[1], showValues: true },
+            { legend: "Minions:", value: minion[0], maxValue: minion[1], showValues: true },
+            { legend: "Abilities:", value: ability[0], maxValue: ability[1], showValues: true },
+        ]
+    }
+
     enumKvp(enumerable: { [index: number]: string }) {
-        return Object.keys(enumerable).filter(key => !isNaN(parseInt(key))).map(key => ({ name: enumerable[key], value: key }));
+        return Object
+            .keys(enumerable)
+            .filter(key => !isNaN(parseInt(key)))
+            .map(key => ({
+                name: hsTypeConverter.getEnumLabel(enumerable, +key),
+                value: key
+            }));
     }
 
     changeAvail() {
@@ -78,8 +161,25 @@ export class CardListComponent implements OnInit {
         this.filter.rarity = +rarity;
         this.applyFilter();
     }
+    changeCardSet(cardSet?: number) {
+        this.filter.cardSet = +cardSet;
+        this.applyFilter();
+    }
 
     applyFilter() {
         this.filter = Object.assign({}, this.filter);
+    }
+
+    protected onCardChanged(cardChanged: CardChanged) {
+        let card = this.cardHashService.getCard(cardChanged.cardId);
+
+        this.info.groups.some(group => {
+            let inx = group.cards.findIndex(c => c.card.id === card.id);
+            if (inx >= 0) {
+                group.cards[inx].card = card; //update reference to new Card to notify card component about changes
+                return true;
+            }
+            return false;
+        });
     }
 }

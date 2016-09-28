@@ -1,0 +1,15 @@
+<div class="bar-chart" [style.width]="(indexes.length * (19+16) + 20)+'px'">
+	<ul>
+		<li *ngFor="let i of indexes" [title]="getFullTitle(i)">
+            <div class="bar-value" [style.color]="data.values[i].barColor" [title]="getTitle(i)">{{formatValue(i)}}</div>
+			<span [title]="getFullTitle(i)" [@heightSet]="!!percentages && percentages[i] > 0" [style.height]="percentages[i]+'%'" [style.background]="data.values[i].barColor"></span>
+			<div [title]="data.values[i].legend || ''" class="bar-image"
+			     [style.background]="'url('+(data.values[i].imageSrc || data.image.src)+')'" 
+			     [style.background-position-x]="-(this.data.image.offsetX || 0) * i+ 'px'" 
+				 [style.background-position-y]="-(this.data.image.offsetY || 0) * i+ 'px'"
+				 [style.background-size]="data.image.backSize+'px'"
+				>
+		   </div>
+		</li>
+	</ul>
+</div>

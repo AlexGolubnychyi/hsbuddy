@@ -101,6 +101,13 @@ card {
     float: left;
     height: 27px;
   }
+  .chart-container {
+    overflow: auto;
+    >div {
+      float: left;
+      margin-right: 1.5rem;
+    }
+  }
 }
 
 .card-image {
@@ -112,7 +119,6 @@ deck {
   clear: left;
   display: block;
   .deck-mana-curve {
-    //background: #f3eddd;
     background: #efefef;
     width: 300px;
     height: 166px;
@@ -123,13 +129,7 @@ deck {
     right: 0;
     ul {
       position: relative;
-      //top: 0;
-      //left: 0;
       padding-left: 1px;
-      //list-style-type: none;
-      //background: 0;
-      //box-shadow: none;
-      //display: block;
       li {
         width: 19px;
         height: 100px;
@@ -143,7 +143,6 @@ deck {
           text-shadow: none;
           font-size: 12px;
           color: #747171;
-          content: attr(data-count);
           position: relative;
           top: -22px;
           left: 0;
@@ -153,18 +152,6 @@ deck {
           display: block;
           font-weight: bold;
         }
-        // &:after {
-        //   bottom: -29px;
-        //   transform: translateX(-50%);
-        //   left: 50%;
-        //   bottom: -34px;
-        //   background: url(../images/other/mana_sprite.png);
-        //   position: absolute;
-        //   content: '';
-        //   width: 24px;
-        //   height: 23px;
-        //   background-size: 192px;
-        // }
         span {
           background: #379fe5;
           max-height: 100%;
@@ -178,7 +165,7 @@ deck {
         }
         .mana-crystal {
           bottom: -29px;
-          left: 0;
+          left: -2px;
           bottom: -34px;
           background: url(../images/other/mana_sprite.png);
           position: absolute;
@@ -329,5 +316,97 @@ select.input-xs {
   }
   40% {
     -webkit-transform: scale(1.0)
+  }
+}
+
+.bar-chart {
+  background: #efefef;
+  height: 166px;
+  border: 1px solid gray;
+  box-shadow: none;
+  border-radius: 0;
+  right: 0;
+  ul {
+    position: relative;
+    padding-left: 1px;
+    li {
+      width: 19px;
+      height: 100px;
+      margin: 28px 0 0 16px;
+      background: linear-gradient(to bottom, rgba(0, 0, 0, 0.025), rgba(0, 0, 0, 0.125));
+      float: left;
+      list-style: none!important;
+      position: relative;
+      border-radius: 3px;
+      .bar-value {
+        text-shadow: none;
+        font-size: 12px;
+        color: #747171;
+        position: relative;
+        top: -22px;
+        left: 0;
+        right: 0;
+        line-height: 20px;
+        text-align: center;
+        display: block;
+        font-weight: bold;
+        cursor: default;
+      }
+      span {
+        background: #379fe5;
+        max-height: 100%;
+        display: block;
+        position: absolute;
+        bottom: 1px;
+        left: 1px;
+        right: 1px;
+        transition: .4s, height, ease;
+        border-radius: 2px;
+      }
+      .bar-image {
+        bottom: -29px;
+        left: -2px;
+        bottom: -34px;
+        position: absolute;
+        width: 24px;
+        height: 23px;
+        border-radius: 9px;
+      }
+    }
+  }
+}
+
+.pill-chart-container {
+  margin-top: .8rem;
+  .legend {
+    text-shadow: none;
+    font-size: 12px;
+    color: #747171;
+    font-weight: bold;
+    text-transform: uppercase;
+  }
+  .pill-chart-body {
+    display: flex;
+    .pill-chart {
+      width: 200px;
+      height: 20px;
+      background: darkgray;
+      border-radius: 10px;
+      overflow: hidden;
+      display: inline-block;
+      margin-right: 1rem;
+      .filler {
+        display: inline-block;
+        background: cornflowerblue;
+        width: 50%;
+        height: 100%;
+      }
+    }
+    span {
+      text-shadow: none;
+      font-size: 12px;
+      color: #747171;
+      font-weight: bold;
+    }
   }
 }

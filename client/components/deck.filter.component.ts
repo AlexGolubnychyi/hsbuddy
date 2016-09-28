@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from "@angular/core";
-import { CardClass } from "../../interfaces/hs-types";
+import { CardClass, hsTypeConverter } from "../../interfaces/hs-types";
 import { AuthService } from "../services/auth.service";
 import { DeckQuery, OrderBy } from "../../interfaces/index";
 import { FormGroup, Validators, FormBuilder } from "@angular/forms";
@@ -23,7 +23,7 @@ export class DeckFilterComponent implements OnInit {
 
     deckClasses = Object.keys(CardClass)
         .filter(key => !isNaN(+key))
-        .map(id => ({ name: CardClass[id], value: +id }))
+        .map(id => ({ name: hsTypeConverter.getEnumLabel(CardClass, +id), value: +id }))
         .filter(item => item.value !== CardClass.neutral);
     orderOptions = OrderBy;
 

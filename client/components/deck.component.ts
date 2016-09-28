@@ -1,13 +1,14 @@
-import { Component, Input, Output, OnInit, OnDestroy, EventEmitter } from "@angular/core";
-import { DeckService, CardChanged } from "../services/deck.service";
+import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy } from "@angular/core";
+import { DeckService } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
+import { CardHashService } from "../services/card.hash.service";
 import { DeckUtilsService } from "../services/deck.utils.service";
-import { DeckInflated, Card, CollectionChangeStatus } from "../../interfaces/index";
+import { Deck, CollectionChangeStatus, Card } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { FormGroup, FormBuilder } from "@angular/forms";
-import { Subscription } from "rxjs/Subscription";
 import { Observable } from "rxjs/Observable";
-import { ConfigService, cardStyles } from "../services/config.service";
+import { Config, cardStyles } from "../services/config.service";
+
 
 import "../rxjs-operators";
 
@@ -15,10 +16,11 @@ import "../rxjs-operators";
     //moduleId: module.id,
     selector: "deck",
     templateUrl: "deck.component.html",
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DeckComponent implements OnInit, OnDestroy {
+export class DeckComponent implements OnInit, OnChanges {
     @Input()
-    deck: DeckInflated;
+    deck: Deck<Card>;
     @Input()
     hideDetails = true;
     @Input()
@@ -26,23 +28,22 @@ export class DeckComponent implements OnInit, OnDestroy {
     @Input()
     showManaCurve = false;
     @Input()
-    disableCardChangedListener = false;
+    config: Config;
     @Output()
     onDeleteDeck = new EventEmitter<string>();
 
-    cardChangedSubscription: Subscription;
     title: string;
     sortOptions = SortOptions;
     filter: CardPipeArg;
     auth: boolean;
     form: FormGroup;
-    cardStyle = cardStyles;
+    cardStyles = cardStyles;
 
     constructor(
         private deckService: DeckService,
         private authService: AuthService,
-        private configService: ConfigService,
         private utils: DeckUtilsService,
+        private cardHash: CardHashService,
         private fb: FormBuilder
     ) { }
 
@@ -70,14 +71,12 @@ export class DeckComponent implements OnInit, OnDestroy {
             });
 
         (this.form.get("orderBy").valueChanges as Observable<SortOptions>).subscribe(v => this.changeSort(+v));
-        if (!this.disableCardChangedListener) {
-            this.cardChangedSubscription = this.deckService.cardChanged.subscribe(cardChanged => this.updateDeck(cardChanged));
-        }
     }
-    ngOnDestroy() {
-        if (this.cardChangedSubscription) {
-            this.cardChangedSubscription.unsubscribe();
-        }
+
+    ngOnChanges(changes) {
+        console.log(`deck-changed: ${this.deck.name}`, changes);
+        this.utils.updateDeckStats(this.deck);
+        this.updateTitle();
     }
 
     changeAvailability() {
@@ -93,17 +92,6 @@ export class DeckComponent implements OnInit, OnDestroy {
             sort: sort,
             mana: 0
         };
-    }
-
-    style() {
-        return this.configService.config.cardStyle;
-    }
-
-    private updateDeck(cardChanged: CardChanged) {
-        if (!this.utils.updateDeckStats(this.deck, cardChanged)) {
-            return;
-        }
-        this.updateTitle();
     }
 
     private updateTitle() {

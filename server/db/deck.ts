@@ -6,6 +6,8 @@ import * as Promise from "bluebird";
 import User from "./user";
 import Card, { CardDB, cardSchemaName } from "./card";
 import UserCard from "./userCard";
+import differ from "./utils/differ";
+import mapper from "./utils/mapper";
 
 const deckSchema = new mongoose.Schema({
     _id: String,
@@ -41,8 +43,8 @@ deckSchema.static("generateId", (cards: { [cardName: string]: number }) => {
     return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
 });
 
-deckSchema.static("getDecksByParams", function (userId: string, params?: contracts.DeckQuery): Promise<contracts.DeckResult<contracts.Deck[]>> {
-    let model = this as mongoose.Model<DeckDB>,
+deckSchema.static("getDecksByParams", function (userId: string, params?: contracts.DeckQuery): Promise<contracts.DeckResult<contracts.Deck<string>[]>> {
+    let model = this as mongoose.Model<DeckDB<CardDB>>,
         cardAvailability: { [cardId: string]: number },
         userDeckIds: string[],
         query = void 0,
@@ -84,7 +86,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
             let result = decks
                 .map(deck => {
                     deck.revisions = []; //reduce unneeded processing
-                    return deckToContract(deck, cardAvailability, userDeckIds, cardHash);
+                    return mapper.deckToContract(deck, cardAvailability, userDeckIds, cardHash);
                 })
                 .filter(deck => !deck.deleted || deck.userCollection);
 
@@ -101,12 +103,12 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                 result = result.sort((f, s) => f.dustNeeded - s.dustNeeded);
             }
 
-            return wrapResult(result, cardHash);
+            return mapper.wrapResult(result, cardHash);
         });
 });
 
-deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<contracts.DeckResult<contracts.Deck>> {
-    let model = this as mongoose.Model<DeckDB>,
+deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<contracts.DeckResult<contracts.Deck<string>>> {
+    let model = this as mongoose.Model<DeckDB<CardDB>>,
         cardAvailability: { [cardId: string]: number },
         userDeckIds: string[],
         cardHash: contracts.CardHash = {};
@@ -116,18 +118,18 @@ deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<
         .then(() => UserCard.getByUserId(userId))
         .then(uc => cardAvailability = uc)
         .then(() => model.findById(deckId).populate("cards.card").populate("revisions.cardAddition.card").populate("revisions.cardRemoval.card").exec())
-        .then(deck => wrapResult(deckToContract(deck, cardAvailability, userDeckIds, cardHash), cardHash));
+        .then(deck => mapper.wrapResult(mapper.deckToContract(deck, cardAvailability, userDeckIds, cardHash), cardHash));
 });
 
 
-deckSchema.static("upgradeDeck", function (oldDeck: DeckDB, newDeck: DeckDB): Promise<boolean> {
+deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: DeckDB<string>): Promise<boolean> {
 
-    let model = this as mongoose.Model<DeckDB> & DeckStatics,
+    let model = this as mongoose.Model<DeckDB<string | CardDB>> & DeckStatics,
         revisions: {
             userId: string;
             date: Date;
             number: number,
-            cards: contracts.CardCountMin[]
+            cards: contracts.CardCount<string>[]
         }[] = [];
 
     //deck diffs => deck cards 
@@ -138,11 +140,7 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB, newDeck: DeckDB): Pr
                 userId: rev.userId,
                 date: rev.dateAdded,
                 number: rev.number,
-                cards: reverseDiff(
-                    <contracts.CardCountMin[]>oldDeck.cards,
-                    <contracts.CardCountMin[]>rev.cardAddition,
-                    <contracts.CardCountMin[]>rev.cardRemoval
-                )
+                cards: differ.reverse(oldDeck.cards, rev.cardAddition, rev.cardRemoval)
             };
         });
     }
@@ -151,15 +149,15 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB, newDeck: DeckDB): Pr
         userId: oldDeck.userId,
         date: oldDeck.dateAdded,
         number: revisions.length + 1,
-        cards: oldDeck.cards as contracts.CardCountMin[]
+        cards: oldDeck.cards
     });
 
     let refCardHash: { [index: string]: number } = {};
-    (newDeck.cards as contracts.CardCountMin[]).forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
+    newDeck.cards.forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
 
     //deck cards => new deck diffs
     newDeck.revisions = revisions.map(rev => {
-        let diff = calcDiff(newDeck.cards as contracts.CardCountMin[], rev.cards, refCardHash);
+        let diff = differ.diff(newDeck.cards, rev.cards, refCardHash);
         return {
             userId: rev.userId,
             number: rev.number,
@@ -178,9 +176,9 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB, newDeck: DeckDB): Pr
 });
 
 
-deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): Promise<contracts.DeckResult<contracts.DeckDiff[]>> {
-    let model = this as mongoose.Model<DeckDB>,
-        refDeck: contracts.Deck,
+deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): Promise<contracts.DeckResult<contracts.DeckDiff<string>[]>> {
+    let model = this as mongoose.Model<DeckDB<CardDB>>,
+        refDeck: contracts.Deck<string>,
         cardAvailability: { [cardId: string]: number },
         userDeckIds: string[],
         cardHash: contracts.CardHash = {};
@@ -194,7 +192,7 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): 
             if (!deck) {
                 Promise.reject(new Error("deck not found"));
             }
-            refDeck = deckToContract(deck, cardAvailability, userDeckIds, cardHash);
+            refDeck = mapper.deckToContract(deck, cardAvailability, userDeckIds, cardHash);
         })
         .then(() => model.find({ "$and": [{ "_id": { "$ne": deckId } }, { "deleted": { "$ne": true } }, { "class": refDeck.class }] })
             .populate("cards.card").exec())
@@ -206,10 +204,10 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): 
 
             let diffs = otherDecks
                 .map(otherDeck => {
-                    let diff = calcDiff(refDeck.cards, otherDeck.cards.map(c => ({ card: (c.card as CardDB).id, count: c.count })), refCardHash);
+                    let diff = differ.diff(refDeck.cards, otherDeck.cards.map(c => ({ card: (c.card as CardDB).id, count: c.count })), refCardHash);
 
                     if (diff.diff < 10) {
-                        let deck = deckToContract(otherDeck, cardAvailability, userDeckIds, cardHash);
+                        let deck = mapper.deckToContract(otherDeck, cardAvailability, userDeckIds, cardHash);
                         diff.cardAddition.forEach(cardCount => reducerHash[cardCount.card] = true);
                         return {
                             deck,
@@ -229,68 +227,12 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): 
                 return hash;
             }, {});
 
-            return wrapResult(diffs, cardHash);
+            return mapper.wrapResult(diffs, cardHash);
         });
 });
 
-function calcDiff(
-    refCards: contracts.CardCountMin[],
-    otherCards: contracts.CardCountMin[],
-    refCardHash?: { [index: string]: number }
-) {
-
-    if (!refCardHash) {
-        refCardHash = {};
-        refCards.forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
-    }
-
-    let otherCardHash: { [index: string]: number } = {},
-        diff: {
-            diff: number,
-            cardAddition: contracts.CardCountMin[],
-            cardRemoval: contracts.CardCountMin[]
-        } = {
-                diff: 0,
-                cardAddition: [],
-                cardRemoval: []
-            };
-
-    otherCards.forEach(cardCount => {
-        //let card = !minimal && (c as CardCount).card;
-        otherCardHash[cardCount.card] = cardCount.count;
-        let numDiff = cardCount.count - (refCardHash[cardCount.card] || 0);
-        if (!numDiff) {
-            return;
-        }
-
-        if (numDiff > 0) {
-            diff.diff += numDiff;
-            diff.cardAddition.push({ card: cardCount.card, count: numDiff });
-            return;
-        }
-
-        diff.cardRemoval.push({ card: cardCount.card, count: -numDiff });
-    });
-
-    refCards.filter(c => !otherCardHash[c.card]).forEach(c => diff.cardRemoval.push(c));
-    return diff;
-}
-
-function reverseDiff(refCards: contracts.CardCountMin[], cardAddition: contracts.CardCountMin[], cardRemoval: contracts.CardCountMin[]) {
-    let cardHash: { [index: string]: number } = {};
-
-    refCards.forEach(cardCount => cardHash[cardCount.card] = cardCount.count);
-    cardAddition.forEach(addition => cardHash[addition.card] = (cardHash[addition.card] || 0) + addition.count);
-    cardRemoval.forEach(removal => {
-        cardHash[removal.card] -= removal.count;
-    });
-
-    return Object.keys(cardHash).map(card => (<contracts.CardCountMin>{ card, count: cardHash[card] })).filter(cardCount => cardCount.count > 0);
-}
-
-
 deckSchema.static("setDescription", function (userId: string, deckId: string, description: contracts.DeckChange): Promise<boolean> {
-    let model = this as mongoose.Model<DeckDB>;
+    let model = this as mongoose.Model<DeckDB<CardDB | string>>;
 
     return model.findById(deckId).exec()
         .then(deck => {
@@ -312,7 +254,7 @@ deckSchema.static("setDescription", function (userId: string, deckId: string, de
 });
 
 deckSchema.static("recycle", function (deckId: string, forceDelete = false, replaceWithDeckId?: string): Promise<boolean> {
-    let model = this as mongoose.Model<DeckDB> & DeckStatics;
+    let model = this as mongoose.Model<DeckDB<CardDB | string>> & DeckStatics;
 
     return model.findById(deckId).exec().then(deck => {
         if (!deck || !(deck.deleted || forceDelete)) {
@@ -346,23 +288,21 @@ deckSchema.static("recycle", function (deckId: string, forceDelete = false, repl
     });
 });
 
-deckSchema.static("getMissingCards", function (userId: string, params?: contracts.DeckQuery): Promise<contracts.CardMissing[]> {
-    let model = this as mongoose.Model<DeckDB> & DeckStatics,
-        resultObj: { [cardId: string]: contracts.CardMissing } = {};
-
+deckSchema.static("getMissingCards", function (userId: string, params?: contracts.DeckQuery): Promise<contracts.DeckResult<contracts.CardMissing<string>[]>> {
+    let model = this as mongoose.Model<DeckDB<CardDB | string>> & DeckStatics,
+        resultObj: { [cardId: string]: contracts.CardMissing<string> } = {},
+        cardHash: contracts.CardHash;
 
     return model.getDecksByParams(userId, params)
         .then(decks => decks.result.forEach(deck => {
+            cardHash = decks.cardHash;
             deck.cards.forEach(cardCount => {
-                let card = decks.cardHash[cardCount.card];
+                let card = cardHash[cardCount.card];
                 if (cardCount.count > card.numberAvailable) {
                     let cardMissing = resultObj[card.id];
                     if (!cardMissing) {
                         resultObj[card.id] = cardMissing = {
-                            cardCount: {
-                                card,
-                                count: cardCount.count
-                            },
+                            cardCount,
                             decks: <any>[]
                         };
                     }
@@ -379,115 +319,41 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
             });
         }))
         .then(() => {
-            return Object.keys(resultObj)
+            let result = Object.keys(resultObj)
                 .map(cardId => resultObj[cardId])
                 .map(card => {
                     card.decks = card.decks.sort((d1, d2) => d1.dustNeeded - d2.dustNeeded);
                     return card;
                 })
-                .sort((card1, card2) => {
-                    let diff = card2.decks.length - card1.decks.length;
+                .sort((cardMissing1, cardMissing2) => {
+                    let diff = cardMissing2.decks.length - cardMissing1.decks.length;
                     if (diff) {
                         return diff;
                     }
-                    diff = card2.cardCount.card.cost - card1.cardCount.card.cost;
+
+                    let card1 = cardHash[cardMissing1.cardCount.card],
+                        card2 = cardHash[cardMissing2.cardCount.card];
+
+                    diff = card2.cost - card1.cost;
                     if (diff) {
                         return diff;
                     }
-                    return card1.cardCount.card.name > card2.cardCount.card.name ? 1 : -1;
+
+                    return card1.name > card2.name ? 1 : -1;
                 });
+
+            return mapper.wrapResult(result, cardHash);
         });
 });
 
-function deckToContract(deck: DeckDB, cardAvailability: { [cardId: string]: number }, userDeckIds: string[], cardHash: contracts.CardHash) {
-    if (!deck) {
-        return null;
-    }
-    let contract: contracts.Deck = {
-        id: deck._id,
-        name: deck.name,
-        url: deck.url,
-        dateAdded: deck.dateAdded,
-        class: deck.class,
-        className: hstypes.CardClass[deck.class],
-        cost: deck.cost,
-        dustNeeded: deck.cost,
-        collected: true,
-        cards: [],
-        userCollection: userDeckIds.indexOf(deck._id) >= 0,
-        userId: deck.userId,
-        deleted: deck.deleted,
-        revisions: deck.revisions.map(rev => ({
-            collected: false,
-            cards: [],
-            userId: rev.userId,
-            number: rev.number,
-            dateAdded: rev.dateAdded,
-            diff: rev.diff,
-            cardAddition: rev.cardAddition.map((cardCount: CardCount) => cardToContract(cardCount, cardAvailability[cardCount.card.id], cardHash)[0]),
-            cardRemoval: rev.cardRemoval.map((cardCount: CardCount) => cardToContract(cardCount, cardAvailability[cardCount.card.id], cardHash)[0]),
-        }))
-    }, collected = true;
 
-    contract.cards = deck.cards.map((cardCount: CardCount) => {
-        let [cardResult, cardContract] = cardToContract(cardCount, cardAvailability[cardCount.card._id], cardHash);
-
-        contract.dustNeeded -= Math.min(cardCount.count, cardContract.numberAvailable) * cardContract.cost;
-        collected = collected && cardContract.numberAvailable >= cardCount.count;
-        return cardResult;
-    });
-
-    contract.collected = collected;
-
-    //restore rev cards, depend on contract cards
-    contract.revisions.forEach(rev => {
-        rev.cards = reverseDiff(contract.cards, rev.cardAddition, rev.cardRemoval);
-        rev.collected = rev.cards.every(c => cardHash[c.card].numberAvailable >= c.count);
-    });
-
-    return contract;
-}
-
-function cardToContract(cardCount: CardCount, numberAvailable: number, cardHash: contracts.CardHash): [contracts.CardCountMin, contracts.Card] {
-    numberAvailable = cardCount.card.cardSet === hstypes.CardSet.Basic ? 2 : (numberAvailable || 0);
-    let card = cardCount.card;
-
-    let cardContract = cardHash[card.id] = cardHash[card.id] || {
-        id: card._id,
-        name: card.name,
-        description: card.description,
-        flavorText: card.flavorText,
-        img: card.img,
-        class: card.class,
-        className: hstypes.CardClass[card.class],
-        type: card.type,
-        rarity: card.rarity,
-        cardSet: card.cardSet,
-        setName: <string>hstypes.hsTypeConverter.cardSet(card.cardSet),
-        race: card.race,
-        url: card.url,
-        cost: card.cost,
-        mana: card.mana,
-        attack: card.attack,
-        health: card.health,
-        numberAvailable: numberAvailable
-    };
-
-    return [{ card: card.id, count: cardCount.count }, cardContract];
-}
-
-function wrapResult<T>(result: T, cardHash: contracts.CardHash) {
-    return <contracts.DeckResult<T>>{ result, cardHash };
-}
-
-
-export interface DeckDB extends mongoose.Document {
+export interface DeckDB<T extends string | CardDB> extends mongoose.Document {
     _id: string;
     name: string;
     url: string;
     class: hstypes.CardClass;
     cost: number;
-    cards: { card: string | CardDB, count: number }[];
+    cards: { card: T, count: number }[];
     dateAdded: Date;
     userId: string;
     deleted: boolean;
@@ -497,33 +363,28 @@ export interface DeckDB extends mongoose.Document {
         dateAdded: Date,
         diff: number,
         cardAddition: {
-            card: string | CardDB,
+            card: T,
             count: number
         }[],
         cardRemoval: {
-            card: string | CardDB,
+            card: T,
             count: number
         }[]
     }[];
 };
 
-interface CardCount {
-    card: CardDB;
-    count: number;
-}
-
-
 
 interface DeckStatics {
     generateId: (cards: { [cardName: string]: number }) => string;
-    getDecksByParams: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.DeckResult<contracts.Deck[]>>;
-    getDeck: (userId: string, deckId: string) => Promise<contracts.DeckResult<contracts.Deck>>;
-    getSimilarDecks: (userId: string, deckId: string) => Promise<contracts.DeckResult<contracts.DeckDiff[]>>;
-    upgradeDeck: (oldDeck: DeckDB, newDeck: DeckDB) => Promise<boolean>;
+    getDecksByParams: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.DeckResult<contracts.Deck<string>[]>>;
+    getDeck: (userId: string, deckId: string) => Promise<contracts.DeckResult<contracts.Deck<string>>>;
+    getSimilarDecks: (userId: string, deckId: string) => Promise<contracts.DeckResult<contracts.DeckDiff<string>[]>>;
+    getMissingCards: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.DeckResult<contracts.CardMissing<string>[]>>;
+
+    upgradeDeck: (oldDeck: DeckDB<string>, newDeck: DeckDB<string>) => Promise<boolean>;
     setDescription: (userId: string, deckId: string, description: contracts.DeckChange) => Promise<boolean>;
-    getMissingCards: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.CardMissing[]>;
     recycle: (deckId: string, forceDelete?: boolean, replaceWithDeckId?: string) => Promise<boolean>;
 }
 
 export const deckSchemaName = "Deck";
-export default mongoose.model<DeckDB>(deckSchemaName, deckSchema) as mongoose.Model<DeckDB> & DeckStatics;
+export default mongoose.model<DeckDB<CardDB | string>>(deckSchemaName, deckSchema) as mongoose.Model<DeckDB<CardDB | string>> & DeckStatics;

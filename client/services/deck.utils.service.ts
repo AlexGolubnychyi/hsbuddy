@@ -1,12 +1,13 @@
 import { Injectable } from "@angular/core";
 import * as contracts from "../../interfaces/index";
 import { CardSet } from "../../interfaces/hs-types";
-import {CardChanged} from "./deck.service";
+import { CardHashService } from "./card.hash.service";
 
 @Injectable()
 export class DeckUtilsService {
+    constructor(private cardHashService: CardHashService) { }
 
-    getDeckTitle(deck: contracts.DeckInflated) {
+    getDeckTitle(deck: contracts.Deck<contracts.Card>) {
         if (deck.collected) {
             return `[${deck.className}] ${deck.name}`;
         }
@@ -18,22 +19,48 @@ export class DeckUtilsService {
         return `[${deck.className}] ${deck.name} (${deck.cost})`;
     }
 
-    updateDeckStats(deck: contracts.DeckInflated, cardChanged: CardChanged) {
+    updateDeckStats(deck: contracts.Deck<contracts.Card>) {
         let collected = true,
-            containsChangedCard = false;
-        deck.cards.forEach(({card, count}) => {
-            if (card.id === cardChanged.cardId) {
-                deck.dustNeeded -= card.cost * (Math.min(cardChanged.cardAvail, count) - Math.min(cardChanged.prevCardAvail, count));
-                containsChangedCard = true;
+            dustNeeded = deck.cost,
+            lastUpdatedCardId = this.cardHashService.lastUpdateCardId,
+            lastUpdatedCard = this.cardHashService.getCard(lastUpdatedCardId);
+
+        deck.cards.forEach(cardCount => {
+            if (cardCount.card.id === lastUpdatedCardId) {
+                cardCount.card = lastUpdatedCard;
             }
-            collected = collected && (card.numberAvailable >= count || card.cardSet === CardSet.Basic);
+            dustNeeded -= cardCount.card.cost * Math.min(cardCount.card.numberAvailable, cardCount.count);
+            collected = collected && (cardCount.card.numberAvailable >= cardCount.count || cardCount.card.cardSet === CardSet.Basic);
         });
 
-        if (containsChangedCard) {
-            deck.collected = collected;
-            return true;
+        if (deck.revisions) {
+            deck.revisions.forEach(rev => {
+                rev.collected = rev.cards.every((cardCount) => cardCount.card.numberAvailable >= cardCount.count);
+                // this.updateCards(rev.cardAddition);
+                // this.updateCards(rev.cardRemoval);
+            });
         }
-        return false;
+
+        deck.collected = collected;
+        deck.dustNeeded = dustNeeded;
+    }
+
+    updateDeckDiffStats(diff: contracts.DeckDiff<contracts.Card>) {
+        this.updateDeckStats(diff.deck);
+         this.updateCards(diff.cardAddition);
+        this.updateCards(diff.cardRemoval);
+    }
+
+
+    private updateCards(cardCounts: contracts.CardCount<contracts.Card>[]) {
+        var latestChangedCardId = this.cardHashService.lastUpdateCardId;
+        return cardCounts && cardCounts.some(cardCount => {
+            if (cardCount.card.id === latestChangedCardId) {
+                cardCount.card = this.cardHashService.getCard(latestChangedCardId);
+                return true;
+            }
+            return false;
+        });
     }
 
     formatDate(date: string | Date) {

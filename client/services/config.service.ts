@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { AuthService } from "../services/auth.service";
+import { Subject } from "rxjs/Subject";
 
 export enum cardStyles {
     default = 0, compact, textOnly
@@ -9,7 +10,11 @@ export enum cardStyles {
 export class ConfigService {
     private _config: Config;
 
-    constructor(private authService: AuthService) { }
+    public configChanged: Subject<Config>;
+
+    constructor(private authService: AuthService) {
+        this.configChanged = new Subject<Config>();
+    }
 
     refresh() {
         this.load();
@@ -28,6 +33,7 @@ export class ConfigService {
         }
         this._config = value;
         localStorage.setItem(this.getLsKey(), JSON.stringify(this._config));
+        this.configChanged.next(this._config);
     }
 
     private load() {
@@ -45,7 +51,7 @@ export class ConfigService {
     }
 }
 
-interface Config {
+export interface Config {
     cardStyle: cardStyles;
     enableCardAvailSelector: boolean;
 }

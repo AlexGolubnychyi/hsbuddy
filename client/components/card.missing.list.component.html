@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-md-4 col-lg-3">
             <div class="card-details" [class.hidden]="hideDetails">
-                <card [cardCount]="missingCard.cardCount"></card>
+                <card [config]="config" [card]="missingCard.cardCount.card" [count]="missingCard.cardCount.count"></card>
             </div>
         </div>
         <div class="col-md-7 col-lg-9">
@@ -20,3 +20,4 @@
     </div>
     <hr/>
 </div>  
+<h3 [class.hidden]="loading || (missingCards && missingCards.length)">nothing found..</h3>

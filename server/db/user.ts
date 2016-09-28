@@ -4,6 +4,7 @@ import * as crypto from "crypto";
 import { AuthError } from "../error";
 import mongoose from "../lib/mongoose";
 import Deck, { DeckDB, deckSchemaName } from "./deck";
+import { CardDB } from "./card";
 import * as contracts from "../../interfaces";
 import * as Promise from "bluebird";
 
@@ -100,7 +101,7 @@ userSchema.static("setUserDeck", function (userId, deckId, set: boolean) {
 export interface UserDB extends mongoose.Document {
     _id: string;
     passwordHash: string;
-    decks: string[] | DeckDB[];
+    decks: string[] | DeckDB<string | CardDB>[];
 }
 
 interface UserStatics {

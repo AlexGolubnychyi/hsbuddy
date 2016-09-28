@@ -3,7 +3,7 @@ import * as hstypes from "../../interfaces/hs-types";
 import * as Promise from "bluebird";
 import { ParseError, ParseReportItem } from "./index";
 import { ParseStatus } from "../../interfaces";
-import Deck from "../db/deck";
+import Deck, { DeckDB } from "../db/deck";
 import Card from "../db/card";
 
 export abstract class BaseDeckParser {
@@ -12,7 +12,7 @@ export abstract class BaseDeckParser {
 
     protected addDeckUnsafe(userId: string, name: string, url: string, cards: { [cardName: string]: number }, date?: Date) {
         let cardNames = Object.keys(cards),
-            deck = new Deck();
+            deck = new Deck() as DeckDB<string>;
         deck._id = Deck.generateId(cards);
         deck.name = name.trim();
         deck.url = url;
@@ -24,7 +24,7 @@ export abstract class BaseDeckParser {
         return Deck.findById(deck.id).exec()
             .then(existing => {
                 if (existing) {
-                    if (existing.deleted){
+                    if (existing.deleted) {
                         return existing.remove();
                     }
                     return Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id));
@@ -54,7 +54,7 @@ export abstract class BaseDeckParser {
                 }
             })
             .then(() => Deck.findOne({ "url": deck.url }))
-            .then(existing => {
+            .then((existing: DeckDB<string>) => {
                 if (!existing) {
                     return deck.save().then(() => <ParseReportItem>{ status: ParseStatus.success, reason: "", url, id: deck.id });
                 }

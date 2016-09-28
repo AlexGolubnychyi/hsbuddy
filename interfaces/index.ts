@@ -23,7 +23,7 @@ export interface Card {
     numberAvailable?: number;
 }
 
-export interface Deck {
+export interface Deck<T extends string | Card> {
     id: string;
     name: string;
     url: string;
@@ -33,7 +33,7 @@ export interface Deck {
     collected: boolean;
     dateAdded: Date;
     class: hstypes.CardClass;
-    cards: CardCountMin[];
+    cards: CardCount<T>[];
     userCollection: boolean;
     userId: string;
     deleted?: boolean;
@@ -41,61 +41,24 @@ export interface Deck {
         number: number;
         dateAdded: Date;
         userId: string;
-        cards: CardCountMin[];
+        cards: CardCount<T>[];
         collected?: boolean;
-    } & Diff)[];
+    } & Diff<T>)[];
 }
 
-export interface DeckInflated {
-    id: string;
-    name: string;
-    url: string;
-    className: string;
-    cost: number;
-    dustNeeded: number;
-    collected: boolean;
-    dateAdded: Date;
-    class: hstypes.CardClass;
-    cards: CardCount[];
-    userCollection: boolean;
-    userId: string;
-    deleted?: boolean;
-    revisions?: ({
-        number: number;
-        dateAdded: Date;
-        userId: string;
-        cards: CardCount[];
-        collected?: boolean;
-    } & DiffInflated)[];
+export interface DeckDiff<T extends string | Card> extends Diff<T> {
+    deck: Deck<T>;
 }
 
-export interface DeckDiff extends Diff {
-    deck: Deck;
-}
 
-export interface DeckDiffInflated extends DiffInflated {
-    deck: DeckInflated;
-}
-
-export interface Diff {
+export interface Diff<T extends string | Card> {
     diff: number;
-    cardAddition: CardCountMin[];
-    cardRemoval: CardCountMin[];
+    cardAddition: CardCount<T>[];
+    cardRemoval: CardCount<T>[];
 }
 
-export interface DiffInflated {
-    diff: number;
-    cardAddition: CardCount[];
-    cardRemoval: CardCount[];
-}
-
-export interface CardCount {
-    card: Card;
-    count: number;
-}
-
-export interface CardCountMin {
-    card: string;
+export interface CardCount<T extends Card | string> {
+    card: T;
     count: number;
 }
 
@@ -113,8 +76,8 @@ export interface CardHash {
     [index: string]: Card;
 }
 
-export interface CardMissing {
-    cardCount: CardCount;
+export interface CardMissing<T extends string | Card> {
+    cardCount: CardCount<T>;
     decks: [{
         id: string;
         name: string;
@@ -133,16 +96,16 @@ export interface DeckQuery {
     orderBy: OrderBy;
 };
 
-export interface CardGroup {
+export interface CardGroup<T extends string | Card> {
     name: string;
     class: hstypes.CardClass;
-    cards: CardCount[];
+    cards: CardCount<T>[];
     collapsed?: boolean;
 }
 
-export interface CardLibraryInfo {
+export interface CardLibraryInfo<T extends string | Card> {
     stats: { [index: string]: [number, number] };
-    groups: CardGroup[];
+    groups: CardGroup<T>[];
 }
 
 export interface AuthResult {

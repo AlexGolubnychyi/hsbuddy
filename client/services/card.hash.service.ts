@@ -4,10 +4,14 @@ import * as contracts from "../../interfaces/index";
 @Injectable()
 export class CardHashService {
     private cardHash: contracts.CardHash = {};
+    private _lastUpdateCardId: string;
 
     feedHash(hash: contracts.CardHash) {
+        if (!hash) {
+            return;
+        }
         Object.keys(hash).forEach(cardId => {
-            this.cardHash[cardId] = this.cardHash[cardId] || hash[cardId];
+            this.cardHash[cardId] = hash[cardId];
         });
     }
 
@@ -15,8 +19,18 @@ export class CardHashService {
         return this.cardHash[cardId];
     }
 
+    updateAvailability(cardId: string, numberAvailable: number) {
+        let card = this.cardHash[cardId];
+        card.numberAvailable = numberAvailable;
+        this.cardHash[cardId] = Object.assign({}, card);
+        this._lastUpdateCardId = cardId;
+    }
 
-    inflateDeck(deck: contracts.Deck): contracts.DeckInflated {
+    get lastUpdateCardId() {
+        return this._lastUpdateCardId;
+    }
+
+    inflateDeck(deck: contracts.Deck<string>): contracts.Deck<contracts.Card> {
         return {
             id: deck.id,
             name: deck.name,
@@ -44,7 +58,7 @@ export class CardHashService {
         };
     }
 
-    inflateDiff(diff: contracts.DeckDiff): contracts.DeckDiffInflated {
+    inflateDiff(diff: contracts.DeckDiff<string>): contracts.DeckDiff<contracts.Card> {
         return {
             deck: this.inflateDeck(diff.deck),
             diff: diff.diff,
@@ -53,7 +67,7 @@ export class CardHashService {
         };
     }
 
-    private inflateCards(cards: contracts.CardCountMin[]) {
+    private inflateCards(cards: contracts.CardCount<string>[]) {
         return cards.map(c => ({ card: this.getCard(c.card), count: c.count }));
     }
 }

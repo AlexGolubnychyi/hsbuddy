@@ -36,12 +36,12 @@
 
     <div *ngIf="!hideDetails">
         <div class="row">
-            <div class="col-xs-12" [class.col-md-4]="style() === cardStyle.textOnly" [class.col-md-push-5]="style() === cardStyle.textOnly">
-                <mana-curve *ngIf="showManaCurve" [cardCounts]="deck.cards"></mana-curve>
+            <div class="col-xs-12" [class.col-md-4]="config.cardStyle === cardStyles.textOnly" [class.col-md-push-5]="config.cardStyle === cardStyles.textOnly">
+                <mana-curve *ngIf="showManaCurve" [deck]="deck"></mana-curve>
             </div>
-            <div class="col-xs-12" [class.col-md-5]="style() === cardStyle.textOnly" [class.col-md-pull-4]="style() === cardStyle.textOnly">
+            <div class="col-xs-12" [class.col-md-5]="config.cardStyle === cardStyles.textOnly" [class.col-md-pull-4]="config.cardStyle === cardStyles.textOnly">
                 <div class="card-details">
-                    <card *ngFor="let card of deck.cards | cardpipe: filter" [cardCount]="card" [showCount]="true"></card>
+                    <card *ngFor="let cardCount of deck.cards | cardpipe: filter" [card]="cardCount.card" [count]="cardCount.count" [showCount]="true" [config]=config></card>
                 </div>
             </div>
         </div>

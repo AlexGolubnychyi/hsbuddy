@@ -1,0 +1,9 @@
+<div class="pill-chart-container">
+	<div class="legend">{{data.legend}}</div>
+	<div class="pill-chart-body">
+		<div class="pill-chart">
+			<div class="filler" [@widthSet]="data.maxValue > 0" [style.width]="100*(data.value / data.maxValue)+'%'"></div>
+		</div>
+		<span *ngIf="data.showValues">{{data.value}} / {{data.maxValue}}</span>
+	</div>
+</div>

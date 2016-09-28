@@ -1,31 +1,61 @@
-import { Component, ViewChild, AfterViewInit } from "@angular/core";
-import { DeckService } from "../services/deck.service";
+import { Component, ViewChild, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
+import { DeckService, CardChanged } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
-import { DeckInflated } from "../../interfaces/index";
+import { ConfigService } from "../services/config.service";
+import { Deck, Card } from "../../interfaces/index";
 import { DeckFilterComponent } from "./deck.filter.component";
-
+import { RootComponentBase } from "./root.component.base";
 @Component({
     //moduleId: module.id,
     selector: "deck-list",
     templateUrl: "deck.list.component.html",
+    changeDetection: ChangeDetectionStrategy.OnPush
+
 })
-export class DeckListComponent implements AfterViewInit {
-    decks: DeckInflated[] = [];
+export class DeckListComponent extends RootComponentBase implements AfterViewInit {
+    decks: Deck<Card>[] = [];
     loading: boolean = true;
+
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;
 
-    constructor(private deckService: DeckService, private authService: AuthService) { }
+    constructor(
+        deckService: DeckService,
+        configService: ConfigService,
+        private authService: AuthService,
+        private ref: ChangeDetectorRef
+    ) { super(configService, deckService); }
+
     ngAfterViewInit() {
         this.filter.filter$
             .do(() => this.loading = true)
-            .switchMap<DeckInflated[]>(params => this.deckService.getDecks(params))
+            .switchMap<Deck<Card>[]>(params => this.deckService.getDecks(params))
             .subscribe(decks => {
+                this.ref.markForCheck();
                 this.decks = decks;
                 this.loading = false;
+
             });
+    }
+
+    deckIdentity(index: number, deck: Deck<Card>) {
+        return deck.id;
     }
 
     onDeleteDeck(deckId: string) {
         this.decks = this.decks.filter(d => d.id !== deckId);
+    }
+
+    onCardChanged(cardChanged: CardChanged) {
+        this.ref.markForCheck();
+        this.decks = this.decks.map(deck => {
+            if (deck.cards.some(c => c.card.id === cardChanged.cardId)) {
+                return Object.assign({}, deck); //trigger changed deck redraw
+            }
+            return deck;
+        });
+    }
+
+    onConfigChanged() {
+        this.ref.markForCheck();
     }
 }

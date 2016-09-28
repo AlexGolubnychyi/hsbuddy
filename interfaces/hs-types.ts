@@ -17,12 +17,17 @@ export var standardCardSets = [
     CardSet.OneNightInKarazhan
 ];
 
-let rarityMapping = [-1, 0, 40, 100, 400, 1600];
-let cardSetMapping = ["-", "Basic", "Expert", "Blackrock Mountain", "The Grand Tournament", "League of Explorers",
-    "Whispers of the Old Gods", "Curse of Naxxramas", "Goblins vs Gnomes", "Reward", "One Night in Karazhan"];
+export var mana = "mana";
 
+const rarityMapping = [-1, 0, 40, 100, 400, 1600],
+    cardSetMapping = ["-", "Basic", "Expert", "Blackrock Mountain", "The Grand Tournament", "League of Explorers",
+        "Whispers of the Old Gods", "Curse of Naxxramas", "Goblins vs Gnomes", "Reward", "One Night in Karazhan"];
 
 class HsTypeConverter {
+    getEnumLabel(enumerable: { [index: number]: string }, key: number) {
+        return key === 0 ? "-" : enumerable[key];
+    }
+
     getCardCost(rarity: CardRarity) {
         return rarityMapping[rarity];
     }

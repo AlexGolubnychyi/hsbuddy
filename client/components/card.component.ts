@@ -1,37 +1,37 @@
-import { Component, Input, OnInit } from "@angular/core";
-import { Card, CardCount } from "../../interfaces";
+import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
+import { Card } from "../../interfaces";
 import { CardSet } from "../../interfaces/hs-types";
 import { DeckService } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
-import { ConfigService, cardStyles } from "../services/config.service";
+import { cardStyles, Config } from "../services/config.service";
 import "../rxjs-operators";
 
 @Component({
     //moduleId: module.id,
     selector: "card",
     templateUrl: "card.component.html",
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class CardComponent implements OnInit {
     @Input()
-    cardCount: CardCount;
+    card: Card;
+    @Input()
+    count: number;
     @Input()
     showCount: boolean;
+    @Input()
+    config: Config;
     basic: boolean;
     loading: boolean;
     cardImgName: string;
-    card: Card;
-    count: number;
 
     cardStyles = cardStyles;
 
     constructor(
         private deckService: DeckService,
-        private authService: AuthService,
-        private configService: ConfigService) { }
+        private authService: AuthService) { }
 
     ngOnInit() {
-        this.card = this.cardCount.card;
-        this.count = this.cardCount.count;
         this.basic = this.card.cardSet === CardSet.Basic;
     }
 
@@ -39,18 +39,9 @@ export class CardComponent implements OnInit {
         return (this.basic || !this.authService.isAuthenticated()) ? "" : (this.count <= this.card.numberAvailable ? "available" : "notavailable");
     }
 
-    style() {
-        return this.configService.config.cardStyle;
-    }
-
-    showAvailability() {
-        return this.configService.config.enableCardAvailSelector;
-    }
-
     changeAvailability(cardAvail: number) {
         let prevCardAvail = this.card.numberAvailable;
         cardAvail = +cardAvail;
-        this.card.numberAvailable = cardAvail;
         this.loading = true;
         this.deckService
             .changeCardAvailability(this.card.id, cardAvail, prevCardAvail)
@@ -59,9 +50,6 @@ export class CardComponent implements OnInit {
             });
     }
 
-    getCardTooltipHtml() {
-        return `<div style=""></div>`;
-    }
 }
 
 interface Model {

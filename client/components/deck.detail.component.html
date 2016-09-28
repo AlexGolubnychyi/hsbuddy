@@ -31,7 +31,7 @@
     <div>
         <a [href]="deck.url" class="deck-url">{{deck.url}}</a>
     </div>
-    <deck [deck]="deck" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [disableCardChangedListener]="true" [showManaCurve]="true"></deck>
+    <deck [deck]="deck" [config]="config" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [showManaCurve]="true"></deck>
     <br>
     <div *ngIf="deck.revisions && deck.revisions.length">
         <button (click)="showRevision = !showRevision" class="btn btn-default">{{!!showRevision ? "< Hide deck history" : "Show deck history >"}}</button>
@@ -45,13 +45,13 @@
                     <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                         <h4>added (+):</h4>
                         <div class="card-details">
-                            <card *ngFor="let card of rev.cardRemoval | cardpipe: cardFilterOpts" [cardCount]="card" [showCount]="true"></card>
+                            <card *ngFor="let cardCount of rev.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count" [showCount]="true"></card>
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                         <h4>removed (-):</h4>
                         <div class="card-details">
-                            <card *ngFor="let card of rev.cardAddition | cardpipe: cardFilterOpts" [cardCount]="card" [showCount]="true"></card>
+                            <card *ngFor="let cardCount of rev.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count" [showCount]="true"></card>
                         </div>
                     </div>
                 </div>
@@ -77,13 +77,13 @@
                 <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                     <h4>removed (-):</h4>
                     <div class="card-details">
-                        <card *ngFor="let card of simDeck.cardRemoval | cardpipe: cardFilterOpts" [cardCount]="card" [showCount]="true"></card>
+                        <card *ngFor="let cardCount of simDeck.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count" [showCount]="true"></card>
                     </div>
                 </div>
                 <div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
                     <h4>added (+):</h4>
                     <div class="card-details">
-                        <card *ngFor="let card of simDeck.cardAddition | cardpipe: cardFilterOpts" [cardCount]="card" [showCount]="true"></card>
+                        <card *ngFor="let cardCount of simDeck.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count" [showCount]="true"></card>
                     </div>
                 </div>
             </div>

@@ -1,32 +1,32 @@
-import { Component, OnInit, ViewChild, OnDestroy } from "@angular/core";
+import { Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { DeckService, CardChanged } from "../services/deck.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService, cardStyles } from "../services/config.service";
+import { CardHashService } from "../services/card.hash.service";
 import * as contracts from "../../interfaces/index";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { DeckUtilsService } from "../services/deck.utils.service";
-import { Subscription } from "rxjs/Subscription";
 import { Observable } from "rxjs/Observable";
 import { DeckComponent } from "./deck.component";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
-
+import { RootComponentBase } from "./root.component.base";
 
 @Component({
     //moduleId: module.id,
     selector: "selector",
-    templateUrl: "deck.detail.component.html"
+    templateUrl: "deck.detail.component.html",
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DeckDetailComponent implements OnInit, OnDestroy {
-    deck: contracts.DeckInflated;
-    similarDecks: contracts.DeckDiffInflated[];
+export class DeckDetailComponent extends RootComponentBase {
+    deck: contracts.Deck<contracts.Card>;
+    similarDecks: contracts.DeckDiff<contracts.Card>[];
     loading: boolean;
     loadingSimilarDecks: boolean;
     form: FormGroup;
     edit = false;
     editError: string;
     confirmDeletion = false;
-    cardChangedSubscription: Subscription;
     cardFilterOpts: CardPipeArg = {
         hideAvailable: false,
         sort: SortOptions.classic,
@@ -36,16 +36,19 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
     @ViewChild(DeckComponent) deckComponent: DeckComponent;
 
     constructor(
+        deckService: DeckService,
+        configService: ConfigService,
         private route: ActivatedRoute,
         private router: Router,
-        private deckService: DeckService,
         private authService: AuthService,
-        private configService: ConfigService,
         private utils: DeckUtilsService,
-        private fb: FormBuilder
-    ) { }
+        private cardHashService: CardHashService,
+        private fb: FormBuilder,
+        private ref: ChangeDetectorRef
+    ) { super(configService, deckService); }
 
     ngOnInit() {
+        super.ngOnInit();
         this.loading = true;
 
         this.form = this.fb.group({
@@ -53,11 +56,9 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
             date: ["", Validators.required]
         });
 
-        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(cardChanged => this.updateDecks(cardChanged));
-
         this.route.params
             .map(params => params["id"])
-            .switchMap<contracts.DeckInflated>(id => this.deckService.getDeck(id))
+            .switchMap<contracts.Deck<contracts.Card>>(id => this.deckService.getDeck(id))
             .subscribe(deck => {
                 if (!deck) {
                     this.router.navigateByUrl("/");
@@ -69,15 +70,9 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
                     this.deckComponent.hideDetails = false;
                 }
                 this.setDefaults();
+                this.ref.markForCheck();
             });
     }
-
-    ngOnDestroy() {
-        if (this.cardChangedSubscription) {
-            this.cardChangedSubscription.unsubscribe();
-        }
-    }
-
 
     toggleSimilarDecks() {
         if (this.similarDecks) {
@@ -90,6 +85,7 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
             .timeout(5000)
             .catch(() => Observable.of(null))
             .subscribe(similarDecks => {
+                this.ref.markForCheck();
                 this.loadingSimilarDecks = false;
                 if (similarDecks) {
                     this.similarDecks = similarDecks;
@@ -99,6 +95,7 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
 
     change() {
         this.deckService.setDescription(this.deck.id, <contracts.DeckChange>this.form.value).subscribe(result => {
+            this.ref.markForCheck();
             if (result) {
 
                 this.deck.name = this.form.get("name").value;
@@ -123,6 +120,7 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
             .filter(result => result.success)
             .switchMap(() => this.deckService.deleteDeck(this.deck.id))
             .subscribe(result => {
+                this.ref.markForCheck();
                 this.loading = false;
                 if (result) {
                     this.router.navigateByUrl("/");
@@ -145,18 +143,25 @@ export class DeckDetailComponent implements OnInit, OnDestroy {
     }
 
     textOnlyMode() {
-        return this.configService.config.cardStyle === cardStyles.textOnly;
+        return this.config.cardStyle === cardStyles.textOnly;
     }
 
-    private updateDecks(cardChanged: CardChanged) {
-        this.utils.updateDeckStats(this.deck, cardChanged);
-        if (this.similarDecks && this.similarDecks.length) {
-            this.similarDecks.forEach(sm => this.utils.updateDeckStats(sm.deck, cardChanged));
+    protected onCardChanged(cardChanged: CardChanged) {
+        this.updateDecks();
+        if (this.deck.cards.some(c => c.card.id === cardChanged.cardId)) {
+            this.deck = Object.assign({}, this.deck);
         }
-        if (this.deck.revisions) {
-            this.deck.revisions.forEach(rev => {
-                rev.collected = rev.cards.every(c => c.card.numberAvailable >= c.count);
-            });
+        this.ref.markForCheck();
+    };
+
+    protected onConfigChanged() {
+        this.ref.markForCheck();
+    };
+
+    private updateDecks() {
+        this.utils.updateDeckStats(this.deck);
+        if (this.similarDecks) {
+            this.similarDecks.forEach(sm => this.utils.updateDeckDiffStats(sm));
         }
     }
 

@@ -1,16 +1,16 @@
-<div *ngIf="style() !== cardStyles.textOnly" class="card-container"  [class.available]="getStatus() === 'available'"
-    [class.notavailable]="getStatus() === 'notavailable'" [class.compact]="style() === cardStyles.compact">
+<div *ngIf="config.cardStyle !== cardStyles.textOnly" class="card-container"  [class.available]="getStatus() === 'available'"
+    [class.notavailable]="getStatus() === 'notavailable'" [class.compact]="config.cardStyle === cardStyles.compact">
     <div>
         <a [href]="card.url">
             <img [src]="card.img" [title]="card.flavorText" class="card-image"/></a>
     </div>
     <div class="card-name"><span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x"+count : ""}}</div>
-    <div *ngIf="style() === cardStyles.default">
+    <div *ngIf="config.cardStyle === cardStyles.default">
         <div [class.hidden]="!card.className">Class: {{card.className}}</div>
         <div>Dust: {{card.cost}}</div>
         <div class="card-set">Set: {{card.setName}}</div>
     </div>
-    <div *ngIf="showAvailability()" [style.visibility]="!basic ? 'visible' : 'hidden'" class="availability-container">
+    <div *ngIf="config.enableCardAvailSelector" [style.visibility]="!basic ? 'visible' : 'hidden'" class="availability-container">
         <select class="form-control availability-selector" [ngModel]="card.numberAvailable" [disabled]="loading" (ngModelChange)="changeAvailability($event)">
             <option value="0">0 cards</option>
             <option value="1">1 card</option>
@@ -18,7 +18,7 @@
         </select>
     </div>
 </div>
-<div *ngIf="style() === cardStyles.textOnly">
+<div *ngIf="config.cardStyle === cardStyles.textOnly">
     <div class="card-name-text-only" [cardTooltip]="card">
         <a [href]="card.url">
             <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x"+count : ""}}   

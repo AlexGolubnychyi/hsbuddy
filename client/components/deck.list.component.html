@@ -2,8 +2,8 @@
 <deck-filter filterName="deck-list-filter"></deck-filter>
 <spinner *ngIf="loading"></spinner>
 
-<div *ngFor="let deck of decks">
+<div *ngFor="let deck of decks; trackBy:deckIdentity">
     <hr/>
-    <deck [deck]="deck" (onDeleteDeck)="onDeleteDeck($event)"></deck>
+    <deck [deck]="deck" [config]="config" (onDeleteDeck)="onDeleteDeck($event)"></deck>
 </div>
 <h3 [class.hidden]="loading || (decks && decks.length)">nothing found..</h3>

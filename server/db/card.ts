@@ -3,6 +3,8 @@ import * as hstypes from "../../interfaces/hs-types";
 import UserCard from "./userCard";
 import * as contracts from "../../interfaces/";
 import * as Promise from "bluebird";
+import mapper from "./utils/mapper";
+
 const cardSchema = new mongoose.Schema({
     _id: String,
     name: String,
@@ -25,10 +27,12 @@ cardSchema.static("generateId", (name: string) => {
     return name.toLowerCase().replace(/[ |,|`|.|'|:|"]*/g, "");
 });
 
-cardSchema.static("getCardLibraryInfo", function (userId: string): Promise<contracts.CardLibraryInfo> {
+cardSchema.static("getCardLibraryInfo", function (userId: string): Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>> {
+
     let model = this as mongoose.Model<CardDB>,
         userCards: { [cardId: string]: number },
-        result: contracts.CardLibraryInfo = {
+        cardHash: contracts.CardHash = {},
+        result: contracts.CardLibraryInfo<string> = {
             groups: <any>[],
             stats: {}
         };
@@ -38,74 +42,60 @@ cardSchema.static("getCardLibraryInfo", function (userId: string): Promise<contr
         .then(() => model.find({ "cardSet": { "$in": hstypes.standardCardSets } }).exec())
         .then(cards => {
             cards.map(card => {
-                let userCard = userCards[card._id],
-                    cardResult: contracts.CardCount = {
-                        card: {
-                            id: card._id,
-                            name: card.name,
-                            description: card.description,
-                            flavorText: card.flavorText,
-                            img: card.img,
-                            class: card.class,
-                            className: "", // hstypes.CardClass[card.class],
-                            type: card.type,
-                            rarity: card.rarity,
-                            cardSet: card.cardSet,
-                            setName: <string>hstypes.hsTypeConverter.cardSet(card.cardSet),
-                            race: card.race,
-                            url: card.url,
-                            cost: card.cost,
-                            mana: card.mana,
-                            attack: card.attack,
-                            health: card.health,
-                            numberAvailable: card.cardSet === hstypes.CardSet.Basic ? 2 : (userCard || 0),
-                        },
-                        count: card.rarity === hstypes.CardRarity.legendary ? 1 : 2
-                    };
+                let numberAvailable = userCards[card._id],
+                    count = card.rarity === hstypes.CardRarity.legendary ? 1 : 2,
+                    cardInfo = mapper.cardToContract({ card, count }, numberAvailable, cardHash),
+                    maxAvailNumber = Math.min(cardInfo.cardContract.numberAvailable, count);
+
                 //stats
                 let type = result.stats[hstypes.CardType[card.type]] = result.stats[hstypes.CardType[card.type]] || [0, 0],
                     rarity = result.stats[hstypes.CardRarity[card.rarity]] = result.stats[hstypes.CardRarity[card.rarity]] || [0, 0],
-                    cardClass = result.stats[hstypes.CardClass[card.class]] = result.stats[hstypes.CardClass[card.class]] || [0, 0];
+                    cardClass = result.stats[hstypes.CardClass[card.class]] = result.stats[hstypes.CardClass[card.class]] || [0, 0],
+                    cardSet = result.stats[hstypes.CardSet[card.cardSet]] = result.stats[hstypes.CardSet[card.cardSet]] || [0, 0],
+                    mana = result.stats[hstypes.mana] = result.stats[hstypes.mana] || [0, 0];
 
-                [type, rarity, cardClass].forEach(stat => {
-                    stat[0] += (cardResult.card.numberAvailable > 0 || cardResult.card.cardSet === hstypes.CardSet.Basic) ? 1 : 0;
-                    stat[1]++;
+                [type, rarity, cardClass, cardSet].forEach(stat => {
+                    stat[0] += maxAvailNumber;
+                    stat[1] += count;
                 });
+                mana[0] += maxAvailNumber * card.cost;
+                mana[1] += count * card.cost;
 
-                return cardResult;
-            }).forEach(cardCount => {
-                let group = result.groups.filter(g => g.class === cardCount.card.class)[0];
+                return cardInfo;
+            }).forEach(cardInfo => {
+                let group = result.groups.filter(g => g.class === cardInfo.cardContract.class)[0];
                 if (!group) {
                     group = {
-                        class: cardCount.card.class,
-                        name: hstypes.CardClass[cardCount.card.class],
+                        class: cardInfo.cardContract.class,
+                        name: hstypes.CardClass[cardInfo.cardContract.class],
                         cards: [],
                     };
                     result.groups.push(group);
                 }
-                group.cards.push(cardCount);
+                group.cards.push(cardInfo.cardCount);
             });
 
             //sort
-            result.groups.forEach(g => g.cards = g.cards.sort(sortCards));
+            //result.groups.forEach(g => g.cards = g.cards.sort(sortCards));
             result.groups = result.groups.sort((f, s) => {
                 return weightClass(f.class) - weightClass(s.class);
             });
 
-            return result;
+            return mapper.wrapResult(result, cardHash);
         });
 });
 
 function weightClass(c: hstypes.CardClass) {
     return c === hstypes.CardClass.neutral ? 1000 : c;
 }
-function sortCards(f: contracts.CardCount, s: contracts.CardCount) {
-    let result = f.card.mana - s.card.mana;
-    if (result) {
-        return result;
-    }
-    return f.card.name > s.card.name ? 1 : -1;
-}
+
+// function sortCards(f: contracts.CardCount, s: contracts.CardCount) {
+//     let result = f.card.mana - s.card.mana;
+//     if (result) {
+//         return result;
+//     }
+//     return f.card.name > s.card.name ? 1 : -1;
+// }
 
 export interface CardDB extends mongoose.Document {
     _id: string;
@@ -127,7 +117,7 @@ export interface CardDB extends mongoose.Document {
 
 interface CardStatics {
     generateId: (name: string) => string;
-    getCardLibraryInfo: (userId: string) => Promise<contracts.CardLibraryInfo>;
+    getCardLibraryInfo: (userId: string) => Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>>;
 }
 
 export const cardSchemaName = "Card";

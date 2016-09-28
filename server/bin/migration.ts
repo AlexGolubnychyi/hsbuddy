@@ -61,7 +61,7 @@ function updateToVersion2(): Promise<void> {
             console.log("add Deck.dateAdded");
             decks.forEach(d => d.dateAdded = d.dateAdded || new Date());
             return decks;
-        }).map((deck: DeckDB) => deck.save())
+        }).map((deck: DeckDB<string>) => deck.save())
         .then(() => console.log("ver2 appplied successfully"));
 }
 
