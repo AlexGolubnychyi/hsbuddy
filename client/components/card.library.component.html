@@ -47,7 +47,7 @@
     </div>
     <br/>
     <div class="row">
-        <div class="col-xs-5 col-sm-3 col-md-2 col-lg-2">
+        <div class="col-xs-12">
             <button (click)="changeAvail()" class="btn" [class.btn-default]="!filter.hideAvailable" [class.btn-warning]="filter.hideAvailable"> {{filter.hideAvailable ? "Show" : "Hide"}} available cards</button>
             <button (click)="mergeCards = !mergeCards" class="btn btn-default"> {{mergeCards ? "Hide" : "Show"}} all</button>
         </div>

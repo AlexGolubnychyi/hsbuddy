@@ -17,7 +17,7 @@ export var standardCardSets = [
     CardSet.OneNightInKarazhan
 ];
 
-export var mana = "mana";
+export var dust = "dust";
 
 const rarityMapping = [-1, 0, 40, 100, 400, 1600],
     cardSetMapping = ["-", "Basic", "Expert", "Blackrock Mountain", "The Grand Tournament", "League of Explorers",

@@ -74,7 +74,7 @@ export class DeckComponent implements OnInit, OnChanges {
     }
 
     ngOnChanges(changes) {
-        console.log(`deck-changed: ${this.deck.name}`, changes);
+        //console.log(`deck-changed: ${this.deck.name}`, changes);
         this.utils.updateDeckStats(this.deck);
         this.updateTitle();
     }

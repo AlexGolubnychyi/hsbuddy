@@ -1,4 +1,4 @@
-import { Component, ViewChild, AfterViewInit } from "@angular/core";
+import { Component, ViewChild, AfterViewInit, OnInit, OnDestroy } from "@angular/core";
 import { DeckService, CardChanged } from "../services/deck.service";
 import { DeckUtilsService } from "../services/deck.utils.service";
 import { CardMissing, Card } from "../../interfaces/index";
@@ -12,7 +12,7 @@ import { CardHashService } from "../services/card.hash.service";
     selector: "missing-card-list",
     templateUrl: "card.missing.list.component.html"
 })
-export class CardMissingListComponent extends RootComponentBase implements AfterViewInit {
+export class CardMissingListComponent extends RootComponentBase implements AfterViewInit, OnInit, OnDestroy {
 
     constructor(
         deckService: DeckService,
@@ -22,6 +22,7 @@ export class CardMissingListComponent extends RootComponentBase implements After
     ) { super(configService, deckService); }
     loading: boolean = true;
     missingCards: CardMissing<Card>[];
+
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;
 
     ngAfterViewInit() {
@@ -32,6 +33,14 @@ export class CardMissingListComponent extends RootComponentBase implements After
                 this.missingCards = cards;
                 this.loading = false;
             });
+    }
+
+    ngOnInit() {
+        super.ngOnInit();
+    }
+
+    ngDestroy() {
+        super.ngOnDestroy();
     }
 
     protected onCardChanged(cardChanged: CardChanged) {

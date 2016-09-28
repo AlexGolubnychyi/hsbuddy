@@ -52,14 +52,14 @@ cardSchema.static("getCardLibraryInfo", function (userId: string): Promise<contr
                     rarity = result.stats[hstypes.CardRarity[card.rarity]] = result.stats[hstypes.CardRarity[card.rarity]] || [0, 0],
                     cardClass = result.stats[hstypes.CardClass[card.class]] = result.stats[hstypes.CardClass[card.class]] || [0, 0],
                     cardSet = result.stats[hstypes.CardSet[card.cardSet]] = result.stats[hstypes.CardSet[card.cardSet]] || [0, 0],
-                    mana = result.stats[hstypes.mana] = result.stats[hstypes.mana] || [0, 0];
+                    dust = result.stats[hstypes.dust] = result.stats[hstypes.dust] || [0, 0];
 
                 [type, rarity, cardClass, cardSet].forEach(stat => {
                     stat[0] += maxAvailNumber;
                     stat[1] += count;
                 });
-                mana[0] += maxAvailNumber * card.cost;
-                mana[1] += count * card.cost;
+                dust[0] += maxAvailNumber * card.cost;
+                dust[1] += count * card.cost;
 
                 return cardInfo;
             }).forEach(cardInfo => {

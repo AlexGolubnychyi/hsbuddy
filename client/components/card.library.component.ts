@@ -1,9 +1,9 @@
-import { Component } from "@angular/core";
+import { Component, OnInit, OnDestroy } from "@angular/core";
 import { DeckService, CardChanged } from "../services/deck.service";
 import { CardHashService } from "../services/card.hash.service";
 import { ConfigService } from "../services/config.service";
 import { CardLibraryInfo, Card } from "../../interfaces/index";
-import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, mana as manaConst, standardCardSets } from "../../interfaces/hs-types";
+import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, dust as dustConst, standardCardSets } from "../../interfaces/hs-types";
 import { isEmpty, SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { RootComponentBase } from "./root.component.base";
 import { BarChartData } from "./bar.chart.component";
@@ -13,7 +13,7 @@ import { PillowChartData } from "./pillow.chart.component";
     selector: "card-library",
     templateUrl: "card.library.component.html",
 })
-export class CardListComponent extends RootComponentBase {
+export class CardListComponent extends RootComponentBase implements OnInit, OnDestroy {
     constructor(
         deckService: DeckService,
         configService: ConfigService,
@@ -49,6 +49,10 @@ export class CardListComponent extends RootComponentBase {
             value: key
         }));
 
+    }    
+
+    ngDestroy() {
+        super.ngOnDestroy();
     }
 
     private refreshCards() {
@@ -113,12 +117,12 @@ export class CardListComponent extends RootComponentBase {
         let weapon = this.info.stats[CardType[CardType.weapon]],
             ability = this.info.stats[CardType[CardType.ability]],
             minion = this.info.stats[CardType[CardType.minion]],
-            mana = this.info.stats[manaConst],
+            dust = this.info.stats[dustConst],
             total = [weapon[0] + ability[0] + minion[0], weapon[1] + ability[1] + minion[1]];
 
         this.summaryStats = [
             { legend: "Total: ", value: total[0], maxValue: total[1], showValues: true },
-            { legend: "Mana:", value: mana[0], maxValue: mana[1], showValues: true },
+            { legend: "Dust:", value: dust[0], maxValue: dust[1], showValues: true },
             { legend: "Weapons:", value: weapon[0], maxValue: weapon[1], showValues: true },
             { legend: "Minions:", value: minion[0], maxValue: minion[1], showValues: true },
             { legend: "Abilities:", value: ability[0], maxValue: ability[1], showValues: true },
