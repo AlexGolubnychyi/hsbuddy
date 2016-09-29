@@ -39,6 +39,14 @@ export class CardComponent implements OnInit {
         return (this.basic || !this.authService.isAuthenticated()) ? "" : (this.count <= this.card.numberAvailable ? "available" : "notavailable");
     }
 
+    getAvailStatus() {
+        if (this.basic || !this.authService.isAuthenticated() || this.count <= this.card.numberAvailable) {
+            return "";
+        }
+
+        return this.card.numberAvailable > 0 ? "semiavailable" : "notavailable";
+    }
+
     changeAvailability(cardAvail: number) {
         let prevCardAvail = this.card.numberAvailable;
         cardAvail = +cardAvail;

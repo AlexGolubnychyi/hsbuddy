@@ -1,7 +1,7 @@
 <spinner *ngIf="!deck && loading"></spinner>
 <div class="deck-detail" *ngIf="deck">
     <div *ngIf="!edit">
-        <h2 (click)="edit=!edit">
+        <h2 (click)="startEdit()">
             <div class="deck-metadata">added {{utils.formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
             <a class="deck-title">
                 <span>{{utils.getDeckTitle(deck)}}</span>

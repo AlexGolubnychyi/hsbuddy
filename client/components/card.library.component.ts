@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { DeckService, CardChanged } from "../services/deck.service";
 import { CardHashService } from "../services/card.hash.service";
+import { AuthService } from "../services/auth.service";
 import { ConfigService } from "../services/config.service";
 import { CardLibraryInfo, Card } from "../../interfaces/index";
 import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, dust as dustConst, standardCardSets } from "../../interfaces/hs-types";
@@ -17,6 +18,7 @@ export class CardListComponent extends RootComponentBase implements OnInit, OnDe
     constructor(
         deckService: DeckService,
         configService: ConfigService,
+        private authService: AuthService,
         private cardHashService: CardHashService) {
         super(configService, deckService);
     }
@@ -49,10 +51,56 @@ export class CardListComponent extends RootComponentBase implements OnInit, OnDe
             value: key
         }));
 
-    }    
+    }
 
     ngDestroy() {
         super.ngOnDestroy();
+    }
+
+    enumKvp(enumerable: { [index: number]: string }) {
+        return Object
+            .keys(enumerable)
+            .filter(key => !isNaN(parseInt(key)))
+            .map(key => ({
+                name: hsTypeConverter.getEnumLabel(enumerable, +key),
+                value: key
+            }));
+    }
+
+    changeAvail() {
+        this.filter.hideAvailable = !this.filter.hideAvailable;
+        this.applyFilter();
+    }
+
+    changeMana(mana: number, $event: MouseEvent) {
+        if ($event.ctrlKey) { //add/remove mana from selection
+            this.filter.mana = this.filter.mana || 255; //both 0 and 255 mean all cards are selected
+            this.filter.mana = this.isManaSelected(mana) ? this.filter.mana - mana : this.filter.mana + mana;
+        }
+        else {
+            //if any other mana selected - select this one, otherwise - select all
+            this.filter.mana = this.filter.mana === 0 || (this.filter.mana - (this.filter.mana & mana)) > 0 ? mana : 0;
+        }
+
+        this.applyFilter();
+    }
+
+    isManaSelected(mana: number) {
+        return (this.filter.mana & mana) > 0;
+    }
+
+    changeRarity(rarity?: number) {
+        this.filter.rarity = +rarity;
+        this.applyFilter();
+    }
+
+    changeCardSet(cardSet?: number) {
+        this.filter.cardSet = +cardSet;
+        this.applyFilter();
+    }
+
+    auth() {
+        return this.authService.isAuthenticated();
     }
 
     private refreshCards() {
@@ -63,11 +111,14 @@ export class CardListComponent extends RootComponentBase implements OnInit, OnDe
                 this.info = info;
                 this.info.groups.forEach((group, inx) => group.collapsed = inx > 0);
                 this.loading = false;
-                this.populateChartData();
+                if (this.authService.isAuthenticated()) {
+                    this.populateChartData();
+                }
             });
     }
 
-    populateChartData() {
+
+    private populateChartData() {
         let rarityColors = ["", "darkgray", "gray", "#198EFF", "#AB48EE", "#F07000"];
         this.rarityChartData = {
             valueStyle: "value",
@@ -112,7 +163,7 @@ export class CardListComponent extends RootComponentBase implements OnInit, OnDe
         this.calculateSummaryStats();
     }
 
-    calculateSummaryStats() {
+    private calculateSummaryStats() {
         //reWritE!!!
         let weapon = this.info.stats[CardType[CardType.weapon]],
             ability = this.info.stats[CardType[CardType.ability]],
@@ -126,51 +177,10 @@ export class CardListComponent extends RootComponentBase implements OnInit, OnDe
             { legend: "Weapons:", value: weapon[0], maxValue: weapon[1], showValues: true },
             { legend: "Minions:", value: minion[0], maxValue: minion[1], showValues: true },
             { legend: "Abilities:", value: ability[0], maxValue: ability[1], showValues: true },
-        ]
+        ];
     }
 
-    enumKvp(enumerable: { [index: number]: string }) {
-        return Object
-            .keys(enumerable)
-            .filter(key => !isNaN(parseInt(key)))
-            .map(key => ({
-                name: hsTypeConverter.getEnumLabel(enumerable, +key),
-                value: key
-            }));
-    }
-
-    changeAvail() {
-        this.filter.hideAvailable = !this.filter.hideAvailable;
-        this.applyFilter();
-    }
-
-    changeMana(mana: number, $event: MouseEvent) {
-        if ($event.ctrlKey) { //add/remove mana from selection
-            this.filter.mana = this.filter.mana || 255; //both 0 and 255 mean all cards are selected
-            this.filter.mana = this.isManaSelected(mana) ? this.filter.mana - mana : this.filter.mana + mana;
-        }
-        else {
-            //if any other mana selected - select this one, otherwise - select all
-            this.filter.mana = this.filter.mana === 0 || (this.filter.mana - (this.filter.mana & mana)) > 0 ? mana : 0;
-        }
-
-        this.applyFilter();
-    }
-
-    isManaSelected(mana: number) {
-        return (this.filter.mana & mana) > 0;
-    }
-
-    changeRarity(rarity?: number) {
-        this.filter.rarity = +rarity;
-        this.applyFilter();
-    }
-    changeCardSet(cardSet?: number) {
-        this.filter.cardSet = +cardSet;
-        this.applyFilter();
-    }
-
-    applyFilter() {
+    private applyFilter() {
         this.filter = Object.assign({}, this.filter);
     }
 

@@ -19,11 +19,11 @@ router.get("/:deckId/similar", (req: Request, res: express.Response, next: expre
     Deck.getSimilarDecks(req.user, req.params.deckId).then(deck => res.json(deck));
 });
 
-router.delete("/:deckId", (req: Request, res: express.Response, next: express.NextFunction) => {
+router.delete("/:deckId", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
     Deck.recycle(req.params.deckId, true).then(() => res.end());
 });
 
-router.post("/:deckId", (req: Request, res: express.Response, next: express.NextFunction) => {
+router.post("/:deckId", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
     Deck.setDescription(req.user, req.params.deckId, req.body).then(success => res.json({success}));
 });
 

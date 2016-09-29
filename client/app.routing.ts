@@ -11,7 +11,7 @@ import { DeckDetailComponent } from "./components/deck.detail.component";
 
 export const appRoutes: Routes = [
   { path: "decks", component: DeckListComponent },
-  { path: "cards", component: CardListComponent, canActivate: [AuthGuard] },
+  { path: "cards", component: CardListComponent },
   { path: "cards-missing", component: CardMissingListComponent, canActivate: [AuthGuard] },
   { path: "login", component: LoginComponent, canActivate: [AuthGuard] },
   { path: "about", component: AboutComponent },

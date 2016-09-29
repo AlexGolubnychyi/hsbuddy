@@ -1,5 +1,4 @@
-<div *ngIf="config.cardStyle !== cardStyles.textOnly" class="card-container"  [class.available]="getStatus() === 'available'"
-    [class.notavailable]="getStatus() === 'notavailable'" [class.compact]="config.cardStyle === cardStyles.compact">
+<div *ngIf="config.cardStyle !== cardStyles.textOnly" class="card-container" ngClass="{{getAvailStatus()}}" [class.compact]="config.cardStyle === cardStyles.compact">
     <div>
         <a [href]="card.url">
             <img [src]="card.img" [title]="card.flavorText" class="card-image"/></a>
@@ -19,7 +18,7 @@
     </div>
 </div>
 <div *ngIf="config.cardStyle === cardStyles.textOnly">
-    <div class="card-name-text-only" [cardTooltip]="card">
+    <div class="card-name-text-only" [cardTooltip]="card" ngClass="{{getAvailStatus()}}">
         <a [href]="card.url">
             <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x"+count : ""}}   
             <!--<img [src]="'/images/'+ card.id + '.png'">      -->

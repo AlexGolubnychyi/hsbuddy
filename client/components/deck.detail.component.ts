@@ -97,6 +97,14 @@ export class DeckDetailComponent extends RootComponentBase implements OnInit, On
             });
     }
 
+    startEdit() {
+        if (!this.authService.isAuthenticated()) {
+            return;
+        }
+
+        this.edit = true;
+    }
+
     change() {
         this.deckService.setDescription(this.deck.id, <contracts.DeckChange>this.form.value).subscribe(result => {
             this.ref.markForCheck();

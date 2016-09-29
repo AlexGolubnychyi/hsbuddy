@@ -24,24 +24,29 @@
 (done) REMOVE / UPDATE deck
 (done) explore prod setup
 (done) add advanced filters for Card Lib
-
+(done) config - push notifications
+(done) client operates with cardHash?? (card storage service, no need to sync cards then)
+(done) prod reduce response sizes (at the moment: 450kb !)
 (partial) diff decks
-(partial, added compression) prod reduce response sizes (at the moment: 450kb !)
+(done?) mana curve, spell/minion break down
+(done?) think of the way to distinguish old deck from new decks (http://hearthstone.metabomb.net/deck-guides/control-warrior-standard-deck-list-and-guide-hearthstone-july)
+(
+(fixed)- fix auth check for deck edit
+(done)- add card lib for non-auth
 
 
+- add display styles for non-auth
+- style mini - show border that indicates availability
+- Component.moduleId 
 
 - navbar collapse on mobile
-- config - push notifications
 - merge deck component and deck detail component ?
 -ability to set deck alias
-- think of the way to distinguish old deck from new decks (http://hearthstone.metabomb.net/deck-guides/control-warrior-standard-deck-list-and-guide-hearthstone-july)
+
 - hide decks per user 
-- mana curve, spell/minion break down
+
 - custom deck lists
 - improve UI to support server prerender
 - more info on card missing (how to obtain from hs json db)
 - error handling (bluebird vs express).txt
-
 - compress images (atleast for compact mode)
-
-(done, validate) client operates with cardHash?? (card storage service, no need to sync cards then)

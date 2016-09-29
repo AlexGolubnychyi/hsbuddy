@@ -57,28 +57,29 @@
 
 <spinner *ngIf="loading"></spinner>
 <div *ngIf="!loading" class="card-library">
-    
-    <h2>Statistics</h2>
-    <button (click)="statsCollapsed = !statsCollapsed" class="btn btn-default"> {{statsCollapsed ? "Show" : "Hide"}} stats</button>
-    <div class="card-stats" *ngIf="!statsCollapsed">
-        <h3>Overal:</h3>
-        <div *ngFor="let stat of summaryStats">
-            <pillow-chart [data]="stat"></pillow-chart>
+    <div *ngIf="auth()">
+        <h2>Statistics</h2>
+        <button (click)="statsCollapsed = !statsCollapsed" class="btn btn-default"> {{statsCollapsed ? "Show" : "Hide"}} stats</button>
+        <div class="card-stats" *ngIf="!statsCollapsed">
+            <h3>Overal:</h3>
+            <div *ngFor="let stat of summaryStats">
+                <pillow-chart [data]="stat"></pillow-chart>
+            </div>
+            <div class="chart-container">
+                <div>
+                    <h3>Rarity:</h3>
+                    <bar-chart [data]="rarityChartData" ></bar-chart>
+                </div>
+                <div>
+                    <h3>Class cards:</h3>
+                    <bar-chart [data]="classChartData" ></bar-chart>
+                </div>
+                <div>
+                    <h3>Card sets:</h3>
+                    <bar-chart [data]="cardSetChartData" ></bar-chart>
+                </div>
+            </div>
         </div>
-        <div class="chart-container">
-            <div>
-                <h3>Rarity:</h3>
-                <bar-chart [data]="rarityChartData" ></bar-chart>
-            </div>
-            <div>
-                <h3>Class cards:</h3>
-                <bar-chart [data]="classChartData" ></bar-chart>
-            </div>
-            <div>
-                <h3>Card sets:</h3>
-                <bar-chart [data]="cardSetChartData" ></bar-chart>
-            </div>
-       </div>
     </div>
     <div *ngFor="let group of info.groups">
         <div *ngIf="!isEmpty(group.cards, filter)">

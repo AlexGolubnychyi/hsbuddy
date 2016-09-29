@@ -36,7 +36,7 @@ export class DeckListComponent extends RootComponentBase implements AfterViewIni
 
             });
     }
-    
+
     ngOnInit() {
         super.ngOnInit();
     }
