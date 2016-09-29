@@ -1,21 +1,21 @@
 import { Component, ViewChild, AfterViewInit, OnInit, OnDestroy } from "@angular/core";
-import { DeckService, CardChanged } from "../services/deck.service";
-import { DeckUtilsService } from "../services/deck.utils.service";
+import { ApiService, CardChanged } from "../services/api.service";
+import { DeckUtilsService } from "../services/deck-utils.service";
 import { CardMissing, Card } from "../../interfaces/index";
-import { DeckFilterComponent } from "./deck.filter.component";
-import { RootComponentBase } from "./root.component.base";
+import { DeckFilterComponent } from "./deck-filter.component";
+import { BaseComponent } from "./base.component";
 import { ConfigService } from "../services/config.service";
 import { CardHashService } from "../services/card.hash.service";
 
 @Component({
     //moduleId: module.id,
     selector: "missing-card-list",
-    templateUrl: "card.missing.list.component.html"
+    templateUrl: "card-missing-list.component.html"
 })
-export class CardMissingListComponent extends RootComponentBase implements AfterViewInit, OnInit, OnDestroy {
+export class CardMissingListComponent extends BaseComponent implements AfterViewInit, OnInit, OnDestroy {
 
     constructor(
-        deckService: DeckService,
+        deckService: ApiService,
         configService: ConfigService,
         private utils: DeckUtilsService,
         private cardHashService: CardHashService

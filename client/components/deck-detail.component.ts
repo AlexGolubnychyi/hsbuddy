@@ -1,24 +1,24 @@
 import { Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
-import { DeckService, CardChanged } from "../services/deck.service";
+import { ApiService, CardChanged } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService, cardStyles } from "../services/config.service";
 import { CardHashService } from "../services/card.hash.service";
 import * as contracts from "../../interfaces/index";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { DeckUtilsService } from "../services/deck.utils.service";
+import { DeckUtilsService } from "../services/deck-utils.service";
 import { Observable } from "rxjs/Observable";
 import { DeckComponent } from "./deck.component";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
-import { RootComponentBase } from "./root.component.base";
+import { BaseComponent } from "./base.component";
 
 @Component({
     //moduleId: module.id,
     selector: "selector",
-    templateUrl: "deck.detail.component.html",
+    templateUrl: "deck-detail.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DeckDetailComponent extends RootComponentBase implements OnInit, OnDestroy {
+export class DeckDetailComponent extends BaseComponent implements OnInit, OnDestroy {
     deck: contracts.Deck<contracts.Card>;
     similarDecks: contracts.DeckDiff<contracts.Card>[];
     loading: boolean;
@@ -36,7 +36,7 @@ export class DeckDetailComponent extends RootComponentBase implements OnInit, On
     @ViewChild(DeckComponent) deckComponent: DeckComponent;
 
     constructor(
-        deckService: DeckService,
+        deckService: ApiService,
         configService: ConfigService,
         private route: ActivatedRoute,
         private router: Router,

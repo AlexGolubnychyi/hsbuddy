@@ -1,13 +1,13 @@
 import { Routes, RouterModule } from "@angular/router";
 import { AuthGuard } from "./auth.guard";
 
-import { CardListComponent } from "./components/card.library.component";
-import { CardMissingListComponent } from "./components/card.missing.list.component";
-import { DeckListComponent } from "./components/deck.list.component";
+import { CardListComponent } from "./components/card-library.component";
+import { CardMissingListComponent } from "./components/card-missing-list.component";
+import { DeckListComponent } from "./components/deck-list.component";
 import { LoginComponent } from "./components/login.component";
 import { AboutComponent } from "./components/about.component";
 import { ParseComponent } from "./components/parse.component";
-import { DeckDetailComponent } from "./components/deck.detail.component";
+import { DeckDetailComponent } from "./components/deck-detail.component";
 
 export const appRoutes: Routes = [
   { path: "decks", component: DeckListComponent },

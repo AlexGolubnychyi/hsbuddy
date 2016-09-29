@@ -1,8 +1,8 @@
 import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy } from "@angular/core";
-import { DeckService } from "../services/deck.service";
+import { ApiService } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
 import { CardHashService } from "../services/card.hash.service";
-import { DeckUtilsService } from "../services/deck.utils.service";
+import { DeckUtilsService } from "../services/deck-utils.service";
 import { Deck, CollectionChangeStatus, Card } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { FormGroup, FormBuilder } from "@angular/forms";
@@ -40,7 +40,7 @@ export class DeckComponent implements OnInit, OnChanges {
     cardStyles = cardStyles;
 
     constructor(
-        private deckService: DeckService,
+        private deckService: ApiService,
         private authService: AuthService,
         private utils: DeckUtilsService,
         private cardHash: CardHashService,

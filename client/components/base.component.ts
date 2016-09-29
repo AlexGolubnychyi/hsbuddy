@@ -1,15 +1,15 @@
 import { OnInit, OnDestroy } from "@angular/core";
 import { ConfigService, Config } from "../services/config.service";
 import { Subscription } from "rxjs/Subscription";
-import { DeckService, CardChanged } from "../services/deck.service";
+import { ApiService, CardChanged } from "../services/api.service";
 
-export abstract class RootComponentBase implements OnInit, OnDestroy {
+export abstract class BaseComponent implements OnInit, OnDestroy {
     protected config: Config;
     private configSubscription: Subscription;
     private cardChangedSubscription: Subscription;
     constructor(
         protected configService: ConfigService,
-        protected deckService: DeckService
+        protected deckService: ApiService
     ) { }
 
     ngOnInit() {

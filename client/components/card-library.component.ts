@@ -1,22 +1,22 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
-import { DeckService, CardChanged } from "../services/deck.service";
+import { ApiService, CardChanged } from "../services/api.service";
 import { CardHashService } from "../services/card.hash.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService } from "../services/config.service";
 import { CardLibraryInfo, Card } from "../../interfaces/index";
 import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, dust as dustConst, standardCardSets } from "../../interfaces/hs-types";
 import { isEmpty, SortOptions, CardPipeArg } from "../pipes/card.pipe";
-import { RootComponentBase } from "./root.component.base";
-import { BarChartData } from "./bar.chart.component";
-import { PillowChartData } from "./pillow.chart.component";
+import { BaseComponent } from "./base.component";
+import { BarChartData } from "./bar-chart.component";
+import { PillowChartData } from "./pillow-chart.component";
 @Component({
     //moduleId: module.id,
     selector: "card-library",
-    templateUrl: "card.library.component.html",
+    templateUrl: "card-library.component.html",
 })
-export class CardListComponent extends RootComponentBase implements OnInit, OnDestroy {
+export class CardListComponent extends BaseComponent implements OnInit, OnDestroy {
     constructor(
-        deckService: DeckService,
+        deckService: ApiService,
         configService: ConfigService,
         private authService: AuthService,
         private cardHashService: CardHashService) {

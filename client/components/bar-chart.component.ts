@@ -1,9 +1,9 @@
-import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, state, style, animate } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state,*/ style, animate } from "@angular/core";
 
 @Component({
     //moduleId: module.id,
     selector: "bar-chart",
-    templateUrl: "bar.chart.component.html",
+    templateUrl: "bar-chart.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations: [
         trigger("heightSet", [

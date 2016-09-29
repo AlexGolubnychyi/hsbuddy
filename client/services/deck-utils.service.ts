@@ -51,6 +51,12 @@ export class DeckUtilsService {
         this.updateCards(diff.cardRemoval);
     }
 
+    formatDate(date: string | Date) {
+        if (typeof date !== "string") {
+            date = date.toISOString();
+        }
+        return date.slice(0, 10);
+    }
 
     private updateCards(cardCounts: contracts.CardCount<contracts.Card>[]) {
         var latestChangedCardId = this.cardHashService.lastUpdateCardId;
@@ -61,12 +67,5 @@ export class DeckUtilsService {
             }
             return false;
         });
-    }
-
-    formatDate(date: string | Date) {
-        if (typeof date !== "string") {
-            date = date.toISOString();
-        }
-        return date.slice(0, 10);
     }
 }

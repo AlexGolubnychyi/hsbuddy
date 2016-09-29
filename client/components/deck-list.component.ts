@@ -1,25 +1,25 @@
 import { Component, ViewChild, AfterViewInit, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
-import { DeckService, CardChanged } from "../services/deck.service";
+import { ApiService, CardChanged } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService } from "../services/config.service";
 import { Deck, Card } from "../../interfaces/index";
-import { DeckFilterComponent } from "./deck.filter.component";
-import { RootComponentBase } from "./root.component.base";
+import { DeckFilterComponent } from "./deck-filter.component";
+import { BaseComponent } from "./base.component";
 @Component({
     //moduleId: module.id,
     selector: "deck-list",
-    templateUrl: "deck.list.component.html",
+    templateUrl: "deck-list.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush
 
 })
-export class DeckListComponent extends RootComponentBase implements AfterViewInit, OnInit, OnDestroy {
+export class DeckListComponent extends BaseComponent implements AfterViewInit, OnInit, OnDestroy {
     decks: Deck<Card>[] = [];
     loading: boolean = true;
 
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;
 
     constructor(
-        deckService: DeckService,
+        deckService: ApiService,
         configService: ConfigService,
         private authService: AuthService,
         private ref: ChangeDetectorRef

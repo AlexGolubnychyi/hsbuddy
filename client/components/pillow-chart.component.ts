@@ -3,7 +3,7 @@ import { Component, ChangeDetectionStrategy, Input, trigger, transition, style, 
 @Component({
     //moduleId: module.id,
     selector: "pillow-chart",
-    templateUrl: "pillow.chart.component.html",
+    templateUrl: "pillow-chart.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations: [
         trigger("widthSet", [

@@ -9,7 +9,7 @@ import { CardHashService } from "./card.hash.service";
 const enc = encodeURIComponent;
 
 @Injectable()
-export class DeckService {
+export class ApiService {
     public cardChanged: Subject<CardChanged>;
     constructor(private http: Http, private cardHashService: CardHashService) {
         this.cardChanged = new Subject<CardChanged>();

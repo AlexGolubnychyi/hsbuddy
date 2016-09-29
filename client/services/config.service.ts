@@ -10,7 +10,7 @@ export enum cardStyles {
 export class ConfigService {
     private _config: Config;
 
-    public configChanged: Subject<Config>;
+    configChanged: Subject<Config>;
 
     constructor(private authService: AuthService) {
         this.configChanged = new Subject<Config>();

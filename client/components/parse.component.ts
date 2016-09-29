@@ -1,6 +1,6 @@
 import { Component, OnInit } from "@angular/core";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
-import { DeckService } from "../services/deck.service";
+import { ApiService } from "../services/api.service";
 import * as contracts from "../../interfaces/index";
 
 @Component({
@@ -13,7 +13,7 @@ export class ParseComponent implements OnInit {
     status = contracts.ParseStatus;
     results: contracts.ParseResult[];
 
-    constructor(private deckService: DeckService, private fb: FormBuilder) { }
+    constructor(private deckService: ApiService, private fb: FormBuilder) { }
 
     ngOnInit() {
         this.form = this.fb.group({

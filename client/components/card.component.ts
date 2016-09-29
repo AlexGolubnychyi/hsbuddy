@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, ChangeDetectionStrategy } from "@angular/core";
 import { Card } from "../../interfaces";
 import { CardSet } from "../../interfaces/hs-types";
-import { DeckService } from "../services/deck.service";
+import { ApiService } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
 import { cardStyles, Config } from "../services/config.service";
 import "../rxjs-operators";
@@ -28,7 +28,7 @@ export class CardComponent implements OnInit {
     cardStyles = cardStyles;
 
     constructor(
-        private deckService: DeckService,
+        private deckService: ApiService,
         private authService: AuthService) { }
 
     ngOnInit() {

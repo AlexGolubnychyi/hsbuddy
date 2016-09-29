@@ -9,7 +9,7 @@ import { Observable } from "rxjs/Observable";
 @Component({
     //moduleId: module.id,
     selector: "deck-filter",
-    templateUrl: "deck.filter.component.html",
+    templateUrl: "deck-filter.component.html",
 })
 export class DeckFilterComponent implements OnInit {
     @Input()
