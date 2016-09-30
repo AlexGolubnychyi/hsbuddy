@@ -3,7 +3,7 @@ import { AuthService } from "../services/auth.service";
 import { ConfigService, cardStyles } from "../services/config.service";
 import { FormGroup, FormBuilder } from "@angular/forms";
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "hs-app",
     templateUrl: "app.component.html"
 })

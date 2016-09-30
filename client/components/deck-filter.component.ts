@@ -7,7 +7,7 @@ import { Subject } from "rxjs/Subject";
 import { Observable } from "rxjs/Observable";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "deck-filter",
     templateUrl: "deck-filter.component.html",
 })

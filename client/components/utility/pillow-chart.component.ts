@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, Input, trigger, transition, style, animate } from "@angular/core";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "pillow-chart",
     templateUrl: "pillow-chart.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,

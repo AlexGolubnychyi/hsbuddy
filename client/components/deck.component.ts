@@ -13,7 +13,7 @@ import { Config, cardStyles } from "../services/config.service";
 import "../rxjs-operators";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "deck",
     templateUrl: "deck.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush

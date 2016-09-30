@@ -7,7 +7,7 @@ import { cardStyles, Config } from "../services/config.service";
 import "../rxjs-operators";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "card",
     templateUrl: "card.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush

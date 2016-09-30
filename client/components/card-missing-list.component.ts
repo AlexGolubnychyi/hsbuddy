@@ -8,7 +8,7 @@ import { ConfigService } from "../services/config.service";
 import { CardHashService } from "../services/card.hash.service";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "missing-card-list",
     templateUrl: "card-missing-list.component.html"
 })

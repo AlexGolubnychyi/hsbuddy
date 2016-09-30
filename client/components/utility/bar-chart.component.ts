@@ -1,7 +1,7 @@
 import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state,*/ style, animate } from "@angular/core";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "bar-chart",
     templateUrl: "bar-chart.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,

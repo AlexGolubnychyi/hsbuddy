@@ -3,7 +3,7 @@ import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { AuthService } from "../services/auth.service";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "login",
     templateUrl: "login.component.html"
 })

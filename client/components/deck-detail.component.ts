@@ -13,7 +13,7 @@ import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { BaseComponent } from "./base.component";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "selector",
     templateUrl: "deck-detail.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush

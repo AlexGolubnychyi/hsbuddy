@@ -1,9 +1,9 @@
 import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state, */style, animate } from "@angular/core";
-import { Deck, Card } from "../../interfaces/index";
+import { Deck, Card } from "../../../interfaces/index";
 
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "mana-curve",
     templateUrl: "mana-curve.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush,

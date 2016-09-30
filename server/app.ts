@@ -31,19 +31,14 @@ app.use(logger("dev"));
 //LESS
 app.use(less(path.join(__dirname, "../public"), { once: true }));
 
-//HTML url rewrite
-app.use((req, res, next) => {
-    if (req.url.endsWith("html")) {
-        req.url = "/client/components" + req.url;
-    }
-    next();
-});
-
 //static
 app.use(express.static(path.join(__dirname, "../public")));
-app.use("/client", express.static(path.join(__dirname, "../client")));
-app.use("/interfaces", express.static(path.join(__dirname, "../interfaces")));
 app.use("/node_modules", express.static(path.join(__dirname, "../node_modules")));
+
+if (app.get("env") === "development") {
+    app.use("/client", express.static(path.join(__dirname, "../client")));
+    app.use("/interfaces", express.static(path.join(__dirname, "../interfaces")));
+}
 
 //hack, remove when move to angular routing completely or creat routing sublevel
 app.use((req, res, next) => {

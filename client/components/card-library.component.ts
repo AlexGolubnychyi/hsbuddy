@@ -7,10 +7,10 @@ import { CardLibraryInfo, Card } from "../../interfaces/index";
 import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, dust as dustConst, standardCardSets } from "../../interfaces/hs-types";
 import { isEmpty, SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { BaseComponent } from "./base.component";
-import { BarChartData } from "./bar-chart.component";
-import { PillowChartData } from "./pillow-chart.component";
+import { BarChartData } from "./utility/bar-chart.component";
+import { PillowChartData } from "./utility/pillow-chart.component";
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "card-library",
     templateUrl: "card-library.component.html",
 })

@@ -6,7 +6,7 @@ import { Deck, Card } from "../../interfaces/index";
 import { DeckFilterComponent } from "./deck-filter.component";
 import { BaseComponent } from "./base.component";
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     selector: "deck-list",
     templateUrl: "deck-list.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush

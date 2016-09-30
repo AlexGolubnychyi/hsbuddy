@@ -4,7 +4,7 @@ import { ApiService } from "../services/api.service";
 import * as contracts from "../../interfaces/index";
 
 @Component({
-    //moduleId: module.id,
+    moduleId: module.id,
     templateUrl: "parse.component.html"
 })
 export class ParseComponent implements OnInit {
