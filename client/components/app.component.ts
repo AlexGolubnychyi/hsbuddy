@@ -10,6 +10,7 @@ import { FormGroup, FormBuilder } from "@angular/forms";
 export class AppComponent implements OnInit {
     cardStyles = cardStyles;
     configForm: FormGroup;
+    isCollapsed: boolean = true;
 
     constructor(private authService: AuthService, private configService: ConfigService, private fb: FormBuilder) {
     }

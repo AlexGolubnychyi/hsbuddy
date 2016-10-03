@@ -28,11 +28,10 @@ export class ConfigService {
     }
 
     set config(value: Config) {
-        if (!this.authService.isAuthenticated()) {
-            return;
-        }
         this._config = value;
-        localStorage.setItem(this.getLsKey(), JSON.stringify(this._config));
+        if (this.authService.isAuthenticated()) {
+            localStorage.setItem(this.getLsKey(), JSON.stringify(this._config));
+        }
         this.configChanged.next(this._config);
     }
 

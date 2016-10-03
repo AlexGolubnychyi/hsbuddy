@@ -21,3 +21,4 @@ import "rxjs/add/operator/timeout";
 import "rxjs/add/observable/timer";
 import "rxjs/add/observable/race";
 import "rxjs/add/observable/of";
+import "rxjs/add/observable/fromEvent";

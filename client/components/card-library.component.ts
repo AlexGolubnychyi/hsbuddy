@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit, OnDestroy, ElementRef } from "@angular/core";
 import { ApiService, CardChanged } from "../services/api.service";
 import { CardHashService } from "../services/card.hash.service";
 import { AuthService } from "../services/auth.service";
@@ -9,6 +9,8 @@ import { isEmpty, SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { BaseComponent } from "./base.component";
 import { BarChartData } from "./utility/bar-chart.component";
 import { PillowChartData } from "./utility/pillow-chart.component";
+import { Observable } from "rxjs/Observable";
+
 @Component({
     moduleId: module.id,
     selector: "card-library",
@@ -19,7 +21,8 @@ export class CardListComponent extends BaseComponent implements OnInit, OnDestro
         deckService: ApiService,
         configService: ConfigService,
         private authService: AuthService,
-        private cardHashService: CardHashService) {
+        private cardHashService: CardHashService,
+        private elementRef: ElementRef) {
         super(configService, deckService);
     }
     loading: boolean;
@@ -51,6 +54,14 @@ export class CardListComponent extends BaseComponent implements OnInit, OnDestro
             value: key
         }));
 
+        Observable
+            .fromEvent(this.elementRef.nativeElement.getElementsByClassName("card-name-filter"), "input")
+            .map((e: Event) => (e.target as HTMLInputElement).value)
+            .debounceTime(200)
+            .subscribe(cardName => {
+                this.filter.name = cardName && cardName.trim().toUpperCase();
+                this.applyFilter();
+            });
     }
 
     ngDestroy() {

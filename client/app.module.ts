@@ -28,6 +28,7 @@ import { ManaCurveComponent } from "./components/utility/mana-curve.component";
 import { BarChartComponent } from "./components/utility/bar-chart.component";
 import { PillowChartComponent } from "./components/utility/pillow-chart.component";
 import { DropdownModule } from "./components/ng2-bootstrap/dropdown/dropdown.module";
+import { CollapseModule } from "./components/ng2-bootstrap/collapse/collapse.module";
 import { CardPipe } from "./pipes/card.pipe";
 import { CardToolTipDirective } from "./directives/card-tooltip.directive";
 @NgModule({
@@ -37,7 +38,8 @@ import { CardToolTipDirective } from "./directives/card-tooltip.directive";
         ReactiveFormsModule,
         FormsModule,
         HttpModule,
-        DropdownModule
+        DropdownModule,
+        CollapseModule
     ],
     declarations: [
         ManaCurveComponent,

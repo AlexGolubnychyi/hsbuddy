@@ -35,26 +35,30 @@
             <div class="row">
                 <div class="col-sm-12">
                     <ul class="mana-filter" [class.selected]="filter.mana > 0">
-                        <li (click)="changeMana(mana, $event)" 
-                            [style.background-position]="-33*inx+'px'" 
-                            [class.selected]="isManaSelected(mana)" 
-                            *ngFor="let mana of [1,2,4,8,16,32,64,128]; let inx = index">
+                        <li (click)="changeMana(mana, $event)" [style.background-position]="-33*inx+'px'" [class.selected]="isManaSelected(mana)" *ngFor="let mana of [1,2,4,8,16,32,64,128]; let inx = index">
                         </li>
-                    </ul> 
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
     <br/>
     <div class="row">
-        <div class="col-xs-12">
+        <div class="col-xs-12 col-sm-6">
+            <div class="form-group">
+                <label class="sr-only" for="cardNameFilter">Card Name</label>
+                <div class="input-group">
+                    <div class="input-group-addon">By name:</div>
+                    <input type="text" class="form-control card-name-filter" id="cardNameFilter" placeholder="Card Name">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6">
             <button (click)="changeAvail()" class="btn" [class.btn-default]="!filter.hideAvailable" [class.btn-warning]="filter.hideAvailable"> {{filter.hideAvailable ? "Show" : "Hide"}} available cards</button>
-            <button (click)="mergeCards = !mergeCards" class="btn btn-default"> {{mergeCards ? "Hide" : "Show"}} all</button>
+            <button (click)="mergeCards = !mergeCards" class="btn" [class.btn-default]="!mergeCards" [class.btn-warning]="mergeCards"> {{mergeCards ? "Hide" : "Show"}} all</button>
         </div>
     </div>
 </div>
-
-
 <spinner *ngIf="loading"></spinner>
 <div *ngIf="!loading" class="card-library">
     <div *ngIf="auth()">
@@ -68,15 +72,15 @@
             <div class="chart-container">
                 <div>
                     <h3>Rarity:</h3>
-                    <bar-chart [data]="rarityChartData" ></bar-chart>
+                    <bar-chart [data]="rarityChartData"></bar-chart>
                 </div>
                 <div>
                     <h3>Class cards:</h3>
-                    <bar-chart [data]="classChartData" ></bar-chart>
+                    <bar-chart [data]="classChartData"></bar-chart>
                 </div>
                 <div>
                     <h3>Card sets:</h3>
-                    <bar-chart [data]="cardSetChartData" ></bar-chart>
+                    <bar-chart [data]="cardSetChartData"></bar-chart>
                 </div>
             </div>
         </div>

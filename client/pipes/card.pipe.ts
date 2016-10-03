@@ -55,18 +55,23 @@ export function isEmpty(cards: CardCount<Card>[], options: CardPipeArg) {
 }
 
 function filter(cardCount: CardCount<Card>, options: CardPipeArg) {
-    if (options.hideAvailable && cardCount.card.numberAvailable >= cardCount.count) {
+    let card = cardCount.card;
+    if (options.hideAvailable && card.numberAvailable >= cardCount.count) {
         return false;
     }
 
-    if (options.rarity && cardCount.card.rarity !== options.rarity) {
+    if (options.rarity && card.rarity !== options.rarity) {
         return false;
     }
-    if (options.cardSet && cardCount.card.cardSet !== options.cardSet) {
+    if (options.cardSet && card.cardSet !== options.cardSet) {
         return false;
     }
 
-    return options.mana === 0 || (Math.pow(2, Math.min(cardCount.card.mana, 7)) & options.mana) > 0;
+    if (options.name && card.name.toUpperCase().indexOf(options.name.toUpperCase()) < 0) {
+        return false;
+    }
+
+    return options.mana === 0 || (Math.pow(2, Math.min(card.mana, 7)) & options.mana) > 0;
 }
 
 export interface CardPipeArg {
@@ -75,6 +80,7 @@ export interface CardPipeArg {
     mana: number;
     rarity?: CardRarity;
     cardSet?: CardSet;
+    name?: string;
 }
 
 export enum SortOptions { classic, expense, keepOrder };
