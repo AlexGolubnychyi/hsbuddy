@@ -100,7 +100,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                 result = result.sort((f, s) => s.dateAdded > f.dateAdded ? 1 : -1);
             }
             else {
-                result = result.sort((f, s) => f.dustNeeded - s.dustNeeded);
+                result = result.sort((f, s) => f.dustNeeded - s.dustNeeded || +s.collected - (+f.collected));
             }
 
             return mapper.wrapResult(result, cardHash);
