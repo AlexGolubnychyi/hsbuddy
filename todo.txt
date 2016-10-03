@@ -27,18 +27,17 @@
 (done) config - push notifications
 (done) client operates with cardHash?? (card storage service, no need to sync cards then)
 (done) prod reduce response sizes (at the moment: 450kb !)
+(done, used background though) style mini - show border that indicates availability
+(fixed)- fix auth check for deck edit
+(done)- add card lib for non-auth
+(done) Component.moduleId 
+
 (partial) diff decks
 (done?) mana curve, spell/minion break down
 (done?) think of the way to distinguish old deck from new decks (http://hearthstone.metabomb.net/deck-guides/control-warrior-standard-deck-list-and-guide-hearthstone-july)
-(
-(fixed)- fix auth check for deck edit
-(done)- add card lib for non-auth
 
-
+- add text search for decks/cards
 - add display styles for non-auth
-- style mini - show border that indicates availability
-- Component.moduleId 
-
 - navbar collapse on mobile
 - merge deck component and deck detail component ?
 -ability to set deck alias

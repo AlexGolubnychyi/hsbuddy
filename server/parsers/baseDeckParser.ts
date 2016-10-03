@@ -1,4 +1,4 @@
-
+import * as urlHelper from "url";
 import * as hstypes from "../../interfaces/hs-types";
 import * as Promise from "bluebird";
 import { ParseError, ParseReportItem } from "./index";
@@ -23,12 +23,22 @@ export abstract class BaseDeckParser {
 
         return Deck.findById(deck.id).exec()
             .then(existing => {
-                if (existing) {
-                    if (existing.deleted) {
-                        return existing.remove();
-                    }
-                    return Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id));
+                if (!existing) {
+                    return;
                 }
+
+                if (existing.deleted) {
+                    return existing.remove();
+                }
+
+                if (existing.url !== deck.url && urlHelper.parse(existing.url).host === urlHelper.parse(deck.url).host) {
+                    //still mark as duplicate but update url (to deal with that nasty habit of tempostorm to change deck urls, 
+                    //thus breakig old references)
+                    existing.url = deck.url;
+                    return existing.save().then(() =>  Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id)));
+                }
+
+                return Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id));
             })
             .then(() => Promise.map(cardNames, cardName => Card.findById(Card.generateId(cardName))))
             .then(cardDbs => {
