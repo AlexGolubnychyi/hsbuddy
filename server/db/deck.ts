@@ -61,6 +61,10 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                 //     { "deleted": { "$ne": true } }
                 // ];
 
+                if (params.deckName){
+                    queryParts.push({ "name":  new RegExp(`.*${params.deckName}.*`, "i")});
+                }
+
                 if (params.userCollection === "true") {
                     queryParts.push({ "_id": { "$in": userDeckIds } });
                 }

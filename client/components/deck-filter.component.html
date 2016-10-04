@@ -50,5 +50,19 @@
             </div>
         </div>
     </div>
-    <button type="button" [disabled]="!filterForm.valid" class="btn btn-default" (click)="filterButtonClickStream.next($event)">Filter</button>
+    <br/>
+     <div class="row">
+        <div class="col-xs-12 col-sm-6">
+            <div class="form-group">
+                <label class="sr-only" for="cardNameFilter">deck name</label>
+                <div class="input-group">
+                    <div class="input-group-addon">By name:</div>
+                    <input formControlName="deckName" (keyup)="deckNameKeyStream.next($event)" type="text" class="form-control card-name-filter" id="cardNameFilter" placeholder="deck name..">
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-6">
+            <button type="button" [disabled]="!filterForm.valid" class="btn btn-primary" (click)="filterButtonClickStream.next($event)">Filter</button>
+        </div>
+    </div>
 </form>

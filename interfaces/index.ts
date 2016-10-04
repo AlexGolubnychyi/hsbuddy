@@ -94,6 +94,7 @@ export interface DeckQuery {
     deckClass?: hstypes.CardClass | string;
     dustNeeded?: number | string;
     orderBy: OrderBy;
+    deckName?: string;
 };
 
 export interface CardGroup<T extends string | Card> {

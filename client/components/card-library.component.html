@@ -46,10 +46,10 @@
     <div class="row">
         <div class="col-xs-12 col-sm-6">
             <div class="form-group">
-                <label class="sr-only" for="cardNameFilter">Card Name</label>
+                <label class="sr-only" for="cardNameFilter">card name</label>
                 <div class="input-group">
                     <div class="input-group-addon">By name:</div>
-                    <input type="text" class="form-control card-name-filter" id="cardNameFilter" placeholder="Card Name">
+                    <input type="text" (input)="cardNameInputStream.next($event)" class="form-control card-name-filter" id="cardNameFilter" placeholder="card name..">
                 </div>
             </div>
         </div>

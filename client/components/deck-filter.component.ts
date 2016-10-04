@@ -17,6 +17,7 @@ export class DeckFilterComponent implements OnInit {
 
     filterForm: FormGroup;
     filterButtonClickStream = new Subject();
+    deckNameKeyStream = new Subject();
     filter$: Observable<DeckQuery>;
 
     constructor(private authService: AuthService, private fb: FormBuilder) { }
@@ -36,7 +37,8 @@ export class DeckFilterComponent implements OnInit {
                 deckClass: CardClass.unknown,
                 dustNeeded: undefined,
                 orderBy: OrderBy.dust,
-                userCollection: false
+                userCollection: false,
+                deckName: undefined
             };
         this.useUserCollectionFilter = auth;
 
@@ -45,13 +47,17 @@ export class DeckFilterComponent implements OnInit {
             "dustNeeded": [defaults.dustNeeded, Validators.pattern("[0-9]*")],
             "deckClass": defaults.deckClass,
             "orderBy": defaults.orderBy,
-            "userCollection": defaults.userCollection
+            "userCollection": defaults.userCollection,
+            "deckName": defaults.deckName
         };
 
         this.filterForm = this.fb.group(group);
 
         this.filter$ = (this.filterForm.valueChanges as Observable<DeckQuery>)
-            .debounce(v => Observable.race(this.filterButtonClickStream, Observable.timer(2000)))
+            .debounce(v => Observable.race(
+                this.filterButtonClickStream,
+                this.deckNameKeyStream.filter((e: KeyboardEvent) => e.keyCode === 13),
+                Observable.timer(10000)))
             .startWith(defaults)
             .filter(v => this.filterForm.valid)
             .do(v => localStorage.setItem(this.filterName, JSON.stringify(v)));
