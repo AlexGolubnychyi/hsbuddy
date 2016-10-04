@@ -57,7 +57,7 @@ export class DeckFilterComponent implements OnInit {
             .debounce(v => Observable.race(
                 this.filterButtonClickStream,
                 this.deckNameKeyStream.filter((e: KeyboardEvent) => e.keyCode === 13),
-                Observable.timer(10000)))
+                Observable.timer(1000)))
             .startWith(defaults)
             .filter(v => this.filterForm.valid)
             .do(v => localStorage.setItem(this.filterName, JSON.stringify(v)));
