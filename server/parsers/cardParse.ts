@@ -72,18 +72,18 @@ export default function () {
                 });
 
                 if (typeof card.cost === "undefined") {
-                    if ([
-                        hsTypes.CardSet.Basic,
-                        hsTypes.CardSet.BlackrockMountain,
-                        hsTypes.CardSet.LeagueOfExplorers,
-                        hsTypes.CardSet.OneNightInKarazhan
-                    ].indexOf(card.cardSet) >= 0) {
-                        card.cost = 0;
-                    }
-                    else {
-                        card.cost = hsTypes.hsTypeConverter.getCardCost(card.rarity);
-                    }
+                    card.cost = hsTypes.hsTypeConverter.getCardCost(card.rarity);
                 }
+
+                if ([
+                    hsTypes.CardSet.Basic,
+                    hsTypes.CardSet.BlackrockMountain,
+                    hsTypes.CardSet.LeagueOfExplorers,
+                    hsTypes.CardSet.OneNightInKarazhan
+                ].indexOf(card.cardSet) >= 0) {
+                    card.cost = 0;
+                }
+
 
                 if (card.cardSet === +hsTypes.CardSet.Basic) {
                     card.rarity = hsTypes.CardRarity.free;

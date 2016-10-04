@@ -66,7 +66,7 @@ export class ApiService {
             .map(deckResult => { //LAZY INFLATE
                 this.cardHashService.feedHash(deckResult.cardHash);
                 deckResult.result.groups.forEach(group => {
-                    group.cards.forEach(c => c.card = this.cardHashService.getCard(c.card as string) );
+                    group.cards.forEach(c => c.card = this.cardHashService.getCard(c.card as string));
                 });
                 return deckResult.result as contracts.CardLibraryInfo<contracts.Card>;
             })

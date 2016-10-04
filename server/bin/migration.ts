@@ -17,7 +17,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion6,
     updateToVersion7,
     updateToVersion8,
-    updateToVersion9
+    updateToVersion9,
+    updateToVersion10
 ];
 
 (function checkForUpdates() {
@@ -176,6 +177,37 @@ function updateToVersion9(): Promise<void> {
             }
             else {
                 console.log("db already contains nerf from 2016/10/03");
+            }
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion10(): Promise<void> {
+    let version = 10;
+    let cardHash: { [index: string]: CardDB } = {};
+    console.log(`apply ver${version}`);
+    return Card.findById("emperorthaurissan").exec()
+        .then(card => {
+            if (!card || card.cost > 0) {
+                console.log("card cost correction needed");
+                return Card.remove({}).exec()
+                    .then(() => parser.populateWithCards())
+                    .then(() => Card.find({ "cardSet": { "$in": hstypes.standardCardSets } }).exec())
+                    .then(cards => cards.forEach(c => cardHash[c.id] = c))
+                    .then(() => Deck.find().exec())
+                    .map((deck: DeckDB<string>) => {
+                        let calculatedCost = deck.cards
+                            .map(c => ({ card: cardHash[c.card], count: c.count }))
+                            .reduce((cost, cardCount) => cost + cardCount.card.cost * cardCount.count, 0);
+                        if (deck.cost !== calculatedCost){
+                            console.log(`${deck.id}: ${deck.cost} <> ${calculatedCost} (calculated), "${deck.name}"`);
+                        }
+                        deck.cost = calculatedCost;
+                        return deck.save();
+                    });
+            }
+            else {
+                console.log("card cost correction already applied");
             }
         })
         .then(() => console.log(`ver${version} appplied successfully`));

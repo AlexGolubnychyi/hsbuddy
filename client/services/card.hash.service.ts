@@ -31,6 +31,9 @@ export class CardHashService {
     }
 
     inflateDeck(deck: contracts.Deck<string>): contracts.Deck<contracts.Card> {
+        if (!deck) {
+            return null;
+        }
         return {
             id: deck.id,
             name: deck.name,
