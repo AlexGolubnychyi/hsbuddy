@@ -16,7 +16,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion5,
     updateToVersion6,
     updateToVersion7,
-    updateToVersion8
+    updateToVersion8,
+    updateToVersion9
 ];
 
 (function checkForUpdates() {
@@ -40,7 +41,9 @@ let updates: (() => Promise<void>)[] = [
 
 //-------------------------updates-------------------------------------
 function updateToVersion1(): Promise<void> {
-    console.log("apply ver1");
+    let version = 1;
+
+    console.log(`apply ver${version}`);
     return Card.findOne().exec()
         .then(card => {
             if (card === null) {
@@ -51,29 +54,33 @@ function updateToVersion1(): Promise<void> {
                 console.log("db already contains cards");
             }
         })
-        .then(() => console.log("ver1 appplied successfully"));
+        .then(() => console.log(`ver${version} appplied successfully`));
 }
 
 function updateToVersion2(): Promise<void> {
-    console.log("apply ver2");
+    let version = 2;
+
+    console.log(`apply ver${version}`);
     return Deck.find().exec()
         .then(decks => {
             console.log("add Deck.dateAdded");
             decks.forEach(d => d.dateAdded = d.dateAdded || new Date());
             return decks;
         }).map((deck: DeckDB<string>) => deck.save())
-        .then(() => console.log("ver2 appplied successfully"));
+        .then(() => console.log(`ver${version} appplied successfully`));
 }
 
 function updateToVersion3(): Promise<void> {
-    console.log("apply ver3");
+    let version = 3;
+
+    console.log(`apply ver${version}`);
     return Card.find({ "cardSet": 0 }).exec()
         .then(cards => {
             console.log("fix Naxx cards");
             cards.forEach(c => c.cardSet = hstypes.CardSet.Naxxramas);
             return cards;
         }).map((card: CardDB) => card.save())
-        .then(() => console.log("ver3 appplied successfully"));
+        .then(() => console.log(`ver${version} appplied successfully`));
 }
 
 function updateToVersion4(): Promise<void> {
@@ -154,5 +161,22 @@ function updateToVersion8(): Promise<void> {
         .map((card: CardDB) => card.save())
         .then(() => Deck.findById("84faab928966370df48ead085c6881a5ece742d4").exec())
         .then(badDeck => badDeck.remove())
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion9(): Promise<void> {
+    let version = 9;
+    console.log(`apply ver${version}`);
+    return Card.findById("charge").exec()
+        .then(card => {
+            if (!card || card.mana !== 1) {
+                console.log("apply card nerf from 2016/10/03");
+                return Card.remove({}).exec()
+                    .then(() => parser.populateWithCards());
+            }
+            else {
+                console.log("db already contains nerf from 2016/10/03");
+            }
+        })
         .then(() => console.log(`ver${version} appplied successfully`));
 }

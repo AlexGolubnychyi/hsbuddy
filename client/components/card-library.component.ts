@@ -130,7 +130,7 @@ export class CardListComponent extends BaseComponent implements OnInit, OnDestro
 
 
     private populateChartData() {
-        let rarityColors = ["", "darkgray", "gray", "#198EFF", "#AB48EE", "#F07000"];
+        let rarityColors = ["", "darkgray", "#0FAF03", "#198EFF", "#AB48EE", "#F07000"];
         this.rarityChartData = {
             valueStyle: "value",
             image: {

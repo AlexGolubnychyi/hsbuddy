@@ -85,6 +85,10 @@ export default function () {
                     }
                 }
 
+                if (card.cardSet === +hsTypes.CardSet.Basic) {
+                    card.rarity = hsTypes.CardRarity.free;
+                }
+
                 if (!card.name || token || +card.type === +hsTypes.CardType.hero) {
                     console.log(`[skipped] token/hero: ${card.name}`);
                     return;
