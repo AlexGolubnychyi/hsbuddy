@@ -57,8 +57,8 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
         });
 
         this.route.params
-            .map(params => params["id"])
-            .switchMap<contracts.Deck<contracts.Card>>(id => this.deckService.getDeck(id))
+            .map(params => params["id"] as string)
+            .switchMap(id => this.deckService.getDeck(id))
             .subscribe(deck => {
                 if (!deck) {
                     this.router.navigateByUrl("/");
@@ -127,8 +127,8 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
         this.loading = true;
         (this.deck.userCollection
             ? this.deckService.toggleUserDeck(this.deck.id, false)
-            : Observable.of(<contracts.CollectionChangeStatus>{ success: true }))
-            .do(result => this.loading = result.success)
+            : Observable.of({ success: true }))
+            .do<contracts.CollectionChangeStatus>(result => this.loading = result.success)
             .filter(result => result.success)
             .switchMap(() => this.deckService.deleteDeck(this.deck.id))
             .subscribe(result => {

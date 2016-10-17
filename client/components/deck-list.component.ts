@@ -2,7 +2,7 @@ import { Component, ViewChild, AfterViewInit, OnInit, OnDestroy, ChangeDetection
 import { ApiService, CardChanged } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService } from "../services/config.service";
-import { Deck, Card } from "../../interfaces/index";
+import { Deck, Card, DeckQuery } from "../../interfaces/index";
 import { DeckFilterComponent } from "./deck-filter.component";
 import { BaseComponent } from "./base.component";
 @Component({
@@ -27,8 +27,8 @@ export class DeckListComponent extends BaseComponent implements AfterViewInit, O
 
     ngAfterViewInit() {
         this.filter.filter$
-            .do(() => this.loading = true)
-            .switchMap<Deck<Card>[]>(params => this.deckService.getDecks(params))
+            .do<DeckQuery>(() => this.loading = true)
+            .switchMap(params => this.deckService.getDecks(params))
             .subscribe(decks => {
                 this.ref.markForCheck();
                 this.decks = decks;

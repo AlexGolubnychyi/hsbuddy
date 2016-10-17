@@ -119,10 +119,15 @@ export class ApiService {
     }
 
     private withParams(url: string, options?: {}) {
-        let queryParams;
 
-        if (options && (queryParams = Object.keys(options)).length) {
-            return url + "?" + queryParams.map(paramName => `${paramName}=${options[paramName]}`).join("&");
+        if (options) {
+            let queryParams = Object
+                .keys(options)
+                .map(key => ({ key, value: options[key] }))
+                .filter(kvp => kvp.value != null);
+            if (queryParams.length) {
+                return url + "?" + queryParams.map(kvp => `${kvp.key}=${kvp.value}`).join("&");
+            }
         }
         return url;
     }

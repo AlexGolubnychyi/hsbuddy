@@ -1,7 +1,7 @@
 import { Component, ViewChild, AfterViewInit, OnInit, OnDestroy } from "@angular/core";
 import { ApiService, CardChanged } from "../services/api.service";
 import { DeckUtilsService } from "../services/deck-utils.service";
-import { CardMissing, Card } from "../../interfaces/index";
+import { CardMissing, Card, DeckQuery } from "../../interfaces/index";
 import { DeckFilterComponent } from "./deck-filter.component";
 import { BaseComponent } from "./base.component";
 import { ConfigService } from "../services/config.service";
@@ -27,8 +27,8 @@ export class CardMissingListComponent extends BaseComponent implements AfterView
 
     ngAfterViewInit() {
         this.filter.filter$
-            .do(() => this.loading = true)
-            .switchMap<CardMissing<Card>[]>(params => this.deckService.getMissingCards(params))
+            .do<DeckQuery>(() => this.loading = true)
+            .switchMap(params => this.deckService.getMissingCards(params))
             .subscribe(cards => {
                 this.missingCards = cards;
                 this.loading = false;
