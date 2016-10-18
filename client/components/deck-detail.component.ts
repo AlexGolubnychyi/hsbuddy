@@ -3,7 +3,7 @@ import { Router, ActivatedRoute } from "@angular/router";
 import { ApiService, CardChanged } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService, cardStyles } from "../services/config.service";
-import { CardHashService } from "../services/card.hash.service";
+import { CardHashService } from "../services/card-hash.service";
 import * as contracts from "../../interfaces/index";
 import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { DeckUtilsService } from "../services/deck-utils.service";

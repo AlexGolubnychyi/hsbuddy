@@ -5,7 +5,7 @@ import { CardMissing, Card, DeckQuery } from "../../interfaces/index";
 import { DeckFilterComponent } from "./deck-filter.component";
 import { BaseComponent } from "./base.component";
 import { ConfigService } from "../services/config.service";
-import { CardHashService } from "../services/card.hash.service";
+import { CardHashService } from "../services/card-hash.service";
 
 @Component({
     moduleId: module.id,

@@ -34,7 +34,7 @@ class HsTypeConverter {
 
     cardSet(set: number | string): CardSet | string {
         if (typeof set === "string") {
-            let inx = cardSetMapping.indexOf((<string>set).trim());
+            let inx = cardSetMapping.indexOf(set.trim());
             if (inx < 0) {
                 inx = 0;
             }
@@ -42,7 +42,7 @@ class HsTypeConverter {
             return <CardSet>inx;
         }
 
-        return cardSetMapping[(<number>set)];
+        return cardSetMapping[set];
     }
 
 }

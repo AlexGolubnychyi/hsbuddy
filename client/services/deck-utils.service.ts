@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import * as contracts from "../../interfaces/index";
 import { CardSet } from "../../interfaces/hs-types";
-import { CardHashService } from "./card.hash.service";
+import { CardHashService } from "./card-hash.service";
 
 @Injectable()
 export class DeckUtilsService {

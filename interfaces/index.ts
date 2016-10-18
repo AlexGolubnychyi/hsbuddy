@@ -95,6 +95,7 @@ export interface DeckQuery {
     dustNeeded?: number | string;
     orderBy: OrderBy;
     deckName?: string;
+    cardName?: string;
 };
 
 export interface CardGroup<T extends string | Card> {

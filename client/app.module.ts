@@ -9,7 +9,7 @@ import { AuthGuard } from "./auth.guard";
 import { AuthService } from "./services/auth.service";
 import { ApiService } from "./services/api.service";
 import { ConfigService } from "./services/config.service";
-import { CardHashService } from "./services/card.hash.service";
+import { CardHashService } from "./services/card-hash.service";
 import { DeckUtilsService } from "./services/deck-utils.service";
 
 import { AppComponent } from "./components/app.component";
@@ -27,8 +27,9 @@ import { DeckDetailComponent } from "./components/deck-detail.component";
 import { ManaCurveComponent } from "./components/utility/mana-curve.component";
 import { BarChartComponent } from "./components/utility/bar-chart.component";
 import { PillowChartComponent } from "./components/utility/pillow-chart.component";
-import { DropdownModule } from "./components/ng2-bootstrap/dropdown/dropdown.module";
-import { CollapseModule } from "./components/ng2-bootstrap/collapse/collapse.module";
+import { DropdownModule} from "ng2-bootstrap/components/dropdown";
+import { CollapseModule } from "ng2-bootstrap/components/collapse";
+import { TypeaheadModule } from "ng2-bootstrap/components/typeahead";
 import { CardPipe } from "./pipes/card.pipe";
 import { CardToolTipDirective } from "./directives/card-tooltip.directive";
 @NgModule({
@@ -39,7 +40,8 @@ import { CardToolTipDirective } from "./directives/card-tooltip.directive";
         FormsModule,
         HttpModule,
         DropdownModule,
-        CollapseModule
+        CollapseModule,
+        TypeaheadModule
     ],
     declarations: [
         ManaCurveComponent,

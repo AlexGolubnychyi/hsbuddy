@@ -4,7 +4,7 @@ import { Observable } from "rxjs/Observable";
 import * as contracts from "../../interfaces/index";
 import "../rxjs-operators";
 import { Subject } from "rxjs/Subject";
-import { CardHashService } from "./card.hash.service";
+import { CardHashService } from "./card-hash.service";
 
 const enc = encodeURIComponent;
 

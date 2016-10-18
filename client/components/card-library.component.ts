@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from "@angular/core";
 import { ApiService, CardChanged } from "../services/api.service";
-import { CardHashService } from "../services/card.hash.service";
+import { CardHashService } from "../services/card-hash.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService } from "../services/config.service";
 import { CardLibraryInfo, Card } from "../../interfaces/index";

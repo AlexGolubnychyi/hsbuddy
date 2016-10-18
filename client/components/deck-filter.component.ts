@@ -1,10 +1,12 @@
-import { Component, OnInit, Input } from "@angular/core";
+import { Component, OnInit, Input, ChangeDetectorRef } from "@angular/core";
 import { CardClass, hsTypeConverter } from "../../interfaces/hs-types";
 import { AuthService } from "../services/auth.service";
+import { CardHashService } from "../services/card-hash.service";
 import { DeckQuery, OrderBy } from "../../interfaces/index";
 import { FormGroup, Validators, FormBuilder } from "@angular/forms";
 import { Subject } from "rxjs/Subject";
 import { Observable } from "rxjs/Observable";
+import { Subscriber } from "rxjs/Subscriber";
 
 @Component({
     moduleId: module.id,
@@ -18,9 +20,23 @@ export class DeckFilterComponent implements OnInit {
     filterForm: FormGroup;
     filterButtonClickStream = new Subject();
     deckNameKeyStream = new Subject();
+    cardNameKeyStream = new Subject();
     filter$: Observable<DeckQuery>;
+    cardNameSource: Observable<string[]>;
+    readonly emptyValues: DeckQuery = {
+        deckClass: CardClass.unknown,
+        dustNeeded: undefined,
+        orderBy: OrderBy.dust,
+        userCollection: false,
+        deckName: undefined,
+        cardName: undefined
+    };
 
-    constructor(private authService: AuthService, private fb: FormBuilder) { }
+    constructor(
+        private authService: AuthService,
+        private cardHash: CardHashService,
+        private fb: FormBuilder,
+        private ref: ChangeDetectorRef) { }
 
     deckClasses = Object.keys(CardClass)
         .filter(key => !isNaN(+key))
@@ -33,33 +49,43 @@ export class DeckFilterComponent implements OnInit {
     ngOnInit() {
         let auth = this.authService.isAuthenticated(),
             filters = auth && localStorage.getItem(this.filterName),
-            defaults: DeckQuery = (filters && JSON.parse(filters)) || {
-                deckClass: CardClass.unknown,
-                dustNeeded: undefined,
-                orderBy: OrderBy.dust,
-                userCollection: false,
-                deckName: undefined
-            };
+            defaults: DeckQuery = (filters && JSON.parse(filters)) || this.emptyValues;
         this.useUserCollectionFilter = auth;
-
 
         let group: { [index: string]: any } = {
             "dustNeeded": [defaults.dustNeeded, Validators.pattern("[0-9]*")],
             "deckClass": defaults.deckClass,
             "orderBy": defaults.orderBy,
             "userCollection": defaults.userCollection,
-            "deckName": defaults.deckName
+            "deckName": defaults.deckName,
+            "cardName": defaults.cardName
         };
 
         this.filterForm = this.fb.group(group);
+
+        this.cardNameSource = Observable.create((subscriber: Subscriber<string[]>) => {
+            this.ref.markForCheck();
+            let value = this.filterForm.get("cardName").value,
+                result = this.cardHash.getCardNames(value);
+            subscriber.next(result);
+        });
 
         this.filter$ = (this.filterForm.valueChanges as Observable<DeckQuery>)
             .debounce(v => Observable.race(
                 this.filterButtonClickStream,
                 this.deckNameKeyStream.filter((e: KeyboardEvent) => e.keyCode === 13),
+                this.cardNameKeyStream.filter((e: KeyboardEvent) => e.keyCode === 13),
                 Observable.timer(1000)))
             .startWith(defaults)
             .filter(v => this.filterForm.valid)
             .do(v => localStorage.setItem(this.filterName, JSON.stringify(v)));
+    }
+
+    resetFilter() {
+        this.filterForm.reset(this.emptyValues);
+        this.filterButtonClickStream.next();
+    }
+    cardNameOnSelect() {
+        this.filterButtonClickStream.next();
     }
 }

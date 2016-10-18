@@ -1,7 +1,7 @@
 import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy } from "@angular/core";
 import { ApiService } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
-import { CardHashService } from "../services/card.hash.service";
+import { CardHashService } from "../services/card-hash.service";
 import { DeckUtilsService } from "../services/deck-utils.service";
 import { Deck, CollectionChangeStatus, Card } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";

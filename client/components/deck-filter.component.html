@@ -54,15 +54,30 @@
      <div class="row">
         <div class="col-xs-12 col-sm-6">
             <div class="form-group">
-                <label class="sr-only" for="cardNameFilter">deck name</label>
+                 <label class="sr-only" for="cardNameFilter">deck name</label>
                 <div class="input-group">
-                    <div class="input-group-addon">By name:</div>
+                    <div class="input-group-addon">Deck name:</div>
                     <input formControlName="deckName" (keyup)="deckNameKeyStream.next($event)" type="text" class="form-control card-name-filter" id="cardNameFilter" placeholder="deck name..">
+                </div>
+                
+            </div>
+        </div>
+         <div class="col-xs-12 col-sm-6">
+           <div class="form-group">
+               <label class="sr-only" for="cardNameFilter">card name</label>
+                <div class="input-group">
+                    <div class="input-group-addon">Card name:</div>
+                    <input formControlName="cardName" (keyup)="cardNameKeyStream.next($event)"
+                           [typeahead]="cardNameSource"  (typeaheadOnSelect)="cardNameOnSelect()" [typeaheadOptionsLimit]="7"
+                           autocomplete="off" type="text" class="form-control card-name-filter" id="cardNameFilter" placeholder="card name..">
                 </div>
             </div>
         </div>
+    </div>
+     <div class="row">
         <div class="col-xs-12 col-sm-6">
             <button type="button" [disabled]="!filterForm.valid" class="btn btn-primary" (click)="filterButtonClickStream.next($event)">Filter</button>
+             <button type="button" class="btn btn-warning" (click)="resetFilter()">Reset filters</button>
         </div>
     </div>
 </form>

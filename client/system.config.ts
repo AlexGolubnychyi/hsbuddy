@@ -10,7 +10,7 @@ declare var module: NodeModule;
         map: {
             "app": "client", // "dist",
             "interfaces": "interfaces",
-            //"ng2-bootstrap": "npm:ng2-bootstrap",
+            "ng2-bootstrap": "npm:ng2-bootstrap",
             "rxjs": "npm:rxjs",
             "@angular/core": "npm:@angular/core/bundles/core.umd.js",
             "@angular/common": "npm:@angular/common/bundles/common.umd.js",
@@ -25,7 +25,7 @@ declare var module: NodeModule;
             "@angular": {defaultExtension: "js"},
             ngfactory: {defaultExtension: "js"},
             app: { main: "main.js", defaultExtension: "js" },
-            //"ng2-bootstrap": { defaultExtension: "js" },
+            "ng2-bootstrap": { defaultExtension: "js" },
             interfaces: { defaultExtension: "js" },
             rxjs: { defaultExtension: "js" },
         }

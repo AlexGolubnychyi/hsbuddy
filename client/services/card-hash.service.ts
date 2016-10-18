@@ -19,6 +19,15 @@ export class CardHashService {
         return this.cardHash[cardId];
     }
 
+    getCardNames(token: string) {
+        token = token && this.getCardId(token);
+        return Object
+            .keys(this.cardHash)
+            .filter(key => key.indexOf(token) >= 0)
+            .map(key => this.cardHash[key].name)
+            .sort();
+    }
+
     updateAvailability(cardId: string, numberAvailable: number) {
         let card = this.cardHash[cardId];
         card.numberAvailable = numberAvailable;
@@ -72,5 +81,9 @@ export class CardHashService {
 
     private inflateCards(cards: contracts.CardCount<string>[]) {
         return cards.map(c => ({ card: this.getCard(c.card), count: c.count }));
+    }
+
+    private getCardId(name: string) {
+        return name.toLowerCase().replace(/[ |,|`|.|'|:|"]*/g, "");
     }
 }

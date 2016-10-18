@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from "@angular/core";
-import { CardHashService } from "../services/card.hash.service";
+import { CardHashService } from "../services/card-hash.service";
 import { CardCount, Card } from "../../interfaces";
 import { CardRarity, CardSet } from "../../interfaces/hs-types";
 

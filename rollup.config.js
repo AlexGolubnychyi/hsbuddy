@@ -1,4 +1,5 @@
 var nodeResolve = require("rollup-plugin-node-resolve");
+var commonjs = require("rollup-plugin-commonjs");
 
 module.exports = {
     entry: "client/main-prod.js",
@@ -18,6 +19,7 @@ module.exports = {
         },
         nodeResolve({
             module: true //this allows the ESM modules to be treeshakeable.
-        })
+        }),
+        commonjs()
     ]
 };
