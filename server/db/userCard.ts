@@ -1,8 +1,9 @@
 import mongoose from "../lib/mongoose";
 import * as hstypes from "../../interfaces/hs-types";
+import { CardCount } from "../../interfaces";
 import * as Promise from "bluebird";
-import cardModel, {CardDB, cardSchemaName} from "./card";
-import {userSchemaName} from "./user";
+import cardModel, { CardDB, cardSchemaName } from "./card";
+import { userSchemaName } from "./user";
 
 const userCardSchema = new mongoose.Schema({
     userId: { type: String, index: true, ref: userSchemaName },
@@ -41,6 +42,34 @@ userCardSchema.static("setWithChecks", function (userId: string, cardId: string,
         });
 });
 
+userCardSchema.static("import", function (userId: string, cardCounts: CardCount<string>[]) {
+    let model = (this as mongoose.Model<UserCardDB>),
+        cardHash: { [index: string]: CardDB } = {};
+
+    return cardModel.find().exec()
+        .then(cards => {
+            cardHash = cards.reduce((acc, card) => { acc[card.id] = card; return acc; }, {} as { [index: string]: CardDB });
+            let cardsNotFound = cardCounts.filter(cc => !cardHash[cc.card]);
+            if (cardsNotFound.length) {
+                return Promise.reject(`collection malformed. Some cards do not exist: ${cardsNotFound.map(cc => cc.card).join(", ")}`);
+            }
+        })
+        .then(() => model.remove({ "userId": userId })) //remove all old entries 
+        .then(() => {
+            let userCards = cardCounts.map(cc => {
+                let userCard = new model(),
+                    card = cardHash[cc.card];
+
+                userCard.userId = userId;
+                userCard.cardId = cc.card;
+                userCard.count = Math.min(cc.count, card.rarity === hstypes.CardRarity.legendary ? 1 : 2); //remove duplicates
+                return userCard;
+            });
+
+            return model.insertMany(userCards);
+        });
+});
+
 
 export interface UserCardDB extends mongoose.Document {
     userId: string;
@@ -51,6 +80,7 @@ export interface UserCardDB extends mongoose.Document {
 interface UserCardStatics {
     getByUserId: (userId: string) => Promise<{ [cardId: string]: number }>;
     setWithChecks: (userId: string, cardId: string, count: number) => Promise<void>;
+    import: (userId: string, cardCounts: CardCount<string>[]) => Promise<void>;
 }
 
 export default mongoose.model<UserCardDB>("UserCard", userCardSchema) as mongoose.Model<UserCardDB> & UserCardStatics;

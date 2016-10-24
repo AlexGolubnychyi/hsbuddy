@@ -118,6 +118,15 @@ export class ApiService {
             }]));
     }
 
+    importCollection(data: { username: string, password: string }) {
+        return this.http.post("api/card/import", data)
+            .map(resp => resp.json() as contracts.Result)
+            .catch(() => Observable.of(<contracts.Result>{
+                success: false,
+                error: "unknow server error",
+            }));
+    }
+
     private withParams(url: string, options?: {}) {
 
         if (options) {

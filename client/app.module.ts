@@ -21,6 +21,7 @@ import { DeckFilterComponent } from "./components/deck-filter.component";
 import { CardMissingListComponent } from "./components/card-missing-list.component";
 import { SpinnerComponent } from "./components/utility/spinner.component";
 import { LoginComponent } from "./components/login.component";
+import { CardImportComponent } from "./components/card-import.component";
 import { AboutComponent } from "./components/about.component";
 import { ParseComponent } from "./components/parse.component";
 import { DeckDetailComponent } from "./components/deck-detail.component";
@@ -57,6 +58,7 @@ import { CardToolTipDirective } from "./directives/card-tooltip.directive";
         CardListComponent,
         CardMissingListComponent,
         LoginComponent,
+        CardImportComponent,
         AboutComponent,
         ParseComponent,
         DeckDetailComponent,

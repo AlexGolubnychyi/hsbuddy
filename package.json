@@ -42,6 +42,7 @@
     "@types/mongodb": "^2.1.33",
     "@types/morgan": "^1.7.32",
     "@types/node": "^6.0.45",
+    "@types/request": "0.0.32",
     "bluebird": "*",
     "body-parser": "~1.15.1",
     "bootstrap": "^3.3.6",

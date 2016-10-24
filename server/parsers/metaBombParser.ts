@@ -1,4 +1,4 @@
-import getContent from "./utils";
+import {getContent} from "../lib/request";
 import {BaseDeckParser} from "./baseDeckParser";
 
 //TODO change to regex

@@ -1,6 +1,6 @@
 import * as Promise from "bluebird";
 import Card, { CardDB } from "../db/card";
-import getContent from "./utils";
+import {getContent} from "../lib/request";
 import * as hsTypes from "../../interfaces/hs-types";
 import mongoose from "../lib/mongoose";
 
