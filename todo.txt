@@ -31,20 +31,20 @@
 (fixed)- fix auth check for deck edit
 (done)- add card lib for non-auth
 (done) Component.moduleId 
+(done) add text search for decks/cards
+(done) mana curve, spell/minion break down
+(done) navbar collapse on mobile
 
-(partial) diff decks
-(done?) mana curve, spell/minion break down
 (done?) think of the way to distinguish old deck from new decks (http://hearthstone.metabomb.net/deck-guides/control-warrior-standard-deck-list-and-guide-hearthstone-july)
+(partial) diff decks
 
-
-
+(!!!!) upgrade deck functionality, force from UI
 (!!!)aggro paladin??
 (fixed) http://localhost:3000/deck/060f489460c3c8851d455a61219ea13c08829368 dust count
 
 
-- add text search for decks/cards
 - add display styles for non-auth
-- navbar collapse on mobile
+
 - merge deck component and deck detail component ?
 -ability to set deck alias
 

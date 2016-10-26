@@ -2,14 +2,14 @@
 import * as Promise from "bluebird";
 import cardParse from "./cardParse";
 import metaBombParser from "./metaBombParser";
-import {ParseStatus} from "../../interfaces";
+import { ParseStatus } from "../../interfaces";
 
 import hearthpwnParser from "./hearthPwnParser";
 import manaCrystalsParser from "./manaCrystalsParser";
 import hearthstoneTopDecksParser from "./hearthstoneTopDecksParser";
 import tempoStormParser from "./tempoStormParser";
 import failParser from "./failParser";
-import {BaseDeckParser} from "./baseDeckParser";
+import { BaseDeckParser } from "./baseDeckParser";
 
 
 class Parser {
@@ -30,10 +30,20 @@ class Parser {
     parse(userId: string, urls: string[]) {
         let tasks = urls
             .map(this.urlClean)
-            .map(url => this.parsers.find(p => p.canParse(url)).parse(userId, url, true)) as PromiseLike<ParseReportItem[]>[];
+            .map(url => this.parsers.find(p => p.canParse(url)).parse(userId, url));
 
-        return Promise.all(tasks)
+        return Promise
+            .all(tasks)
             .then(reports => reports.reduce((f, s) => f.concat(s)))
+            .catch(e => [<ParseReportItem>{ status: ParseStatus.fail, url: "", reason: e.message }]);
+    }
+
+    parseUpgrade(userId: string, url: string, upgradeDeckId: string) {
+        url = this.urlClean(url);
+        let parser = this.parsers.find(p => p.canParse(url));
+
+        return parser
+            .parse(userId, url, upgradeDeckId)
             .catch(e => [<ParseReportItem>{ status: ParseStatus.fail, url: "", reason: e.message }]);
     }
 

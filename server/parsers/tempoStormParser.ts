@@ -1,7 +1,6 @@
 import * as Promise from "bluebird";
-import {ParseReportItem} from "./index";
-import {getJSON} from "../lib/request";
-import {BaseDeckParser} from "./baseDeckParser";
+import { getJSON } from "../lib/request";
+import { BaseDeckParser, DeckData } from "./baseDeckParser";
 
 
 
@@ -9,22 +8,19 @@ class TempoStormParser extends BaseDeckParser {
     private deckRegex = /tempostorm\.com\/hearthstone\/decks\/([0-9a-z\-]+)/;
     private deckListRegex = /tempostorm\.com\/hearthstone\/meta-snapshot\/standard\/([0-9a-z\-]+)/;
 
-    parse(userId: string, url: string, save: boolean) {
+    protected getDeckData(url: string) {
         if (this.deckRegex.test(url)) {
-            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
-        }
-        if (this.deckListRegex.test(url)) {
-            return this.parseDeckList(userId, url, save);
+            return this.parseDeck(url).then(reportItem => [reportItem]);
         }
 
-        return this.reportUnrecognized(url);
+        return this.parseDeckList(url);
     }
 
     canParse(url) {
         return this.deckRegex.test(url) || this.deckListRegex.test(url);
     }
 
-    private parseDeckList(userId: string, url: string, save: boolean): Promise<ParseReportItem[]> {
+    private parseDeckList(url: string) {
         console.log(`parsing ${url}`);
         return this.getDeckListJSON(url).then(obj => {
 
@@ -33,20 +29,20 @@ class TempoStormParser extends BaseDeckParser {
                     date = new Date(tier.deck.createdDate),
                     cards: { [cardName: string]: number } = {};
                 tier.deck.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
-                return this.addDeckUnsafe(userId, tier.name, deckUrl, cards, date);
+                return <DeckData>{ name: tier.name, url: deckUrl, cards, date };
             });
 
             return Promise.all(promises);
         });
     }
 
-    private parseDeck(userId: string, url: string, save: boolean) {
+    private parseDeck(url: string) {
         console.log(`parsing ${url}`);
 
         return this.getDeckJSON(url).then(obj => {
             let cards: { [cardName: string]: number } = {};
             obj.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
-            return this.addDeckUnsafe(userId, obj.name, url, cards, new Date(obj.createdDate));
+            return <DeckData>{ name: obj.name, url, cards, date: new Date(obj.createdDate) };
         });
     }
 

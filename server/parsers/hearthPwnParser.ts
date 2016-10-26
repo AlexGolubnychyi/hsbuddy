@@ -1,22 +1,18 @@
-import {getContent} from "../lib/request";
-import {BaseDeckParser} from "./baseDeckParser";
+import { getContent } from "../lib/request";
+import { BaseDeckParser, DeckData } from "./baseDeckParser";
 
 class HearthPwnParser extends BaseDeckParser {
     private deckRegex = /hearthpwn\.com\/decks\/([0-9]+)[a-z\-]*/;
 
     canParse(url: string) {
         return this.deckRegex.test(url);
+    };
+
+    protected getDeckData(url: string) {
+        return this.parseDeck(url).then(item => [item]);
     }
 
-    parse(userId: string, url: string, save: boolean) {
-        if (this.canParse(url)) {
-            return this.parseDeck(userId, url, save).then(item => [item]);
-        }
-
-        return this.reportUnrecognized(url);
-    }
-
-    private parseDeck(userId: string, url: string, save: boolean) {
+    private parseDeck(url: string) {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
@@ -37,7 +33,7 @@ class HearthPwnParser extends BaseDeckParser {
                 cards[cardName] = count;
             });
 
-            return this.addDeckUnsafe(userId, name, url, cards, date);
+            return <DeckData>{ name, url, cards, date };
         });
     }
 

@@ -108,7 +108,7 @@ export class ApiService {
             .catch(() => Observable.of(false));
     }
 
-    parseUrls(data: { urls: string }) {
+    parseUrls(data: { links: string }) {
         return this.http.post("api/parse", data)
             .map(resp => resp.json() as contracts.ParseResult[])
             .catch(() => Observable.of(<contracts.ParseResult[]>[{
@@ -124,6 +124,16 @@ export class ApiService {
             .catch(() => Observable.of(<contracts.Result>{
                 success: false,
                 error: "unknow server error",
+            }));
+    }
+
+    upgradeDeck(data: { deckId: string, url: string }) {
+        return this.http.post("api/parse/upgrade", data)
+            .map(resp => resp.json() as contracts.ParseResult)
+            .catch(() => Observable.of(<contracts.ParseResult>{
+                status: contracts.ParseStatus.fail,
+                error: "unknow server error",
+                url: ""
             }));
     }
 

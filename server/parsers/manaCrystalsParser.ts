@@ -1,21 +1,18 @@
-import {getContent} from "../lib/request";
-import {BaseDeckParser} from "./baseDeckParser";
+import { getContent } from "../lib/request";
+import { BaseDeckParser, DeckData } from "./baseDeckParser";
 
 class ManaCrystalsParser extends BaseDeckParser {
     private deckRegex = /manacrystals\.com\/deck_guides\/([0-9]+)/;
 
     canParse(url: string) {
         return this.deckRegex.test(url);
-    }
-    parse(userId: string, url: string, save: boolean) {
-        if (this.canParse(url)) {
-            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
-        }
+    };
 
-        return this.reportUnrecognized(url);
+    protected getDeckData(url: string) {
+        return this.parseDeck(url).then(item => [item]);
     }
 
-    private parseDeck(userId: string, url: string, save: boolean) {
+    private parseDeck(url: string) {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
@@ -36,7 +33,7 @@ class ManaCrystalsParser extends BaseDeckParser {
                 cards[cardName] = count;
             });
 
-            return this.addDeckUnsafe(userId, name, url, cards, date);
+            return <DeckData>{ name, url, cards, date };
         });
     }
 };

@@ -18,11 +18,11 @@ import { Subject } from "rxjs/Subject";
 })
 export class CardListComponent extends BaseComponent implements OnInit, OnDestroy {
     constructor(
-        deckService: ApiService,
+        apiService: ApiService,
         configService: ConfigService,
         private authService: AuthService,
         private cardHashService: CardHashService) {
-        super(configService, deckService);
+        super(configService, apiService);
     }
     loading: boolean;
     statsCollapsed: boolean;
@@ -116,7 +116,7 @@ export class CardListComponent extends BaseComponent implements OnInit, OnDestro
 
     private refreshCards() {
         this.loading = true;
-        this.deckService
+        this.apiService
             .getCardLibraryInfo()
             .subscribe(info => {
                 this.info = info;

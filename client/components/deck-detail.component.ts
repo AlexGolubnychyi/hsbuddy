@@ -26,6 +26,8 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
     form: FormGroup;
     edit = false;
     editError: string;
+    upgrading = false;
+    upgradeUrl = "";
     confirmDeletion = false;
     cardFilterOpts: CardPipeArg = {
         hideAvailable: false,
@@ -36,7 +38,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
     @ViewChild(DeckComponent) deckComponent: DeckComponent;
 
     constructor(
-        deckService: ApiService,
+        apiService: ApiService,
         configService: ConfigService,
         private route: ActivatedRoute,
         private router: Router,
@@ -45,7 +47,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
         private cardHashService: CardHashService,
         private fb: FormBuilder,
         private ref: ChangeDetectorRef
-    ) { super(configService, deckService); }
+    ) { super(configService, apiService); }
 
     ngOnInit() {
         super.ngOnInit();
@@ -58,12 +60,13 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
 
         this.route.params
             .map(params => params["id"] as string)
-            .switchMap(id => this.deckService.getDeck(id))
+            .switchMap(id => this.apiService.getDeck(id))
             .subscribe(deck => {
                 if (!deck) {
                     this.router.navigateByUrl("/");
                 }
                 this.deck = deck;
+                this.cancelEdit();
                 this.loading = false;
                 this.similarDecks = null;
                 if (this.deckComponent) {
@@ -85,7 +88,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
         }
         this.loadingSimilarDecks = true;
 
-        this.deckService.getSimilar(this.deck.id)
+        this.apiService.getSimilar(this.deck.id)
             .timeout(5000)
             .catch(() => Observable.of(null))
             .subscribe(similarDecks => {
@@ -106,7 +109,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
     }
 
     change() {
-        this.deckService.setDescription(this.deck.id, <contracts.DeckChange>this.form.value).subscribe(result => {
+        this.apiService.setDescription(this.deck.id, <contracts.DeckChange>this.form.value).subscribe(result => {
             this.ref.markForCheck();
             if (result) {
 
@@ -126,11 +129,11 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
 
         this.loading = true;
         (this.deck.userCollection
-            ? this.deckService.toggleUserDeck(this.deck.id, false)
+            ? this.apiService.toggleUserDeck(this.deck.id, false)
             : Observable.of({ success: true }))
             .do<contracts.CollectionChangeStatus>(result => this.loading = result.success)
             .filter(result => result.success)
-            .switchMap(() => this.deckService.deleteDeck(this.deck.id))
+            .switchMap(() => this.apiService.deleteDeck(this.deck.id))
             .subscribe(result => {
                 this.ref.markForCheck();
                 this.loading = false;
@@ -152,10 +155,32 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
         this.setDefaults();
         this.edit = false;
         this.confirmDeletion = false;
+        this.upgrading = false;
     }
 
     textOnlyMode() {
         return this.config.cardStyle === cardStyles.textOnly;
+    }
+
+    upgrade() {
+        if (!this.upgrading) {
+            this.upgrading = true;
+            return;
+        }
+        this.editError = "";
+        this.loading = true;
+        this.apiService
+            .upgradeDeck({ deckId: this.deck.id, url: this.upgradeUrl })
+            .subscribe(result => {
+                if (result.status !== contracts.ParseStatus.success) {
+                    let failed = result.status === contracts.ParseStatus.fail;
+                    this.editError = `failed to upgrade: ${failed ? result.error : contracts.ParseStatus[result.status]}`;
+                    this.ref.markForCheck();
+                    this.loading = false;
+                    return null;
+                }
+                this.router.navigateByUrl(`/deck/${result.deckId}`);
+            });
     }
 
     protected onCardChanged(cardChanged: CardChanged) {
@@ -182,5 +207,6 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
             name: this.deck.name,
             date: this.deck.dateAdded && (this.deck.dateAdded + "").split("T")[0]
         });
+        this.upgradeUrl = "";
     }
 }

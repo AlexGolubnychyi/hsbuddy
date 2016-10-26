@@ -9,7 +9,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
     private cardChangedSubscription: Subscription;
     constructor(
         protected configService: ConfigService,
-        protected deckService: ApiService
+        protected apiService: ApiService
     ) { }
 
     ngOnInit() {
@@ -18,7 +18,7 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
             this.config = config;
             this.onConfigChanged();
         });
-        this.cardChangedSubscription = this.deckService.cardChanged.subscribe(cardChanged => this.onCardChanged(cardChanged));
+        this.cardChangedSubscription = this.apiService.cardChanged.subscribe(cardChanged => this.onCardChanged(cardChanged));
     }
 
     ngOnDestroy() {

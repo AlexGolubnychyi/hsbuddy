@@ -19,16 +19,16 @@ export class DeckListComponent extends BaseComponent implements AfterViewInit, O
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;
 
     constructor(
-        deckService: ApiService,
+        apiService: ApiService,
         configService: ConfigService,
         private authService: AuthService,
         private ref: ChangeDetectorRef
-    ) { super(configService, deckService); }
+    ) { super(configService, apiService); }
 
     ngAfterViewInit() {
         this.filter.filter$
             .do<DeckQuery>(() => this.loading = true)
-            .switchMap(params => this.deckService.getDecks(params))
+            .switchMap(params => this.apiService.getDecks(params))
             .subscribe(decks => {
                 this.ref.markForCheck();
                 this.decks = decks;

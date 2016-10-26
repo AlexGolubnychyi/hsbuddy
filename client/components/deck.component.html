@@ -14,6 +14,7 @@
             Include in personal collection
         </label>
     </div>
+    
     <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} cards</button>
     <span *ngIf="!hideDetails">
         <button *ngIf="auth && (!deck.collected || filter.hideAvailable)" (click)="changeAvailability()" class="btn btn-default btn-xs">

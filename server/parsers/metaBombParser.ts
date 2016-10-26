@@ -1,5 +1,5 @@
-import {getContent} from "../lib/request";
-import {BaseDeckParser} from "./baseDeckParser";
+import { getContent } from "../lib/request";
+import { BaseDeckParser, DeckData } from "./baseDeckParser";
 
 //TODO change to regex
 let keywords = { deckUrl: "/deck-guides/", deckListUrl: "game-guides" };
@@ -12,19 +12,16 @@ class MetaBombParser extends BaseDeckParser {
     canParse(url: string) {
         return this.deckRegex.test(url) || this.deckListRegex.test(url);
     }
-    parse(userId: string, url: string, save: boolean) {
+
+    protected getDeckData(url: string) {
         if (this.deckListRegex.test(url)) {
-            return this.parseDeckList(userId, url, save);
+            return this.parseDeckList(url);
         }
 
-        if (this.deckRegex.test(url)) {
-            return this.parseDeck(userId, url, save).then(reportItem => [reportItem]);
-        }
-
-        return this.reportUnrecognized(url);
+        return this.parseDeck(url).then(reportItem => [reportItem]);
     }
 
-    private parseDeckList(userId: string, url: string, save: boolean) {
+    private parseDeckList(url: string) {
         console.log(`parsing ${url}`);
         return getContent(url)
             .then($ => {
@@ -32,10 +29,10 @@ class MetaBombParser extends BaseDeckParser {
                 $(`[href*='${keywords.deckUrl}']`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
                 return Object.keys(unique);
             })
-            .map((deckUrl: string) => this.parseDeck(userId, deckUrl, false), { concurrency: 2 });
+            .map((deckUrl: string) => this.parseDeck(deckUrl), { concurrency: 2 });
     }
 
-    private parseDeck(userId: string, url: string, save: boolean) {
+    private parseDeck(url: string) {
         console.log(`parsing ${url}`);
 
         return getContent(url).then($ => {
@@ -49,12 +46,12 @@ class MetaBombParser extends BaseDeckParser {
                     if (!text) {
                         return;
                     }
-                    let [_, count, cardName] = text.match(/(1|2)\s*x\s*(.+)/);
+                    let [, count, cardName] = text.match(/(1|2)\s*x\s*(.+)/);
                     cards[cardName] = +count;
                 });
             });
 
-            return this.addDeckUnsafe(userId, name, url, cards, date);
+            return <DeckData>{ name, url, cards, date };
         });
     }
 };

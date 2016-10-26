@@ -15,11 +15,11 @@ import { CardHashService } from "../services/card-hash.service";
 export class CardMissingListComponent extends BaseComponent implements AfterViewInit, OnInit, OnDestroy {
 
     constructor(
-        deckService: ApiService,
+        apiService: ApiService,
         configService: ConfigService,
         private utils: DeckUtilsService,
         private cardHashService: CardHashService
-    ) { super(configService, deckService); }
+    ) { super(configService, apiService); }
     loading: boolean = true;
     missingCards: CardMissing<Card>[];
 
@@ -28,7 +28,7 @@ export class CardMissingListComponent extends BaseComponent implements AfterView
     ngAfterViewInit() {
         this.filter.filter$
             .do<DeckQuery>(() => this.loading = true)
-            .switchMap(params => this.deckService.getMissingCards(params))
+            .switchMap(params => this.apiService.getMissingCards(params))
             .subscribe(cards => {
                 this.missingCards = cards;
                 this.loading = false;

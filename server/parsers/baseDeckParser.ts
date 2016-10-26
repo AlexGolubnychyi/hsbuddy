@@ -7,18 +7,41 @@ import Deck, { DeckDB } from "../db/deck";
 import Card from "../db/card";
 
 export abstract class BaseDeckParser {
-    abstract parse(userId: string, url: string, save: boolean): Promise<ParseReportItem[]>;
-    abstract canParse(url: string): boolean;
 
-    protected addDeckUnsafe(userId: string, name: string, url: string, cards: { [cardName: string]: number }, date?: Date) {
-        let cardNames = Object.keys(cards),
+    abstract canParse(url: string): boolean;
+    protected abstract getDeckData(url: string): Promise<DeckData[]>;
+
+    protected parserNotFound = false;
+
+
+    parse(userId: string, url: string, upgradeDeckId?: string): Promise<ParseReportItem[]> {
+        if (this.parserNotFound) {
+            return this.reportParserNotFound(url);
+        }
+
+        if (!this.canParse(url)) {
+            return this.reportUnrecognized(url);
+        }
+
+        return this
+            .getDeckData(url)
+            .then(decksData => {
+                if (upgradeDeckId && decksData.length !== 1) {
+                    return Promise.reject(new ParseError(`upgrade url should point to exactly one deck`, ParseStatus.fail, url));
+                }
+                return Promise.map(decksData, deckData => this.addDeckUnsafe(userId, deckData, upgradeDeckId));
+            });
+    }
+
+    protected addDeckUnsafe(userId: string, deckData: DeckData, upgradeDeckId?: string): Promise<ParseReportItem> {
+        let cardNames = Object.keys(deckData.cards),
             deck = new Deck() as DeckDB<string>;
-        deck._id = Deck.generateId(cards);
-        deck.name = name.trim();
-        deck.url = url;
+        deck._id = Deck.generateId(deckData.cards);
+        deck.name = deckData.name.trim();
+        deck.url = deckData.url;
         deck.class = hstypes.CardClass.unknown;
         deck.cost = 0;
-        deck.dateAdded = (date && !isNaN(date.valueOf())) ? date : new Date();
+        deck.dateAdded = (deckData.date && !isNaN(deckData.date.valueOf())) ? deckData.date : new Date();
         deck.userId = userId;
 
         return Deck.findById(deck.id).exec()
@@ -35,23 +58,23 @@ export abstract class BaseDeckParser {
                     //still mark as duplicate but update url (to deal with that nasty habit of tempostorm to change deck urls, 
                     //thus breakig old references)
                     existing.url = deck.url;
-                    return existing.save().then(() =>  Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id)));
+                    return existing.save().then(() => Promise.reject(new ParseError("", ParseStatus.duplicate, deckData.url, existing.id)));
                 }
 
-                return Promise.reject(new ParseError("", ParseStatus.duplicate, url, existing.id));
+                return Promise.reject(new ParseError("", ParseStatus.duplicate, deckData.url, existing.id));
             })
             .then(() => Promise.map(cardNames, cardName => Card.findById(Card.generateId(cardName))))
             .then(cardDbs => {
                 for (let i = 0; i < cardNames.length; i++) {
                     let card = cardDbs[i];
                     if (card === null) {
-                        return Promise.reject(new ParseError(`card not found: ${cardNames[i]}`, ParseStatus.fail, url));
+                        return Promise.reject(new ParseError(`card not found: ${cardNames[i]}`, ParseStatus.fail, deckData.url));
                     }
                     deck.cards.push({
                         card: card.id,
-                        count: cards[cardNames[i]]
+                        count: deckData.cards[cardNames[i]]
                     });
-                    deck.cost += card.cost * cards[cardNames[i]];
+                    deck.cost += card.cost * deckData.cards[cardNames[i]];
                     if (!deck.class && card.class !== hstypes.CardClass.neutral) {
                         deck.class = card.class;
                     }
@@ -60,30 +83,41 @@ export abstract class BaseDeckParser {
             .then(() => {
                 let cardTotal = deck.cards.reduce((acc, card) => acc + card.count, 0);
                 if (cardTotal !== 30) {
-                    return Promise.reject(new ParseError(`deck malformed: card amount is ${cardTotal} instead of 30`, ParseStatus.fail, url));
+                    return Promise.reject(new ParseError(`deck malformed: card amount is ${cardTotal} instead of 30`, ParseStatus.fail, deckData.url));
                 }
             })
-            .then(() => Deck.findOne({ "url": deck.url }))
+            .then(() => Deck.findOne({ "$or": [{ "url": deck.url }, { "_id": upgradeDeckId || "" }] }))
             .then((existing: DeckDB<string>) => {
                 if (!existing) {
-                    return deck.save().then(() => <ParseReportItem>{ status: ParseStatus.success, reason: "", url, id: deck.id });
+                    if (upgradeDeckId) {
+                        return Promise.reject(new ParseError("could not find deck to upgrade", ParseStatus.fail, deckData.url, upgradeDeckId));
+                    }
+                    return deck.save().then(() => <ParseReportItem>{ status: ParseStatus.success, reason: "", url: deckData.url, id: deck.id });
                 }
-
-                return Deck.upgradeDeck(existing, deck).then(() => <ParseReportItem>{ status: ParseStatus.upgrade, reason: "", url, id: deck.id });
+                let status = upgradeDeckId ? ParseStatus.success : ParseStatus.upgrade;
+                return Deck.upgradeDeck(existing, deck)
+                    .then(() => <ParseReportItem>{ status, reason: "", url: deckData.url, id: deck.id });
             })
             .catch((rejection: Error | ParseError) => {
                 if (rejection instanceof ParseError) {
                     return rejection.getParseStatusReportItem();
                 }
-                return <ParseReportItem>{ status: ParseStatus.fail, reason: rejection.message, url };
+                return <ParseReportItem>{ status: ParseStatus.fail, reason: rejection.message, url: deckData.url };
             });
     }
 
-    protected reportUnrecognized(url) {
+    protected reportUnrecognized(url: string) {
         return Promise.resolve([<ParseReportItem>{ status: ParseStatus.fail, url, reason: "url not recognized" }]);
     }
 
-    protected reportParserNotFound(url) {
+    protected reportParserNotFound(url: string) {
         return Promise.resolve([<ParseReportItem>{ status: ParseStatus.fail, url: url, reason: "url not supported" }]);
     }
+}
+
+export interface DeckData {
+    name: string;
+    url: string;
+    cards: { [cardName: string]: number };
+    date?: Date;
 }
