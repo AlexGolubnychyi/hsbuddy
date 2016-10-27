@@ -1,6 +1,7 @@
 import * as urlHelper from "url";
 import * as hstypes from "../../interfaces/hs-types";
 import * as Promise from "bluebird";
+import { HttpError } from "../error";
 import { ParseError, ParseReportItem } from "./index";
 import { ParseStatus } from "../../interfaces";
 import Deck, { DeckDB } from "../db/deck";
@@ -27,9 +28,16 @@ export abstract class BaseDeckParser {
             .getDeckData(url)
             .then(decksData => {
                 if (upgradeDeckId && decksData.length !== 1) {
-                    return Promise.reject(new ParseError(`upgrade url should point to exactly one deck`, ParseStatus.fail, url));
+                    return Promise.resolve([<ParseReportItem>{ status: ParseStatus.fail, url, reason: "upgrade url should point to exactly one deck" }]);
                 }
                 return Promise.map(decksData, deckData => this.addDeckUnsafe(userId, deckData, upgradeDeckId));
+            })
+            .catch(error => {
+                if (error instanceof HttpError) {
+                    let reason = `provided url seems to be invalid, status code: ${error.status}`;
+                    return Promise.resolve([<ParseReportItem>{ status: ParseStatus.fail, url, reason }]);
+                }
+                return Promise.resolve(<ParseReportItem>{ status: ParseStatus.fail, url, reason: `internal error` });
             });
     }
 

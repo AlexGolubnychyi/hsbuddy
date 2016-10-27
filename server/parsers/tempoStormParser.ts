@@ -39,11 +39,13 @@ class TempoStormParser extends BaseDeckParser {
     private parseDeck(url: string) {
         console.log(`parsing ${url}`);
 
-        return this.getDeckJSON(url).then(obj => {
-            let cards: { [cardName: string]: number } = {};
-            obj.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
-            return <DeckData>{ name: obj.name, url, cards, date: new Date(obj.createdDate) };
-        });
+        return this.getDeckJSON(url)
+            .then(obj => {
+                let cards: { [cardName: string]: number } = {};
+                obj.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
+                return <DeckData>{ name: obj.name, url, cards, date: new Date(obj.createdDate) };
+            });
+
     }
 
     private getDeckListJSON(url): Promise<DeckListResponseObj> {
