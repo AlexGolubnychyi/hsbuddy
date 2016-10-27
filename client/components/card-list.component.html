@@ -1,0 +1,5 @@
+<div class="card-details">
+	<card [class.float]="float" *ngFor="let cardCount of cards | cardpipe: filter" [card]="cardCount.card" [count]="cardCount.count" [showCount]="true"
+		[config]=config>
+	</card>
+</div>

@@ -1,51 +1,41 @@
-<div [formGroup]="form">
-    <h2 *ngIf="!hideTitle">
-        <div class="deck-metadata">added {{utils.formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
-        <a class="deck-title" routerLink="/deck/{{deck.id}}">
-            <span>{{title}}</span>
-        </a>
-        <span class="label label-default" *ngIf="deck.collected">collected</span>
-        <span class="label label-warning" *ngIf="deck.deleted">deleted</span>
-    </h2>
+<deck-info [deckInfo]="deck" (onDeleteDeck)="onDeleteDeck.emit($event)"></deck-info>
+<ng-content *ngIf="replaceTitle"></ng-content>
+<h2 class="deck-title-container" *ngIf="!replaceTitle">
+	<a class="deck-title" routerLink="/deck/{{deck.id}}">
+		<span>{{title}}</span>
+	</a>
+	<span class="label label-default" *ngIf="deck.collected">collected</span>
+	<span class="label label-warning" *ngIf="deck.deleted">deleted</span>
+</h2>
+<div class="deck-url">
+	<a [href]="deck.url" class="deck-url">{{deck.url}}</a>
+</div>
+<button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} cards</button>
+<span *ngIf="!hideDetails">
+    <button *ngIf="auth && (!deck.collected || filter.hideAvailable)" (click)="changeAvailability()" class="btn btn-default btn-xs">
+        {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
+    </button>
+    <div class="btn-group" dropdown (click)="$event.preventDefault()">
+        <button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
+        Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
+</button>
+<ul class="dropdown-menu" dropdownMenu>
+	<li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
+	<li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
+</ul>
+</div>
+</span>
 
-    <div *ngIf="auth" class="checkbox">
-        <label>
-            <input type="checkbox" id="blankCheckbox" formControlName="userCollection">
-            Include in personal collection
-        </label>
-    </div>
-    
-    <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} cards</button>
-    <span *ngIf="!hideDetails">
-        <button *ngIf="auth && (!deck.collected || filter.hideAvailable)" (click)="changeAvailability()" class="btn btn-default btn-xs">
-            {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
-        </button>
-        <div class="btn-group" dropdown (click)="$event.preventDefault()">
-            <button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
-            Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
-        </button>
-        <ul class="dropdown-menu" dropdownMenu>
-            <li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
-            <li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
-        </ul>
-    </div>
-    <!--<select id="orderBy" class="form-control input-xs" formControlName="orderBy">
-                <option value="{{sortOptions.classic}}">Classic sort</option>
-                <option value="{{sortOptions.expense}}">Expense sort</option>
-            </select>-->
-    </span>
+<div *ngIf="!hideDetails">
+	<div class="row">
+		<div class="col-xs-12" [class.col-md-4]="config.cardStyle === cardStyles.textOnly" [class.col-md-push-5]="config.cardStyle === cardStyles.textOnly">
+			<mana-curve *ngIf="showManaCurve" [deck]="deck"></mana-curve>
+		</div>
+		<div class="col-xs-12" [class.col-md-5]="config.cardStyle === cardStyles.textOnly" [class.col-md-pull-4]="config.cardStyle === cardStyles.textOnly">
+			<div class="card-details">
+				<card-list [filter]="filter" [cards]="deck.cards" [config]=config></card-list>
+			</div>
+		</div>
+	</div>
 
-    <div *ngIf="!hideDetails">
-        <div class="row">
-            <div class="col-xs-12" [class.col-md-4]="config.cardStyle === cardStyles.textOnly" [class.col-md-push-5]="config.cardStyle === cardStyles.textOnly">
-                <mana-curve *ngIf="showManaCurve" [deck]="deck"></mana-curve>
-            </div>
-            <div class="col-xs-12" [class.col-md-5]="config.cardStyle === cardStyles.textOnly" [class.col-md-pull-4]="config.cardStyle === cardStyles.textOnly">
-                <div class="card-details">
-                    <card *ngFor="let cardCount of deck.cards | cardpipe: filter" [card]="cardCount.card" [count]="cardCount.count" [showCount]="true" [config]=config></card>
-                </div>
-            </div>
-        </div>
-
-    </div>
 </div>

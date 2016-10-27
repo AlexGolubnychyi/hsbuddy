@@ -14,9 +14,11 @@ import { DeckUtilsService } from "./services/deck-utils.service";
 
 import { AppComponent } from "./components/app.component";
 import { CardComponent } from "./components/card.component";
+import { CardListComponent } from "./components/card-list.component";
 import { DeckComponent } from "./components/deck.component";
+import { DeckInfoComponent } from "./components/deck-info.component";
 import { DeckListComponent } from "./components/deck-list.component";
-import { CardListComponent } from "./components/card-library.component";
+import { CardLibraryComponent } from "./components/card-library.component";
 import { DeckFilterComponent } from "./components/deck-filter.component";
 import { CardMissingListComponent } from "./components/card-missing-list.component";
 import { SpinnerComponent } from "./components/utility/spinner.component";
@@ -53,9 +55,11 @@ import { CardToolTipDirective } from "./directives/card-tooltip.directive";
         SpinnerComponent,
         CardComponent,
         DeckComponent,
+        DeckInfoComponent,
         DeckFilterComponent,
         DeckListComponent,
         CardListComponent,
+        CardLibraryComponent,
         CardMissingListComponent,
         LoginComponent,
         CardImportComponent,

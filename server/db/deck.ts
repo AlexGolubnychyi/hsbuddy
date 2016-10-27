@@ -215,6 +215,7 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): 
                     let diff = differ.diff(refDeck.cards, otherDeck.cards.map(c => ({ card: (c.card as CardDB).id, count: c.count })), refCardHash);
 
                     if (diff.diff < 10) {
+                        otherDeck.revisions = []; //we don't need revisions on sim decks
                         let deck = mapper.deckToContract(otherDeck, cardAvailability, userDeckIds, cardHash);
                         diff.cardAddition.forEach(cardCount => reducerHash[cardCount.card] = true);
                         return {

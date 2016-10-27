@@ -1,56 +1,53 @@
 <spinner *ngIf="!deck && loading"></spinner>
 <div class="deck-detail" *ngIf="deck">
-	<div *ngIf="!edit">
-		<h2 (click)="startEdit()">
-			<div class="deck-metadata">added {{utils.formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
-			<a class="deck-title">
-				<span>{{utils.getDeckTitle(deck)}}</span>
-			</a>
-			<span class="label label-default" *ngIf="deck.collected">collected</span>
-			<span class="label label-warning" *ngIf="deck.deleted">deleted</span>
-		</h2>
-	</div>
-	<div *ngIf="edit">
-		<div *ngIf="editError" class="alert alert-danger" role="alert">
-			<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
-			<span class="sr-only">Error:</span> {{editError}}
+	<deck [deck]="deck" [config]="config" [hideDetails]="false" [replaceTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [showManaCurve]="true">
+		<div *ngIf="!edit">
+			<h2 class="deck-title-container" (click)="startEdit()">
+				<a class="deck-title">
+					<span>{{utils.getDeckTitle(deck)}}</span>
+				</a>
+				<span class="label label-default" *ngIf="deck.collected">collected</span>
+				<span class="label label-warning" *ngIf="deck.deleted">deleted</span>
+			</h2>
 		</div>
-		<form *ngIf="!upgrading" [formGroup]="form">
-			<div class="form-group">
-				<label>Name: </label>
-				<input type="text" class="form-control" formControlName="name" aria-describedby="basic-addon1">
+		<div *ngIf="edit">
+			<div *ngIf="editError" class="alert alert-danger" role="alert">
+				<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+				<span class="sr-only">Error:</span> {{editError}}
 			</div>
-			<div class="form-group">
-				<label>Date: </label>
-				<input type="date" class="form-control" formControlName="date" aria-describedby="basic-addon2">
+			<form *ngIf="!upgrading" [formGroup]="form">
+				<div class="form-group">
+					<label>Name: </label>
+					<input type="text" class="form-control" formControlName="name" aria-describedby="basic-addon1">
+				</div>
+				<div class="form-group">
+					<label>Date: </label>
+					<input type="date" class="form-control" formControlName="date" aria-describedby="basic-addon2">
+				</div>
+			</form>
+			<button *ngIf="!upgrading" (click)="change()" class="btn btn-default" [disabled]="!form.valid || loading || !form.dirty">Change</button>
+			<button *ngIf="!upgrading && !deck.deleted" (click)="delete()" class="btn" [class.btn-default]="!confirmDeletion" [class.btn-danger]="confirmDeletion">{{confirmDeletion ? 'Confirm delete' : 'Delete'}}</button>
+			<div *ngIf="upgrading" class="form-group">
+				<label>Upgrade Url: </label>
+				<input type="text" class="form-control" [(ngModel)]="upgradeUrl">
 			</div>
-		</form>
-		<button *ngIf="!upgrading" (click)="change()" class="btn btn-default" [disabled]="!form.valid || loading || !form.dirty">Change</button>
-		<button *ngIf="!upgrading && !deck.deleted" (click)="delete()" class="btn" [class.btn-default]="!confirmDeletion" [class.btn-danger]="confirmDeletion">{{confirmDeletion ? 'Confirm delete' : 'Delete'}}</button>
-		<div *ngIf="upgrading" class="form-group">
-			<label>Upgrade Url: </label>
-			<input type="text" class="form-control" [(ngModel)]="upgradeUrl">
+			<button (click)="upgrade()" [disabled]="upgrading && !upgradeUrl" [class.btn-primary]="upgrading" class="btn  btn-default">Upgrade</button>
+			<button (click)="cancelEdit()" class="btn btn-default">Cancel</button>
+			<spinner *ngIf="loading"></spinner>
+			<p></p>
 		</div>
-		<button (click)="upgrade()" [disabled]="upgrading && !upgradeUrl" [class.btn-primary]="upgrading" class="btn  btn-default">Upgrade</button>
-		<button (click)="cancelEdit()" class="btn btn-default">Cancel</button>
-		<spinner *ngIf="loading"></spinner>
-		<p></p>
-	</div>
-
-	<div>
-		<a [href]="deck.url" class="deck-url">{{deck.url}}</a>
-	</div>
-
-	<deck [deck]="deck" [config]="config" [hideDetails]="false" [hideTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [showManaCurve]="true"></deck>
+	</deck>
 	<br>
 	<div *ngIf="deck.revisions && deck.revisions.length">
 		<button (click)="showRevision = !showRevision" class="btn btn-default">{{!!showRevision ? "< Hide deck history" : "Show deck history >"}}</button>
 		<div *ngIf="showRevision">
 			<div *ngFor="let rev of deck.revisions">
 				<hr/>
-				<div class="deck-metadata">added {{utils.formatDate(rev.dateAdded)}} by {{rev.userId || "~magic~"}}</div>
-				<div class="deck-title">Changes from Revision {{rev.number}} <span class="label label-default" *ngIf="rev.collected">collected</span></div>
-
+				<deck-info [deckInfo]="rev"></deck-info>
+				<div class="deck-title">Changes from Revision {{rev.number}} <span class="label label-default" *ngIf="rev.collected">collected</span>
+				<button (click)="rev.showCards = !rev.showCards" class="btn btn-default btn-xs">{{rev.showCards ? "Hide": "Show" }} cards</button>
+				</div>
+			     <card-list *ngIf="rev.showCards" [float]="false" [filter]="cardFilterOpts" [cards]="rev.cards" [config]=config></card-list>
 				<div class="row">
 					<div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
 						<h4>added (+):</h4>
@@ -76,15 +73,17 @@
 	<div *ngIf="similarDecks" class="similar-decks">
 		<h3 *ngIf="!similarDecks.length">No similar decks found..</h3>
 		<div *ngFor="let simDeck of similarDecks">
-			<h2>
-				<div class="deck-metadata">added {{utils.formatDate(simDeck.deck.dateAdded)}} by {{simDeck.deck.userId || "~magic~"}}</div>
+			<!--<h2>
+				<deck-info [deckInfo]="simDeck.deck" (onDeleteDeck)="onSimilarDeckDeleted($event)"></deck-info>
 				<a class="deck-title" routerLink="/deck/{{simDeck.deck.id}}">
 					<span>{{utils.getDeckTitle(simDeck.deck)}}</span>
 				</a>
 				<span class="label label-default" *ngIf="simDeck.deck.collected">collected</span>
 				<span class="label label-warning" *ngIf="simDeck.deck.deleted">deleted</span>
 			</h2>
-			<a [href]="simDeck.deck.url" class="deck-url">{{simDeck.deck.url}}</a>
+			<a [href]="simDeck.deck.url" class="deck-url">{{simDeck.deck.url}}</a>-->
+			<hr/>
+			<deck [deck]="simDeck.deck" [config]="config" (onDeleteDeck)="onSimilarDeckDeleted($event)"></deck>
 			<div class="row">
 				<div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
 					<h4>removed (-):</h4>

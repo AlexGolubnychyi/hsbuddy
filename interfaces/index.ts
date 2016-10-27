@@ -23,7 +23,7 @@ export interface Card {
     numberAvailable?: number;
 }
 
-export interface Deck<T extends string | Card> {
+export interface Deck<T extends string | Card> extends DeckInfo {
     id: string;
     name: string;
     url: string;
@@ -31,23 +31,26 @@ export interface Deck<T extends string | Card> {
     cost: number;
     dustNeeded: number;
     collected: boolean;
-    dateAdded: Date;
+    userCollection?: boolean;
     class: hstypes.CardClass;
     cards: CardCount<T>[];
-    userCollection: boolean;
-    userId: string;
-    deleted?: boolean;
     revisions?: ({
         number: number;
-        dateAdded: Date;
-        userId: string;
         cards: CardCount<T>[];
         collected?: boolean;
-    } & Diff<T>)[];
+    } & DeckInfo & Diff<T>)[];
 }
 
 export interface DeckDiff<T extends string | Card> extends Diff<T> {
     deck: Deck<T>;
+}
+
+export interface DeckInfo {
+    id?: string;
+    dateAdded: Date;
+    userId: string;
+    userCollection?: boolean;
+    deleted?: boolean;
 }
 
 
@@ -132,6 +135,7 @@ export interface ParseResult {
 }
 
 export interface CollectionChangeStatus {
+    collection: boolean;
     success: boolean;
     deckDeleted?: boolean;
 }

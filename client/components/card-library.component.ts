@@ -16,7 +16,7 @@ import { Subject } from "rxjs/Subject";
     selector: "card-library",
     templateUrl: "card-library.component.html",
 })
-export class CardListComponent extends BaseComponent implements OnInit, OnDestroy {
+export class CardLibraryComponent extends BaseComponent implements OnInit, OnDestroy {
     constructor(
         apiService: ApiService,
         configService: ConfigService,

@@ -150,6 +150,10 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
         this.router.navigateByUrl("/");
     }
 
+    onSimilarDeckDeleted(deckId: string) {
+        //do something I guess..
+    }
+
     cancelEdit() {
         this.editError = null;
         this.setDefaults();
@@ -184,23 +188,38 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
     }
 
     protected onCardChanged(cardChanged: CardChanged) {
-        this.updateDecks();
-        if (this.deck.cards.some(c => c.card.id === cardChanged.cardId)) {
+        this.utils.updateDeckStats(this.deck);
+
+        if (this.containsChangedCard(this.deck.cards, cardChanged)) {
             this.deck = Object.assign({}, this.deck);
+        }
+        if (this.similarDecks) {
+            this.similarDecks.forEach(sd => {
+                this.utils.updateDeckDiffStats(sd);
+                if (this.containsChangedCard(sd.deck.cards, cardChanged)) {
+                    sd.deck = Object.assign({}, sd.deck);
+                    console.log(sd.deck.name);
+                }
+            });
+        }
+        if (this.deck.revisions) {
+            this.deck.revisions = this.deck.revisions.map(rev => {
+                if (this.containsChangedCard(rev.cards, cardChanged)) {
+                    return Object.assign({}, rev);
+                }
+                return rev;
+            });
         }
         this.ref.markForCheck();
     };
+
+    private containsChangedCard(cards: contracts.CardCount<contracts.Card>[], cardChanged: CardChanged) {
+        return cards.some(c => c.card.id === cardChanged.cardId);
+    }
 
     protected onConfigChanged() {
         this.ref.markForCheck();
     };
-
-    private updateDecks() {
-        this.utils.updateDeckStats(this.deck);
-        if (this.similarDecks) {
-            this.similarDecks.forEach(sm => this.utils.updateDeckDiffStats(sm));
-        }
-    }
 
     private setDefaults() {
         this.form.reset({

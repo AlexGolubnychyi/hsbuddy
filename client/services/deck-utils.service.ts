@@ -36,8 +36,9 @@ export class DeckUtilsService {
         if (deck.revisions) {
             deck.revisions.forEach(rev => {
                 rev.collected = rev.cards.every((cardCount) => cardCount.card.numberAvailable >= cardCount.count);
-                // this.updateCards(rev.cardAddition);
-                // this.updateCards(rev.cardRemoval);
+                this.updateCards(rev.cards);
+                this.updateCards(rev.cardAddition);
+                this.updateCards(rev.cardRemoval);
             });
         }
 

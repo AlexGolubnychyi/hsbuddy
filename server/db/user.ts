@@ -69,6 +69,7 @@ userSchema.static("getUserDeckIds", function (userId) {
 userSchema.static("setUserDeck", function (userId, deckId, set: boolean) {
     let model = (this as mongoose.Model<UserDB> & UserStatics),
         result: contracts.CollectionChangeStatus = {
+            collection: set,
             success: true,
             deckDeleted: false
         };
