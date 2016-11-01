@@ -84,6 +84,6 @@ export class CardHashService {
     }
 
     private getCardId(name: string) {
-        return name.toLowerCase().replace(/[ |,|`|.|'|:|"]*/g, "");
+        return name.toLowerCase().replace(/[ |,|`|.|'|’|:|"]*/g, "");
     }
 }

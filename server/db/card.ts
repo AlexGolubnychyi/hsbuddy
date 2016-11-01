@@ -24,7 +24,7 @@ const cardSchema = new mongoose.Schema({
 });
 
 cardSchema.static("generateId", (name: string) => {
-    return name.toLowerCase().replace(/[ |,|`|.|'|:|"]*/g, "");
+    return name.toLowerCase().replace(/[ |,|`|.|'|’|:|"]*/g, "");
 });
 
 cardSchema.static("getCardLibraryInfo", function (userId: string): Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>> {
