@@ -25,10 +25,11 @@ class Mapper {
             userId: deck.userId,
             deleted: deck.deleted,
             revisions: deck.revisions.map(rev => ({
+                number: rev.number,
+                userId: rev.userId,
+                url: rev.url,
                 collected: false,
                 cards: [],
-                userId: rev.userId,
-                number: rev.number,
                 dateAdded: rev.dateAdded,
                 diff: rev.diff,
                 cardAddition: rev.cardAddition.map(cardCount => this.cardToContract(cardCount, cardAvail[cardCount.card.id], cardHash).cardCount),

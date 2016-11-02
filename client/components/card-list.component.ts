@@ -29,7 +29,7 @@ export class CardListComponent implements OnChanges {
     cardList1: CardCount<Card>[] = [];
     cardList2: CardCount<Card>[] = [];
 
-    ngOnChanges() {
+    ngOnChanges(changes) {
         this.refresh();
     }
 

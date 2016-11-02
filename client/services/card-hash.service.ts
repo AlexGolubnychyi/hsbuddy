@@ -57,8 +57,9 @@ export class CardHashService {
             dustNeeded: deck.dustNeeded,
             revisions: deck.revisions && deck.revisions.map(rev => ({
                 number: rev.number,
-                dateAdded: rev.dateAdded,
                 userId: rev.userId,
+                url: rev.url,
+                dateAdded: rev.dateAdded,
                 cards: this.inflateCards(rev.cards),
                 collected: rev.collected,
                 diff: rev.diff,

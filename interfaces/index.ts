@@ -34,11 +34,11 @@ export interface Deck<T extends string | Card> extends DeckInfo {
     userCollection?: boolean;
     class: hstypes.CardClass;
     cards: CardCount<T>[];
-    revisions?: ({
-        number: number;
-        cards: CardCount<T>[];
-        collected?: boolean;
-    } & DeckInfo & Diff<T>)[];
+    revisions?: DeckRevision<T>[];
+}
+
+export interface DeckRevision<T extends string | Card> extends PseudoDeck<T>, DeckInfo, Diff<T> {
+    number: number;
 }
 
 export interface DeckDiff<T extends string | Card> extends Diff<T> {
@@ -51,6 +51,7 @@ export interface PseudoDeck<T extends string | Card> extends DeckInfo {
 
 export interface DeckInfo {
     id?: string;
+    url?: string;
     dateAdded: Date;
     userId: string;
     userCollection?: boolean;
