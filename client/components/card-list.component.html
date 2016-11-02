@@ -1,5 +1,23 @@
-<div class="card-details">
-	<card [class.float]="float" *ngFor="let cardCount of cards | cardpipe: filter" [card]="cardCount.card" [count]="cardCount.count" [showCount]="true"
-		[config]=config>
+<div *ngIf="!slitCardList" class="card-details">
+	<card [class.float]="float" *ngFor="let cardCount of cards | cardpipe: filter" [card]="cardCount.card" [count]="cardCount.count"
+		[showCount]="true" [config]=config>
 	</card>
+</div>
+<div *ngIf="slitCardList" class="card-details row">
+	<div class="col-xs-12">
+		<div class="row">
+			<div class="col-xs-12 col-md-6 col-lg-5">
+				<div><span class="card-list-group">Class cards:</span></div>
+				<card [class.float]="float" *ngFor="let cardCount1 of cardList1 | cardpipe: filter" [card]="cardCount1.card" [count]="cardCount1.count"
+					[showCount]="true" [config]=config>
+				</card>
+			</div>
+			<div class="col-xs-12 col-md-6 col-lg-5">
+				<div><span class="card-list-group">Neutral cards:</span></div>
+				<card [class.float]="float" *ngFor="let cardCount2 of cardList2 | cardpipe: filter" [card]="cardCount2.card" [count]="cardCount2.count"
+					[showCount]="true" [config]=config>
+				</card>
+			</div>
+		</div>
+	</div>
 </div>

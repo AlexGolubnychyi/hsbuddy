@@ -23,7 +23,8 @@ export class AppComponent implements OnInit {
 
         this.configForm.valueChanges.subscribe(v => this.configService.config = {
             cardStyle: +v.cardStyle,
-            enableCardAvailSelector: !!v.enableCardAvailSelector
+            enableCardAvailSelector: !!v.enableCardAvailSelector,
+            splitCardListByClass: this.configService.config.splitCardListByClass
         });
 
         this.authService.authChanged.subscribe(rez => {

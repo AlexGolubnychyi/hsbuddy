@@ -12,29 +12,36 @@
 </div>
 <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} cards</button>
 <span *ngIf="!hideDetails">
-    <button *ngIf="auth && (!deck.collected || filter.hideAvailable)" (click)="changeAvailability()" class="btn btn-default btn-xs">
+    <button *ngIf="auth && (!deck.collected || filter.hideAvailable)" (click)="changeAvailability()" class="btn btn-default btn-xs" [class.btn-warning]="filter.hideAvailable">
         {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
     </button>
-    <div class="btn-group" dropdown (click)="$event.preventDefault()">
-        <button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
-        Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
-</button>
-<ul class="dropdown-menu" dropdownMenu>
-	<li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
-	<li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
-</ul>
-</div>
+	<div class="btn-group" dropdown (click)="$event.preventDefault()">
+		<button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
+			Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" dropdownMenu>
+			<li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
+			<li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
+		</ul>
+	</div>
+	<div class="btn-group" dropdown (click)="$event.preventDefault()">
+		<button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
+			List style: <i>{{config.splitCardListByClass ? "Split by class" : "No split"}}</i> <span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" dropdownMenu>
+			<li><a href="#" (click)="listStyleChanged(true)">Split by class</a></li>
+			<li><a href="#" (click)="listStyleChanged(false)">No split</a></li>
+		</ul>
+	</div>
 </span>
 
 <div *ngIf="!hideDetails">
 	<div class="row">
-		<div class="col-xs-12" [class.col-md-4]="config.cardStyle === cardStyles.textOnly" [class.col-md-push-5]="config.cardStyle === cardStyles.textOnly">
+		<div class="col-xs-12" [class.col-md-4]="config.cardStyle === cardStyles.textOnly" [class.col-md-push-8]="config.cardStyle === cardStyles.textOnly">
 			<mana-curve *ngIf="showManaCurve" [deck]="deck"></mana-curve>
 		</div>
-		<div class="col-xs-12" [class.col-md-5]="config.cardStyle === cardStyles.textOnly" [class.col-md-pull-4]="config.cardStyle === cardStyles.textOnly">
-			<div class="card-details">
-				<card-list [filter]="filter" [cards]="deck.cards" [config]=config></card-list>
-			</div>
+		<div class="col-xs-12" [class.col-md-8]="config.cardStyle === cardStyles.textOnly" [class.col-md-pull-4]="config.cardStyle === cardStyles.textOnly">
+			<card-list [filter]="filter" [cards]="deck.cards" [config]="config" [float]="false" [slitCardList]="config.splitCardListByClass"></card-list>
 		</div>
 	</div>
 

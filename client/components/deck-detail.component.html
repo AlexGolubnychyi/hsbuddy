@@ -38,37 +38,43 @@
 		</div>
 	</deck>
 	<br>
-	<div *ngIf="deck.revisions && deck.revisions.length">
-		<button (click)="showRevision = !showRevision" class="btn btn-default">{{!!showRevision ? "< Hide deck history" : "Show deck history >"}}</button>
-		<div *ngIf="showRevision">
-			<div *ngFor="let rev of deck.revisions">
-				<hr/>
-				<deck-info [deckInfo]="rev"></deck-info>
-				<div class="deck-title">Changes from Revision {{rev.number}} <span class="label label-default" *ngIf="rev.collected">collected</span>
-				<button (click)="rev.showCards = !rev.showCards" class="btn btn-default btn-xs">{{rev.showCards ? "Hide": "Show" }} cards</button>
-				</div>
-			     <card-list *ngIf="rev.showCards" [float]="false" [filter]="cardFilterOpts" [cards]="rev.cards" [config]=config></card-list>
-				<div class="row">
-					<div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
-						<h4>added (+):</h4>
-						<div class="card-details">
-							<card *ngFor="let cardCount of rev.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count"
-								[showCount]="true"></card>
+	<button *ngIf="deck.revisions && deck.revisions.length" (click)="showRevision = !showRevision" class="btn btn-default" [class.btn-warning]="showRevision">
+		{{!!showRevision ? "< Hide deck history" : "Show deck history >"}}
+	</button>
+	<div *ngIf="showRevision">
+		<div *ngFor="let rev of deck.revisions trackBy:revIdentity">
+			<hr/>
+			<deck [deck]="rev" [config]="config" [replaceTitle]="true">
+				<div class="deck-title">Changes from Revision {{rev.number}} <span class="label label-default" *ngIf="rev.collected">collected</span></div>
+			</deck>
+			<div class="row">
+				<div class="col-xs-12" [class.col-md-8]="textOnlyMode()">
+					<!--<card-list *ngIf="rev.showCards" [slitCardList]="config.splitCardListByClass" [filter]="cardFilterOpts" [cards]="rev.cards" [config]="config"></card-list>-->
+					<div class="row">
+						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
+							<h4>added (+):</h4>
+							<div class="card-details">
+								<card *ngFor="let cardCount of rev.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count"
+									[showCount]="true"></card>
+							</div>
 						</div>
-					</div>
-					<div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
-						<h4>removed (-):</h4>
-						<div class="card-details">
-							<card *ngFor="let cardCount of rev.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count"
-								[showCount]="true"></card>
+						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
+							<h4>removed (-):</h4>
+							<div class="card-details">
+								<card *ngFor="let cardCount of rev.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count"
+									[showCount]="true"></card>
+							</div>
 						</div>
 					</div>
 				</div>
 			</div>
+			
 		</div>
 		<hr/>
 	</div>
-	<button (click)="toggleSimilarDecks()" [disabled]="loadingSimilarDecks" class="btn btn-default">{{similarDecks ? "< Hide similar decks" : "Show similar decks >"}} </button>
+	<button (click)="toggleSimilarDecks()" [disabled]="loadingSimilarDecks" class="btn btn-default" [class.btn-warning]="similarDecks">
+		{{similarDecks ? "< Hide similar decks" : "Show similar decks >"}} 
+	</button>
 	<spinner *ngIf="loadingSimilarDecks"></spinner>
 	<div *ngIf="similarDecks" class="similar-decks">
 		<h3 *ngIf="!similarDecks.length">No similar decks found..</h3>
@@ -85,18 +91,22 @@
 			<hr/>
 			<deck [deck]="simDeck.deck" [config]="config" (onDeleteDeck)="onSimilarDeckDeleted($event)"></deck>
 			<div class="row">
-				<div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
-					<h4>removed (-):</h4>
-					<div class="card-details">
-						<card *ngFor="let cardCount of simDeck.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card"
-							[count]="cardCount.count" [showCount]="true"></card>
-					</div>
-				</div>
-				<div class="col-xs-12 col-sm-6" [class.col-md-5]="textOnlyMode()" [class.col-lg-4]="textOnlyMode()">
-					<h4>added (+):</h4>
-					<div class="card-details">
-						<card *ngFor="let cardCount of simDeck.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card"
-							[count]="cardCount.count" [showCount]="true"></card>
+				<div class="col-xs-12" [class.col-md-8]="textOnlyMode()">
+					<div class="row">
+						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
+							<h4>removed (-):</h4>
+							<div class="card-details">
+								<card *ngFor="let cardCount of simDeck.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card"
+									[count]="cardCount.count" [showCount]="true"></card>
+							</div>
+						</div>
+						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
+							<h4>added (+):</h4>
+							<div class="card-details">
+								<card *ngFor="let cardCount of simDeck.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card"
+									[count]="cardCount.count" [showCount]="true"></card>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>

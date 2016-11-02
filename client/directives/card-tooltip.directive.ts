@@ -5,6 +5,7 @@ import * as contracts from "../../interfaces/index";
 export class CardToolTipDirective {
     tooltipEl: HTMLDivElement;
     timeoutId = 0;
+    destroyTimeout = 0;
     height = 300 + 20;
     width = 217;
     offset = 10;
@@ -24,8 +25,15 @@ export class CardToolTipDirective {
         this.updateTooltipPosition();
     }
 
-    @HostListener("mouseleave") onMouseLeave() {
+    // @HostListener("document:mousemove", ["$event"])
+    // onMouseMoveOutside($event: MouseEvent) {
+    //     if (this.el.nativeElement.contains($event.target)) {
+    //         return;
+    //     }
+    //     this.destroyTooltip();
+    // }
 
+    @HostListener("mouseleave") onMouseLeave() {
         this.destroyTooltip();
     }
 
@@ -59,6 +67,12 @@ export class CardToolTipDirective {
         if (!this.tooltipEl) {
             return;
         }
+        //make sure tooltip WILL close :)
+        if (this.destroyTimeout) {
+            clearTimeout(this.destroyTimeout);
+        }
+        this.destroyTimeout = setTimeout(() => this.destroyTooltip(), 5000) as any;
+
         let lowerBoundOk = window.innerHeight - this.lastMouseEvent.clientY > this.height / 2,
             upperBoundOk = this.lastMouseEvent.clientY > this.height / 2,
             rightBoundOk = window.innerWidth - this.lastMouseEvent.clientX >= this.offset + this.width;

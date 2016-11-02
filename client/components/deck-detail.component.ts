@@ -187,6 +187,10 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
             });
     }
 
+    revIdentity(index: number, rev) {
+        return rev.number;
+    }
+
     protected onCardChanged(cardChanged: CardChanged) {
         this.utils.updateDeckStats(this.deck);
 
@@ -198,7 +202,6 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
                 this.utils.updateDeckDiffStats(sd);
                 if (this.containsChangedCard(sd.deck.cards, cardChanged)) {
                     sd.deck = Object.assign({}, sd.deck);
-                    console.log(sd.deck.name);
                 }
             });
         }
@@ -218,6 +221,18 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
     }
 
     protected onConfigChanged() {
+        //trigger global redraw
+        this.deck = Object.assign({}, this.deck);
+        if (this.similarDecks) {
+            this.similarDecks.forEach(sd => {
+                sd.deck = Object.assign({}, sd.deck);
+            });
+        }
+        if (this.deck.revisions) {
+            this.deck.revisions = this.deck.revisions.map(rev => {
+                return Object.assign({}, rev);
+            });
+        }
         this.ref.markForCheck();
     };
 
@@ -228,4 +243,6 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
         });
         this.upgradeUrl = "";
     }
+
+
 }

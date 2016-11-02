@@ -44,6 +44,10 @@ export interface Deck<T extends string | Card> extends DeckInfo {
 export interface DeckDiff<T extends string | Card> extends Diff<T> {
     deck: Deck<T>;
 }
+export interface PseudoDeck<T extends string | Card> extends DeckInfo {
+    cards: CardCount<T>[];
+    collected?: boolean;
+}
 
 export interface DeckInfo {
     id?: string;
@@ -52,7 +56,6 @@ export interface DeckInfo {
     userCollection?: boolean;
     deleted?: boolean;
 }
-
 
 export interface Diff<T extends string | Card> {
     diff: number;

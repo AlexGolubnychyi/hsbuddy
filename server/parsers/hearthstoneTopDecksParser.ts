@@ -22,7 +22,7 @@ class HearthStoneTopDecksParser extends BaseDeckParser {
                 dateBase = $(".entry-title").text().match(/\((.+),.*\)/),
                 date: Date = new Date(NaN);
 
-            if (dateBase){
+            if (dateBase) {
                 date = new Date(dateBase[1]);
                 date.setDate(15); //we get only month and year => improvise!
             }

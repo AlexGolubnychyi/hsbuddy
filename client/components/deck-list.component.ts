@@ -64,6 +64,10 @@ export class DeckListComponent extends BaseComponent implements AfterViewInit, O
     }
 
     onConfigChanged() {
+        //trigger deck redraw
         this.ref.markForCheck();
+        this.decks = this.decks.map(deck => {
+            return Object.assign({}, deck);
+        });
     }
 }

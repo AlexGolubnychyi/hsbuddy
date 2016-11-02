@@ -41,7 +41,8 @@ export class ConfigService {
 
         this._config = (saved && JSON.parse(saved)) || {
             cardStyle: cardStyles.default,
-            enableCardAvailSelector: auth
+            enableCardAvailSelector: auth,
+            splitCardListByClass: false
         };
     }
 
@@ -53,4 +54,5 @@ export class ConfigService {
 export interface Config {
     cardStyle: cardStyles;
     enableCardAvailSelector: boolean;
+    splitCardListByClass: boolean;
 }

@@ -1,8 +1,9 @@
-import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy } from "@angular/core"
+import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy } from "@angular/core";
 import { AuthService } from "../services/auth.service";
 import { CardHashService } from "../services/card-hash.service";
+import { ConfigService } from "../services/config.service";
 import { DeckUtilsService } from "../services/deck-utils.service";
-import { Deck, Card } from "../../interfaces/index";
+import { PseudoDeck, Deck, Card } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { Config, cardStyles } from "../services/config.service";
 import "../rxjs-operators";
@@ -15,7 +16,7 @@ import "../rxjs-operators";
 })
 export class DeckComponent implements OnInit, OnChanges {
     @Input()
-    deck: Deck<Card>;
+    deck: PseudoDeck<Card> | Deck<Card>;
     @Input()
     hideDetails = true;
     @Input()
@@ -39,6 +40,7 @@ export class DeckComponent implements OnInit, OnChanges {
 
     constructor(
         private authService: AuthService,
+        private configService: ConfigService,
         private cardHash: CardHashService,
         public utils: DeckUtilsService
     ) { }
@@ -65,6 +67,12 @@ export class DeckComponent implements OnInit, OnChanges {
         this.updateCardListFilter();
     }
 
+    listStyleChanged(split: boolean) {
+        this.configService.config = Object.assign(this.config, {
+            splitCardListByClass: split
+        });
+    }
+
     private updateCardListFilter() {
         this.filter = Object.assign({}, this.filter);
     }
@@ -73,7 +81,9 @@ export class DeckComponent implements OnInit, OnChanges {
         if (this.replaceTitle) {
             return;
         }
-        this.title = this.utils.getDeckTitle(this.deck);
+        if (this.utils.isDeck(this.deck)) {
+            this.title = this.utils.getDeckTitle(this.deck);
+        }
     }
 
 }
