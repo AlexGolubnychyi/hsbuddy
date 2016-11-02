@@ -11,9 +11,9 @@ const userNameToken = "@username@",
     landingUrl = "http://www.hearthpwn.com",
     loginUrl = "https://www.hearthpwn.com/login",
     collectionUrl = `http://www.hearthpwn.com/members/${userNameToken}/collection`,
-    passwordAlias = "loginFormPassword",
-    userNameAlis = "username",
-    securityFieldIds = ["field-returnUrl", "field-security-token", "field-authenticity-token"],
+    passwordAlias = "field-loginFormPassword",
+    userNameAlis = "field-username",
+    securityFieldIds = ["field-returnUrl", "field-security-token", "field-authenticity-token", "field-username", "field-loginFormPassword"],
     basicHeaders = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2799.0 Safari/537.36",
         "Host": "www.hearthpwn.com",
@@ -66,14 +66,24 @@ export default function (userId: string, username: string, password: string) {
 function getHearthPwnCollectionPageBody(username: string, password: string) {
     const cookieJar = request.jar();
     return httpGet({ url: landingUrl, jar: cookieJar, headers: basicHeaders })
+        .then(() => httpGet({ url: loginUrl, jar: cookieJar, headers: basicHeaders }))
         .then(response => {
             let loginParams: { [index: string]: string } = {},
                 $ = cheerio.load(response.body);
             $(securityFieldIds.map(f => "#" + f).join(",")).each((inx, el) => {
-                loginParams[$(el).attr("name")] = $(el).attr("value");
+                let id = $(el).attr("id"),
+                    name = $(el).attr("name"),
+                    value = $(el).attr("value");
+                switch (id) {
+                    case userNameAlis:
+                        value = username;
+                        break;
+                    case passwordAlias:
+                        value = password;
+                        break;
+                }
+                loginParams[name] = value;
             });
-            loginParams[passwordAlias] = password;
-            loginParams[userNameAlis] = username;
             return loginParams;
         })
         .then(loginParams => httpPost({
