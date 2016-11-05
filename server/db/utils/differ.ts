@@ -49,7 +49,9 @@ class Differ {
 
     reverse<T extends CardCountMin>(refCards: T[], cardAddition: T[], cardRemoval: T[]) {
         let cardHash: { [index: string]: number } = {};
-
+        if (cardAddition == null && cardRemoval == null) {
+            return refCards;
+        }
         refCards.forEach(cardCount => cardHash[cardCount.card] = cardCount.count);
         cardAddition.forEach(addition => cardHash[addition.card] = (cardHash[addition.card] || 0) + addition.count);
         cardRemoval.forEach(removal => {

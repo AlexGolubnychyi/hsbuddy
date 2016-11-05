@@ -49,7 +49,6 @@
 			</deck>
 			<div class="row">
 				<div class="col-xs-12" [class.col-md-8]="textOnlyMode()">
-					<!--<card-list *ngIf="rev.showCards" [slitCardList]="config.splitCardListByClass" [filter]="cardFilterOpts" [cards]="rev.cards" [config]="config"></card-list>-->
 					<div class="row">
 						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
 							<h4>added (+):</h4>
@@ -79,15 +78,6 @@
 	<div *ngIf="similarDecks" class="similar-decks">
 		<h3 *ngIf="!similarDecks.length">No similar decks found..</h3>
 		<div *ngFor="let simDeck of similarDecks">
-			<!--<h2>
-				<deck-info [deckInfo]="simDeck.deck" (onDeleteDeck)="onSimilarDeckDeleted($event)"></deck-info>
-				<a class="deck-title" routerLink="/deck/{{simDeck.deck.id}}">
-					<span>{{utils.getDeckTitle(simDeck.deck)}}</span>
-				</a>
-				<span class="label label-default" *ngIf="simDeck.deck.collected">collected</span>
-				<span class="label label-warning" *ngIf="simDeck.deck.deleted">deleted</span>
-			</h2>
-			<a [href]="simDeck.deck.url" class="deck-url">{{simDeck.deck.url}}</a>-->
 			<hr/>
 			<deck [deck]="simDeck.deck" [config]="config" (onDeleteDeck)="onSimilarDeckDeleted($event)"></deck>
 			<div class="row">

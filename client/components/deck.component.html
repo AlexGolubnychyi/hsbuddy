@@ -1,4 +1,4 @@
-<deck-info [deckInfo]="deck" (onDeleteDeck)="onDeleteDeck.emit($event)"></deck-info>
+<deck-info [deck]="deck" (onDeleteDeck)="onDeleteDeck.emit($event)"></deck-info>
 <ng-content *ngIf="replaceTitle"></ng-content>
 <h2 class="deck-title-container" *ngIf="!replaceTitle">
 	<a class="deck-title" routerLink="/deck/{{deck.id}}">

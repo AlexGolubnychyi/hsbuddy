@@ -21,5 +21,6 @@
         "**/ngfactory":true
 
     },
-    "editor.snippetSuggestions": "bottom"
+    "editor.snippetSuggestions": "bottom",
+    "typescript.check.workspaceVersion": false
 }

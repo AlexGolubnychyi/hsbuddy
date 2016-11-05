@@ -21,7 +21,7 @@ export class DeckUtilsService {
 
     updateDeckStats(deck: contracts.Deck<contracts.Card> | contracts.PseudoDeck<contracts.Card>) {
         let collected = true,
-            dustNeeded = this.isDeck(deck) ? deck.cost : 0,
+            dustNeeded = deck.cost,
             lastUpdatedCardId = this.cardHashService.lastUpdateCardId,
             lastUpdatedCard = this.cardHashService.getCard(lastUpdatedCardId);
 
@@ -40,14 +40,14 @@ export class DeckUtilsService {
                 this.updateCards(rev.cardAddition);
                 this.updateCards(rev.cardRemoval);
             });
-            deck.dustNeeded = dustNeeded;
         }
 
+        deck.dustNeeded = dustNeeded;
         deck.collected = collected;
     }
 
     isDeck(deck: contracts.Deck<contracts.Card> | contracts.PseudoDeck<contracts.Card>): deck is contracts.Deck<contracts.Card> {
-        return !!deck.id;
+        return !!(deck as contracts.Deck<contracts.Card>).id;
     }
 
     updateDeckDiffStats(diff: contracts.DeckDiff<contracts.Card>) {

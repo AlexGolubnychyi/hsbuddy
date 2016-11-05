@@ -2,7 +2,7 @@ import { Component, Input, Output, OnInit, EventEmitter, ChangeDetectionStrategy
 import { AuthService } from "../services/auth.service";
 import { ApiService } from "../services/api.service";
 import { DeckUtilsService } from "../services/deck-utils.service";
-import { DeckInfo, CollectionChangeStatus } from "../../interfaces/index";
+import { PseudoDeck, Deck, Card, CollectionChangeStatus } from "../../interfaces/index";
 import { Subject } from "rxjs/Subject";
 import { Observable } from "rxjs/Observable";
 import "../rxjs-operators";
@@ -14,7 +14,7 @@ import "../rxjs-operators";
 })
 export class DeckInfoComponent implements OnInit {
     @Input()
-    deckInfo: DeckInfo;
+    deck: PseudoDeck<Card> | Deck<Card>;
     @Output()
     onDeleteDeck = new EventEmitter<string>();
 
@@ -29,16 +29,22 @@ export class DeckInfoComponent implements OnInit {
 
 
     ngOnInit() {
-        this.showUserCollection = this.deckInfo.id && this.authService.isAuthenticated();
+        if (!this.utils.isDeck(this.deck)) {
+            return;
+        }
+
+        let deck: Deck<Card> = this.deck;
+
+        this.showUserCollection = deck.id && this.authService.isAuthenticated();
         (this.userCollectionChangeStream as Observable<boolean>)
             .debounceTime(200)
-            .switchMap(val => this.apiService.toggleUserDeck(this.deckInfo.id, val))
+            .switchMap(val => this.apiService.toggleUserDeck(deck.id, val))
             .subscribe((rez: CollectionChangeStatus) => {
                 if (rez.success) {
-                    this.deckInfo.userCollection = rez.collection;
+                    deck.userCollection = rez.collection;
                 }
-                if (this.deckInfo.deleted || rez.deckDeleted) {
-                    this.onDeleteDeck.emit(this.deckInfo.id);
+                if (deck.deleted || rez.deckDeleted) {
+                    this.onDeleteDeck.emit(deck.id);
                 }
             });
     }

@@ -27,7 +27,11 @@ class Mapper {
             revisions: deck.revisions.map(rev => ({
                 number: rev.number,
                 userId: rev.userId,
-                url: rev.url,
+                url: rev.url || "",
+                cost: rev.cost || 0,
+                dustNeeded: 0, //TODO
+                class: deck.class,
+                className: hstypes.CardClass[deck.class],
                 collected: false,
                 cards: [],
                 dateAdded: rev.dateAdded,
@@ -48,8 +52,12 @@ class Mapper {
         contract.collected = collected;
 
         //restore rev cards, depend on contract cards
-        contract.revisions.forEach(rev => {
+        contract.revisions.forEach((rev, index) => {
             rev.cards = differ.reverse(contract.cards, rev.cardAddition, rev.cardRemoval);
+            //diff inversion:
+            // let diff = differ.diff((contract.revisions[index - 1] || contract).cards, rev.cards);
+            // rev.cardAddition = diff.cardAddition;
+            // rev.cardRemoval = diff.cardRemoval;
             rev.collected = rev.cards.every(c => cardHash[c.card].numberAvailable >= c.count);
         });
 

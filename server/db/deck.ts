@@ -134,50 +134,40 @@ deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<
 deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: DeckDB<string>): Promise<boolean> {
 
     let model = this as mongoose.Model<DeckDB<string | CardDB>> & DeckStatics,
-        revisions: contracts.DeckRevision<string>[] = [];
+        refCardHash: { [index: string]: number } = {},
+        oldRevisions = oldDeck.revisions || [];
 
-    //deck diffs => deck cards 
-    if (oldDeck.revisions && oldDeck.revisions.length) {
-        revisions = oldDeck.revisions.map(rev => {
-            return {
-                userId: rev.userId,
-                url: rev.url,
-                dateAdded: rev.dateAdded,
-                number: rev.number,
-                cards: differ.reverse(oldDeck.cards, rev.cardAddition, rev.cardRemoval),
-                diff: null,
-                cardAddition: null,
-                cardRemoval: null
-            };
-        });
-    }
-
-    revisions.unshift({
-        userId: oldDeck.userId,
-        url: oldDeck.url,
-        number: revisions.length + 1,
-        dateAdded: oldDeck.dateAdded,
-        cards: oldDeck.cards,
-        diff: null,
-        cardAddition: null,
-        cardRemoval: null
-    });
-
-    let refCardHash: { [index: string]: number } = {};
     newDeck.cards.forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
+    //add new revision
+    let newRevDiff = differ.diff(newDeck.cards, oldDeck.cards, refCardHash);
+    newDeck.revisions = [
+        {
+            userId: oldDeck.userId,
+            url: oldDeck.url,
+            number: oldRevisions.length + 1,
+            dateAdded: oldDeck.dateAdded,
+            cost: oldDeck.cost,
+            diff: newRevDiff.diff,
+            cardAddition: newRevDiff.cardAddition,
+            cardRemoval: newRevDiff.cardRemoval,
+        }
+    ];
 
-    //deck cards => new deck diffs
-    newDeck.revisions = revisions.map(rev => {
-        let diff = differ.diff(newDeck.cards, rev.cards, refCardHash);
-        return {
+    //add old revisions
+    oldRevisions.forEach(rev => {
+        let revCards = differ.reverse(oldDeck.cards, rev.cardAddition, rev.cardRemoval),
+            diff = differ.diff(newDeck.cards, revCards, refCardHash);
+
+        newDeck.revisions.push({
+            number: rev.number,
             userId: rev.userId,
             url: rev.url,
-            number: rev.number,
+            cost: rev.cost,
             dateAdded: rev.dateAdded,
             diff: diff.diff,
             cardAddition: diff.cardAddition,
             cardRemoval: diff.cardRemoval
-        };
+        });
     });
 
     return newDeck.save()
@@ -368,23 +358,25 @@ export interface DeckDB<T extends string | CardDB> extends mongoose.Document {
     dateAdded: Date;
     userId: string;
     deleted: boolean;
-    revisions: {
-        userId: string;
-        url?: string;
-        number: number,
-        dateAdded: Date,
-        diff: number,
-        cardAddition: {
-            card: T,
-            count: number
-        }[],
-        cardRemoval: {
-            card: T,
-            count: number
-        }[]
-    }[];
+    revisions: DeckRevisionDB<T>[];
 };
 
+export interface DeckRevisionDB<T extends string | CardDB> {
+    userId: string;
+    url?: string;
+    number: number;
+    cost: number;
+    dateAdded: Date;
+    diff: number;
+    cardAddition: {
+        card: T;
+        count: number;
+    }[];
+    cardRemoval: {
+        card: T;
+        count: number;
+    }[];
+}
 
 interface DeckStatics {
     generateId: (cards: { [cardName: string]: number }) => string;

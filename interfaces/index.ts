@@ -23,39 +23,32 @@ export interface Card {
     numberAvailable?: number;
 }
 
-export interface Deck<T extends string | Card> extends DeckInfo {
-    id: string;
-    name: string;
+export interface PseudoDeck<T extends string | Card> {
     url: string;
+    dateAdded: Date;
+    userId: string;
+    class: hstypes.CardClass;
     className: string;
     cost: number;
     dustNeeded: number;
     collected: boolean;
-    userCollection?: boolean;
-    class: hstypes.CardClass;
     cards: CardCount<T>[];
-    revisions?: DeckRevision<T>[];
 }
 
-export interface DeckRevision<T extends string | Card> extends PseudoDeck<T>, DeckInfo, Diff<T> {
+export interface Deck<T extends string | Card> extends PseudoDeck<T> {
+    id: string;
+    name: string;
+    revisions?: DeckRevision<T>[];
+    userCollection?: boolean;
+    deleted?: boolean;
+}
+
+export interface DeckRevision<T extends string | Card> extends PseudoDeck<T>, Diff<T> {
     number: number;
 }
 
 export interface DeckDiff<T extends string | Card> extends Diff<T> {
     deck: Deck<T>;
-}
-export interface PseudoDeck<T extends string | Card> extends DeckInfo {
-    cards: CardCount<T>[];
-    collected?: boolean;
-}
-
-export interface DeckInfo {
-    id?: string;
-    url?: string;
-    dateAdded: Date;
-    userId: string;
-    userCollection?: boolean;
-    deleted?: boolean;
 }
 
 export interface Diff<T extends string | Card> {

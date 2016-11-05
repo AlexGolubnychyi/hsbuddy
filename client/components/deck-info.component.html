@@ -2,10 +2,10 @@
 	<div *ngIf="showUserCollection" class="deck-user-collection">
 		<div class="checkbox ">
 			<label>
-                <input type="checkbox" id="blankCheckbox" [ngModel]="deckInfo.userCollection" (ngModelChange)="userCollectionChangeStream.next($event)">
+                <input type="checkbox" id="blankCheckbox" [ngModel]="deck.userCollection" (ngModelChange)="userCollectionChangeStream.next($event)">
                 Include in personal collection
             </label>
 		</div>
 	</div>
-	<div class="deck-metadata">added {{utils.formatDate(deckInfo.dateAdded)}} by {{deckInfo.userId || "~magic~"}}</div>
+	<div class="deck-metadata">added {{utils.formatDate(deck.dateAdded)}} by {{deck.userId || "~magic~"}}</div>
 </div>
