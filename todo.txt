@@ -34,16 +34,20 @@
 (done) add text search for decks/cards
 (done) mana curve, spell/minion break down
 (done) navbar collapse on mobile
+(done)upgrade deck functionality, force from UI
+(fixed) http://localhost:3000/deck/060f489460c3c8851d455a61219ea13c08829368 dust count
+(done) add display styles for non-auth
+(done) move to jwt auth
 
 (done?) think of the way to distinguish old deck from new decks (http://hearthstone.metabomb.net/deck-guides/control-warrior-standard-deck-list-and-guide-hearthstone-july)
 (partial) diff decks
 
-(!!!!) upgrade deck functionality, force from UI
+
 (!!!)aggro paladin??
-(fixed) http://localhost:3000/deck/060f489460c3c8851d455a61219ea13c08829368 dust count
 
+- inverse diffs (like http://www.hearthpwn.com/decks/649359-84-3-win-rate-sylvanass-dirty-little-secretes#related:revisions)
+- migrate rev deck costs and show this info in ui
 
-- add display styles for non-auth
 
 - merge deck component and deck detail component ?
 -ability to set deck alias

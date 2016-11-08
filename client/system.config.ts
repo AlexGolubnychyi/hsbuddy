@@ -12,6 +12,7 @@ declare var module: NodeModule;
             "interfaces": "interfaces",
             "ng2-bootstrap": "npm:ng2-bootstrap",
             "rxjs": "npm:rxjs",
+            "angular2-jwt": "npm:angular2-jwt",
             "@angular/core": "npm:@angular/core/bundles/core.umd.js",
             "@angular/common": "npm:@angular/common/bundles/common.umd.js",
             "@angular/compiler": "npm:@angular/compiler/bundles/compiler.umd.js",
@@ -22,10 +23,11 @@ declare var module: NodeModule;
             "@angular/forms": "npm:@angular/forms/bundles/forms.umd.js",
         },
         packages: {
-            "@angular": {defaultExtension: "js"},
-            ngfactory: {defaultExtension: "js"},
+            "@angular": { defaultExtension: "js" },
+            ngfactory: { defaultExtension: "js" },
             app: { main: "main.js", defaultExtension: "js" },
             "ng2-bootstrap": { defaultExtension: "js" },
+            "angular2-jwt": { defaultExtension: "js" },
             interfaces: { defaultExtension: "js" },
             rxjs: { defaultExtension: "js" },
         }

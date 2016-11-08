@@ -113,6 +113,11 @@ export interface CardLibraryInfo<T extends string | Card> {
 export interface AuthResult {
     success: boolean;
     error?: string;
+    token?: any;
+}
+
+export interface TokenPayload {
+    username: string;
 }
 
 export interface Result {

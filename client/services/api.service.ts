@@ -1,5 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Http } from "@angular/http";
+import { AuthHttp  } from "angular2-jwt/angular2-jwt";
 import { Observable } from "rxjs/Observable";
 import * as contracts from "../../interfaces/index";
 import "../rxjs-operators";
@@ -11,13 +12,12 @@ const enc = encodeURIComponent;
 @Injectable()
 export class ApiService {
     public cardChanged: Subject<CardChanged>;
-    constructor(private http: Http, private cardHashService: CardHashService) {
+    constructor(private http: AuthHttp, private cardHashService: CardHashService) {
         this.cardChanged = new Subject<CardChanged>();
     }
 
     getDecks(options?: contracts.DeckQuery): Observable<contracts.Deck<contracts.Card>[]> {
         let url = this.withParams("api/deck", options);
-
 
         return this.http.get(url)
             .map(resp => resp.json() as contracts.DeckResult<contracts.Deck<string>[]>)

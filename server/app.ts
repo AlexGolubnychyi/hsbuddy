@@ -1,50 +1,44 @@
-"use strict";
-
 import * as express from "express";
-import * as session from "express-session";
 import * as path from "path";
 import { json, urlencoded } from "body-parser";
-import * as cookieParser from "cookie-parser";
 import setRoutes from "./routes";
-
+import { config } from "./lib/config";
 import loadUserInfo from "./middleware/loadUserInfo";
 import * as logger from "morgan";
-//import * as connectMongo from "connect-mongo";
 import mongoose from "./lib/mongoose";
-
-let compression = require("compression"),
-    less = require("less-middleware"),
-    favicon = require("serve-favicon"),
-    connectMongo = require("connect-mongo");
-
+import * as jwt from "express-jwt";
+import * as compression from "compression";
+import * as favicon from "serve-favicon";
+import less = require("less-middleware");
 
 const app = express();
-app.use(compression());
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "jade");
 
-
+app.use(compression());
 app.use(favicon(path.join(__dirname, "../public", "favicon.ico")));
 app.use(logger("dev"));
 
 //LESS
 app.use(less(path.join(__dirname, "../public"), { once: true }));
-
-//static
+//static files
 app.use(express.static(path.join(__dirname, "../public")));
 app.use("/node_modules", express.static(path.join(__dirname, "../node_modules")));
 
+//dev folder mapping
 if (app.get("env") === "development") {
     app.use("/client", express.static(path.join(__dirname, "../client")));
     app.use("/interfaces", express.static(path.join(__dirname, "../interfaces")));
 }
 
-//hack, remove when move to angular routing completely or creat routing sublevel
+//hack, if at this point static file is not found then short circuit to 404
+//remove when move to angular routing completely or creat routing sublevel
 app.use((req, res, next) => {
-    let fileRequest = [".js", ".html", ".ico", ".css"].some(ending => req.url.slice(-ending.length) === ending);
+    let fileRequest = [".js", ".ts", ".html", ".ico", ".css"].some(ending => req.url.slice(-ending.length) === ending);
     if (fileRequest) {
-        var err = new Error("Not Found") as any;
+        let err = new Error("Not Found") as any;
         err.status = 404;
         next(err);
         return;
@@ -52,22 +46,16 @@ app.use((req, res, next) => {
     next();
 });
 
+//check auth token
+app.use(jwt({ secret: config.mySecret, credentialsRequired: false }));
+//chech that user exists in db
+app.use(loadUserInfo);
+
+//support for req.body
 app.use(json());
 app.use(urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(session({
-    secret: "something else completely",
-    name: "hs_sid",
-    store: new (connectMongo(session))({ mongooseConnection: mongoose.connection }),
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        expires: (() => { let dt = new Date(); dt.setFullYear(dt.getFullYear() + 1); return dt; })()
-    }
-}));
 
-//make user info accessible by jade engine
-app.use(loadUserInfo);
+//finally, routing
 setRoutes(app);
 
 // catch 404 and forward to error handler
@@ -77,8 +65,8 @@ app.use((req, res, next) => {
     next(err);
 });
 
-// error handlers
 
+// error handlers
 // development error handler
 // will print stacktrace
 if (app.get("env") === "development") {

@@ -38,6 +38,13 @@ export class AppComponent implements OnInit {
         return this.authService.isAuthenticated();
     }
 
+    logout($event: Event) {
+        if ($event) {
+            $event.preventDefault();
+        }
+        this.authService.logout();
+    }
+
     get username() {
         return this.authService.userName;
     }

@@ -35,6 +35,9 @@ import { CollapseModule } from "ng2-bootstrap/components/collapse";
 import { TypeaheadModule } from "ng2-bootstrap/components/typeahead";
 import { CardPipe } from "./pipes/card.pipe";
 import { CardToolTipDirective } from "./directives/card-tooltip.directive";
+import {authProvider} from "./adapters/angular2-jwt.adapter";
+
+
 @NgModule({
     imports: [
         BrowserModule,
@@ -69,6 +72,7 @@ import { CardToolTipDirective } from "./directives/card-tooltip.directive";
         AppComponent
     ],
     providers: [
+        authProvider,
         AuthGuard,
         AuthService,
         ApiService,

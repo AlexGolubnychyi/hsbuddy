@@ -1,14 +1,16 @@
 import * as express from "express";
 import User from "../db/user";
+import { TokenPayload } from "../../interfaces";
 
+export default function (req: express.Request & {user?: any}, res: express.Response, next: express.NextFunction) {
+    let payload = req.user as TokenPayload;
+    if (!payload) {
+        next();
+        return;
+    }
 
-export default function (req: express.Request, res: express.Response, next: express.NextFunction) {
-    let userId = req.session["user"];
-
-    User.find({ userId }).then(user => {
-        if (user) {
-            req["user"] = res.locals.user = userId;
-        }
+    User.find({ userId: payload.username }).then(user => {
+        req.user = res.locals.user = user ? payload.username : undefined;
         next();
     });
 }
