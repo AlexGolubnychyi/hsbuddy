@@ -72,7 +72,7 @@
 						<h2 >
 						<a class="deck-title">Revision {{rev.number}} 
 							<span class="label label-default" *ngIf="rev.collected">collected</span>
-							<span class="label label-warning" *ngIf="!rev.collected">{{rev.dustNeeded+" / "+rev.cost}}</span>
+							<span class="label label-warning" *ngIf="!rev.collected">{{(rev.cost - rev.dustNeeded)+" / "+rev.cost}}</span>
 						</a>
 						</h2>
 					</deck>

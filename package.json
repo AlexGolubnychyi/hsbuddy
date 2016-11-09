@@ -3,8 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "engines": {
-    "node": "6.2.2",
-    "npm": "3.9.5"
+    "node": "6.6.0",
+    "npm": "3.10.8"
   },
   "scripts": {
     "start": "node ./server/bin/index.js",
