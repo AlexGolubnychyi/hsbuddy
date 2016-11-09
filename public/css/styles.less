@@ -201,10 +201,11 @@ deck {
     }
 }
 
-deck,
-.deck-detail {
+deck, .deck-detail {
     .label {
         display: inline-block;
+        font-size: 59%;
+        vertical-align: text-top;
     }
     .deck-title-container {
         margin: 0;
@@ -246,6 +247,24 @@ deck,
     .deck-title {
         color: #369;
         font-size: 80%;
+    }
+    .label {
+        font-size: 64%;
+    }
+    .label-warning {
+        background-color: #337ab7;
+    }
+}
+
+.deck-revisions {
+    h2 {
+        margin: 0;
+    }
+    .deck-title {
+        font-size: 80%;
+    }
+    .label {
+        font-size: 64%;
     }
 }
 
@@ -308,33 +327,27 @@ card-library {
     }
 }
 
-.rarity-common,
-.rarity-2 {
+.rarity-common, .rarity-2 {
     color: #0FAF03;
 }
 
-.rarity-free,
-.rarity-1 {
+.rarity-free, .rarity-1 {
     color: #000;
 }
 
-.rarity-rare,
-.rarity-3 {
+.rarity-rare, .rarity-3 {
     color: #198EFF;
 }
 
-.rarity-epic,
-.rarity-4 {
+.rarity-epic, .rarity-4 {
     color: #AB48EE;
 }
 
-.rarity-legendary,
-.rarity-5 {
+.rarity-legendary, .rarity-5 {
     color: #F07000;
 }
 
-.rarity-unknown,
-.rarity-0 {
+.rarity-unknown, .rarity-0 {
     color: #000;
 }
 
@@ -373,9 +386,7 @@ select.input-xs {
 }
 
 @keyframes sk-bouncedelay {
-    0%,
-    80%,
-    100% {
+    0%, 80%, 100% {
         -webkit-transform: scale(0)
     }
     40% {

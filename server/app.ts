@@ -12,10 +12,12 @@ import * as favicon from "serve-favicon";
 import less = require("less-middleware");
 
 const app = express();
+// const expressValidator = require('express-validator');
+// const expressStatusMonitor = require('express-status-monitor');
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
-app.set("view engine", "jade");
+app.set("view engine", "pug");
 
 app.use(compression());
 app.use(favicon(path.join(__dirname, "../public", "favicon.ico")));

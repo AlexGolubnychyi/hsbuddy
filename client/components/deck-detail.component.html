@@ -3,11 +3,12 @@
 	<deck [deck]="deck" [config]="config" [hideDetails]="false" [replaceTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [showManaCurve]="true">
 		<div *ngIf="!edit">
 			<h2 class="deck-title-container" (click)="startEdit()">
-				<a class="deck-title">
-					<span>{{utils.getDeckTitle(deck)}}</span>
+				<a class="deck-title" routerLink="/deck/{{deck.id}}">
+					<span>[{{deck.className}}] {{deck.name}}</span>
 				</a>
 				<span class="label label-default" *ngIf="deck.collected">collected</span>
-				<span class="label label-warning" *ngIf="deck.deleted">deleted</span>
+				<span class="label label-warning" *ngIf="!deck.collected">{{(deck.cost - deck.dustNeeded) + " / " + deck.cost}}</span>
+				<span class="label label-danger" *ngIf="deck.deleted">deleted</span>
 			</h2>
 		</div>
 		<div *ngIf="edit">
@@ -42,23 +43,20 @@
 		{{!!showRevision ? "< Hide deck history" : "Show deck history >"}}
 	</button>
 	<div *ngIf="showRevision">
-		<div *ngFor="let rev of deck.revisions trackBy:revIdentity">
+		<div *ngFor="let rev of deck.revisions trackBy:revIdentity" class="deck-revisions">
 			<hr/>
-			<deck [deck]="rev" [config]="config" [replaceTitle]="true">
-				<div class="deck-title">Changes from Revision {{rev.number}} <span class="label label-default" *ngIf="rev.collected">collected</span></div>
-			</deck>
 			<div class="row">
 				<div class="col-xs-12" [class.col-md-8]="textOnlyMode()">
 					<div class="row">
 						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
-							<h4>added (+):</h4>
+							<h4>(+) Added to {{ deck.revisions.length > rev.number ? 'Revision'+ (rev.number+1) : 'Latest'}}:</h4>
 							<div class="card-details">
 								<card *ngFor="let cardCount of rev.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count"
 									[showCount]="true"></card>
 							</div>
 						</div>
 						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
-							<h4>removed (-):</h4>
+							<h4>(-) Removed from Revision {{rev.number}}:</h4>
 							<div class="card-details">
 								<card *ngFor="let cardCount of rev.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count"
 									[showCount]="true"></card>
@@ -67,7 +65,19 @@
 					</div>
 				</div>
 			</div>
-			
+			<hr/>
+			<div class="row">
+				<div class="col-xs-12" >
+					<deck [deck]="rev" [config]="config" [replaceTitle]="true">
+						<h2 >
+						<a class="deck-title">Revision {{rev.number}} 
+							<span class="label label-default" *ngIf="rev.collected">collected</span>
+							<span class="label label-warning" *ngIf="!rev.collected">{{rev.dustNeeded+" / "+rev.cost}}</span>
+						</a>
+						</h2>
+					</deck>
+				</div>
+			</div>
 		</div>
 		<hr/>
 	</div>

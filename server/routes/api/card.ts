@@ -15,7 +15,7 @@ router.get("/library", (req: Request, res: express.Response, next: express.NextF
     Card.getCardLibraryInfo(req.user).then((cards) => res.json(cards));
 });
 
-router.get("/missing", (req: Request, res: express.Response, next: express.NextFunction) => {
+router.get("/missing", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
     Deck.getMissingCards(req.user, req.query).then((cards) => res.json(cards));
 });
 

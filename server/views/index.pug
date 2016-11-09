@@ -2,12 +2,12 @@ extends layout
 
 block scripts  
     if env === "development"
-      script(src="node_modules/core-js/client/shim.min.js")
-      script(src="node_modules/zone.js/dist/zone.js")
-      script(src="node_modules/systemjs/dist/system.src.js")
-      script(src="client/system.config.js")
-      script.
-        System.import("app").catch(function(err){ console.error(err); });
+        script(src="node_modules/core-js/client/shim.min.js")
+        script(src="node_modules/zone.js/dist/zone.js")
+        script(src="node_modules/systemjs/dist/system.src.js")
+        script(src="client/system.config.js")
+        script.
+            System.import("app").catch(function(err){ console.error(err); });
     else
         script(src="node_modules/core-js/client/shim.min.js")
         script(src="node_modules/zone.js/dist/zone.min.js")
@@ -15,7 +15,7 @@ block scripts
             window.module = "prod_crash_protector!"
         script(src="app.min.js" defer)
        
-  block content
+block content
     hs-app   
         div(style="margin-top:20px").spinner
             div.bounce1

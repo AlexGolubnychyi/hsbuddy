@@ -1,4 +1,4 @@
-import { CardCount } from "../../../interfaces/";
+import { CardCount, Diff } from "../../../interfaces/";
 
 type CardCountMin = CardCount<string>;
 
@@ -16,18 +16,13 @@ class Differ {
         }
 
         let otherCardHash: { [index: string]: number } = {},
-            diff: {
-                diff: number,
-                cardAddition: CardCountMin[],
-                cardRemoval: CardCountMin[]
-            } = {
-                    diff: 0,
-                    cardAddition: [],
-                    cardRemoval: []
-                };
+            diff: Diff<string> = {
+                diff: 0,
+                cardAddition: [],
+                cardRemoval: []
+            };
 
         otherCards.forEach(cardCount => {
-            //let card = !minimal && (c as CardCount).card;
             otherCardHash[cardCount.card] = cardCount.count;
             let numDiff = cardCount.count - (refCardHash[cardCount.card] || 0);
             if (!numDiff) {
@@ -58,7 +53,9 @@ class Differ {
             cardHash[removal.card] -= removal.count;
         });
 
-        return Object.keys(cardHash).map(card => (<CardCountMin>{ card, count: cardHash[card] })).filter(cardCount => cardCount.count > 0);
+        return Object.keys(cardHash)
+            .map(card => (<CardCountMin>{ card, count: cardHash[card] }))
+            .filter(cardCount => cardCount.count > 0);
     }
 }
 

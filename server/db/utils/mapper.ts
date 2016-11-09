@@ -53,7 +53,7 @@ class Mapper {
 
         //restore rev cards, depend on contract cards
         contract.revisions.forEach((rev, index) => {
-            rev.cards = differ.reverse(contract.cards, rev.cardAddition, rev.cardRemoval);
+            rev.cards = differ.reverse((contract.revisions[index - 1] || contract).cards, rev.cardAddition, rev.cardRemoval);
             //diff inversion:
             // let diff = differ.diff((contract.revisions[index - 1] || contract).cards, rev.cards);
             // rev.cardAddition = diff.cardAddition;

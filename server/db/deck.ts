@@ -26,6 +26,7 @@ const deckSchema = new mongoose.Schema({
         number: Number,
         dateAdded: Date,
         diff: Number,
+        cost: Number,
         cardAddition: [{
             card: { type: String, ref: cardSchemaName },
             count: Number
@@ -155,8 +156,8 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
 
     //add old revisions
     oldRevisions.forEach(rev => {
-        let revCards = differ.reverse(oldDeck.cards, rev.cardAddition, rev.cardRemoval),
-            diff = differ.diff(newDeck.cards, revCards, refCardHash);
+        //let revCards = differ.reverse(oldDeck.cards, rev.cardAddition, rev.cardRemoval),
+        //    diff = differ.diff(newDeck.cards, revCards, refCardHash);
 
         newDeck.revisions.push({
             number: rev.number,
@@ -164,9 +165,9 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
             url: rev.url,
             cost: rev.cost,
             dateAdded: rev.dateAdded,
-            diff: diff.diff,
-            cardAddition: diff.cardAddition,
-            cardRemoval: diff.cardRemoval
+            diff: rev.diff, //diff.diff,
+            cardAddition: rev.cardAddition, //diff.cardAddition,
+            cardRemoval: rev.cardRemoval//diff.cardRemoval
         });
     });
 

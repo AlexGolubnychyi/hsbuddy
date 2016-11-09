@@ -1,11 +1,12 @@
 import mongoose from "../lib/mongoose";
 import Card, { CardDB } from "../db/card";
-import Deck, { DeckDB } from "../db/deck";
+import Deck, { DeckDB, DeckRevisionDB } from "../db/deck";
 import * as hstypes from "../../interfaces/hs-types";
 import * as contracts from "../../interfaces";
 import version from "../db/version";
 import parser from "../parsers";
 import * as Promise from "bluebird";
+import differ from "../db/utils/differ";
 
 
 let updates: (() => Promise<void>)[] = [
@@ -18,7 +19,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion7,
     updateToVersion8,
     updateToVersion9,
-    updateToVersion10
+    updateToVersion10,
+    updateToVersion11
 ];
 
 (function checkForUpdates() {
@@ -199,7 +201,7 @@ function updateToVersion10(): Promise<void> {
                         let calculatedCost = deck.cards
                             .map(c => ({ card: cardHash[c.card], count: c.count }))
                             .reduce((cost, cardCount) => cost + cardCount.card.cost * cardCount.count, 0);
-                        if (deck.cost !== calculatedCost){
+                        if (deck.cost !== calculatedCost) {
                             console.log(`${deck.id}: ${deck.cost} <> ${calculatedCost} (calculated), "${deck.name}"`);
                         }
                         deck.cost = calculatedCost;
@@ -209,6 +211,41 @@ function updateToVersion10(): Promise<void> {
             else {
                 console.log("card cost correction already applied");
             }
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion11(): Promise<void> {
+    let version = 11;
+    console.log(`apply ver${version}`);
+    console.log(`patching revisions`);
+
+    let cardHash: { [index: string]: CardDB } = {},
+        revCardsArray: contracts.CardCount<string>[][];
+    //get decks with more than 1 revision
+    //return Deck.find({"revisions.1": { $exists: true }}).exec()
+    //get decks that have atleast 1 revision
+    return Card.find().exec()
+        .then(cards => cards.forEach(c => cardHash[c.id] = c))
+        .then(() => Deck.find({ revisions: { $gt: [] } }).exec())
+        .then(decks => {
+
+            return Promise.all(decks.map((deck: DeckDB<string>) => {
+                revCardsArray = [];
+                deck.revisions.forEach((rev: DeckRevisionDB<string>, index) => {
+                    let revCards = differ.reverse(deck.cards, rev.cardAddition, rev.cardRemoval);
+                    revCardsArray.push(revCards);
+
+                    //diff inversion:
+                    let diff = differ.diff((revCardsArray[index - 1] || deck.cards), revCards);
+                    rev.diff = diff.diff;
+                    rev.cardAddition = diff.cardAddition;
+                    rev.cardRemoval = diff.cardRemoval;
+                    //cost
+                    rev.cost = revCards.reduce((acc, cc) => acc + cc.count * cardHash[cc.card].cost, 0);
+                });
+                return deck.save();
+            }));
         })
         .then(() => console.log(`ver${version} appplied successfully`));
 }
