@@ -1,11 +1,10 @@
-import * as util from "util";
 import * as http from "http";
 
 
 export class HttpError extends  Error {
     name = "HttpError";
 
-    constructor(public status, public message) {
+    constructor(public status: number | string, public message: string) {
         super(message);
         Error.captureStackTrace(this, HttpError);
         this.message = message || http.STATUS_CODES[status] || "Error";
@@ -15,7 +14,7 @@ export class HttpError extends  Error {
 export class AuthError extends  Error {
     name = "AuthError";
 
-    constructor(public message) {
+    constructor(public message: string) {
         super(message);
         Error.captureStackTrace(this, AuthError);
     }

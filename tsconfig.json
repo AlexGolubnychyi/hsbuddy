@@ -7,7 +7,12 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "removeComments": false,
-    "noImplicitAny": false,
+    "noImplicitAny": true,
+    "suppressImplicitAnyIndexErrors": true,
+    "allowUnreachableCode": false,
+    "allowUnusedLabels": false,
+    "noImplicitUseStrict": false,
+    "noFallthroughCasesInSwitch": true,
     "lib": ["dom","es5","es6"]
   },
   "exclude": [

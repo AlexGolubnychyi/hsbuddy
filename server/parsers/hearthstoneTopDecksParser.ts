@@ -29,7 +29,7 @@ class HearthStoneTopDecksParser extends BaseDeckParser {
 
             date = (isNaN(date.valueOf()) || date > new Date()) ? new Date() : date; //but not too much
 
-            $(".deck-class").find(".card-frame").each((_, cardEl) => {
+            $(".deck-class").find(".card-frame").each((_: number, cardEl: CheerioElement) => {
                 let $cardEl = $(cardEl),
                     cardName = $cardEl.find(".card-name").text().trim(),
                     count = +$cardEl.find(".card-count").text().trim();

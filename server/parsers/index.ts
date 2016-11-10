@@ -78,7 +78,7 @@ export interface ParseReportItem {
 export class ParseError extends Error {
     name = "ParseError";
 
-    constructor(public message, public status: ParseStatus, public url: string, public deckId?: string) {
+    constructor(public message: string, public status: ParseStatus, public url: string, public deckId?: string) {
         super(message);
         Error.captureStackTrace(this, ParseError);
     }

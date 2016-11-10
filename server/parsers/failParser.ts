@@ -10,7 +10,7 @@ class FailParser extends BaseDeckParser {
         return true;
     }
 
-    getDeckData(url: string) {
+    getDeckData(url: string): null {
         return null;
     }
 }

@@ -1,8 +1,8 @@
-import * as express from "express";
+import {Request, Response, NextFunction}  from "express";
 import User from "../db/user";
 import { TokenPayload } from "../../interfaces";
 
-export default function (req: express.Request & {user?: any}, res: express.Response, next: express.NextFunction) {
+export default function (req: Request & {user?: any}, res: Response, next: NextFunction) {
     let payload = req.user as TokenPayload;
     if (!payload) {
         next();

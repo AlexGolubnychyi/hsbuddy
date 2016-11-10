@@ -26,7 +26,7 @@ class MetaBombParser extends BaseDeckParser {
         return getContent(url)
             .then($ => {
                 let unique = {};
-                $(`[href*='${keywords.deckUrl}']`).each((inx, el) => unique[($(el) as any).prop("href")] = true);
+                $(`[href*='${keywords.deckUrl}']`).each((inx: number, el: CheerioElement) => unique[($(el) as any).prop("href")] = true);
                 return Object.keys(unique);
             })
             .map((deckUrl: string) => this.parseDeck(deckUrl), { concurrency: 2 });
@@ -40,8 +40,8 @@ class MetaBombParser extends BaseDeckParser {
                 cards: { [cardName: string]: number } = {},
                 date = new Date($("span[itemprop=datePublished]").attr("content"));
 
-            $("main table").first().find("tr").each((_, tr) => {
-                $(tr).find("td").each((inx, td) => {
+            $("main table").first().find("tr").each((_: number, tr: CheerioElement) => {
+                $(tr).find("td").each((inx: number, td: CheerioElement) => {
                     let text = $(td).text();
                     if (!text) {
                         return;

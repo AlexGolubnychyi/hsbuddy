@@ -16,7 +16,7 @@ class TempoStormParser extends BaseDeckParser {
         return this.parseDeckList(url);
     }
 
-    canParse(url) {
+    canParse(url: string) {
         return this.deckRegex.test(url) || this.deckListRegex.test(url);
     }
 
@@ -48,7 +48,7 @@ class TempoStormParser extends BaseDeckParser {
 
     }
 
-    private getDeckListJSON(url): Promise<DeckListResponseObj> {
+    private getDeckListJSON(url: string): Promise<DeckListResponseObj> {
         let listName = url.match(this.deckListRegex)[1],
             payload = {
                 "where": {

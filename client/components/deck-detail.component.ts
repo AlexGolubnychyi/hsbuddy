@@ -187,7 +187,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
             });
     }
 
-    revIdentity(index: number, rev) {
+    revIdentity(index: number, rev: contracts.DeckRevision<contracts.Card>) {
         return rev.number;
     }
 

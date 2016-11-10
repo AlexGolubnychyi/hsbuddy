@@ -25,7 +25,7 @@ class HearthPwnParser extends BaseDeckParser {
                 date.setUTCSeconds(+$("li.last-updated abbr.standard-date").attr("data-epoch"));
             }
 
-            $(".class-listing .listing, .neutral-listing .listing").find("[data-id]").each((_, cardEl) => {
+            $(".class-listing .listing, .neutral-listing .listing").find("[data-id]").each((_: number, cardEl: CheerioElement) => {
                 let $td = $(cardEl).closest("td"),
                     info = $td.closest("td").text().trim().split("×"),
                     cardName = info[0].trim(),

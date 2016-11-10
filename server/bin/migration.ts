@@ -232,7 +232,7 @@ function updateToVersion11(): Promise<void> {
 
             return Promise.all(decks.map((deck: DeckDB<string>) => {
                 revCardsArray = [];
-                deck.revisions.forEach((rev: DeckRevisionDB<string>, index) => {
+                deck.revisions.forEach((rev: DeckRevisionDB<string>, index: number) => {
                     let revCards = differ.reverse(deck.cards, rev.cardAddition, rev.cardRemoval);
                     revCardsArray.push(revCards);
 

@@ -8,18 +8,11 @@
   },
   "scripts": {
     "start": "node ./server/bin/index.js",
-    "tsci": "tsc -p tsconfig-int.json",
-    "ngc": "ngc -p ngc.json",
-    "rollup": "rollup -f iife -c -o public/temp/app.es2015.js",
-    "convert-to-es5": "tsc --allowJs public/temp/app.es2015.js --out public/temp/app.js --lib es5,es6,dom",
     "migrate": "node ./server/bin/migration.js",
-    "minify": "uglifyjs public/temp/app.js --screw-ie8 --compress --mangle --output public/app.min.js",
-    "clean": "del-cli public/temp",
-    "build": "del-cli ngfactory && npm run ngc && npm run tsci && npm run rollup && npm run convert-to-es5 && npm run minify && tsc && npm run clean",
-    "postinstall": "npm run build && npm run migrate",
-    "_bundle": "browserify -s main client/main.js > public/app.js ",
-    "_build": "tsc && node ./server/bin/build && npm run minify",
-    "_build1": "tsc && npm run _bundle && npm run minify"
+    "ngc": "ngc -p ngc.json",
+    "rollup": "rollup -f iife -c -o public/app.min.js",
+    "build": "del-cli ngfactory && npm run ngc && npm run rollup && tsc",
+    "postinstall": "npm run build && npm run migrate"
   },
   "dependencies": {
     "@angular/common": "2.1.2",
@@ -72,12 +65,11 @@
     "rollup": "0.36.3",
     "rollup-plugin-commonjs": "^5.0.5",
     "rollup-plugin-node-resolve": "2.0.0",
+    "rollup-plugin-uglify": "^1.0.1",
     "rxjs": "5.0.0-rc.2",
-    "rxjs-es": "5.0.0-beta.12",
     "serve-favicon": "~2.3.0",
     "systemjs": "0.19.40",
     "typescript": "2.0.8",
-    "uglifyjs": "2.4.10",
     "zone.js": "^0.6.26"
   }
 }

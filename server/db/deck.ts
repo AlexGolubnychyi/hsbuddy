@@ -49,8 +49,8 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         cardAvailability: { [cardId: string]: number },
         userDeckIds: string[],
-        query = void 0,
-        dustNeededParam,
+        query: {} = void 0,
+        dustNeededParam: number,
         cardHash: contracts.CardHash = {};
 
     return User.getUserDeckIds(userId)

@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state, */style, animate } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state, */style, animate, SimpleChanges } from "@angular/core";
 import { Deck, Card } from "../../../interfaces/index";
 
 
@@ -25,7 +25,7 @@ export class ManaCurveComponent implements OnChanges {
     percentages: number[];
 
 
-    ngOnChanges(changes) {
+    ngOnChanges(changes: SimpleChanges) {
         this.values = [0, 0, 0, 0, 0, 0, 0, 0];
         let maxValue = this.deck.cards.reduce((_maxValue, cardCount) => {
             let manaInx = Math.min(cardCount.card.mana, 7),

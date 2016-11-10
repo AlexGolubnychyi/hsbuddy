@@ -18,14 +18,14 @@ class ManaCrystalsParser extends BaseDeckParser {
         return getContent(url).then($ => {
             let name = $(".page-header").text().trim(),
                 dateStr = $("section h4")
-                    .filter((_, h4) => $(h4).text().toLowerCase().trim() === "last updated")
+                    .filter((_: number, h4: CheerioElement) => $(h4).text().toLowerCase().trim() === "last updated")
                     .parent()
                     .find("p")
                     .text(),
                 date = new Date(dateStr),
                 cards: { [cardName: string]: number } = {};
 
-            $(".card-list-item").each((_, cardEl) => {
+            $(".card-list-item").each((_: number, cardEl: CheerioElement) => {
                 let $cardEl = $(cardEl),
                     cardName = $cardEl.find(".card-name").text().trim(),
                     count = +$cardEl.find(".quantity").text().trim();

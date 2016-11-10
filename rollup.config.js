@@ -1,25 +1,21 @@
-var nodeResolve = require("rollup-plugin-node-resolve");
-var commonjs = require("rollup-plugin-commonjs");
+// jshint esversion:6
+import rollup      from "rollup";
+import nodeResolve from "rollup-plugin-node-resolve";
+import commonjs    from "rollup-plugin-commonjs";
+import uglify      from "rollup-plugin-uglify";
 
 module.exports = {
     entry: "client/main-prod.js",
     onwarn: () => void 0,
     plugins: [
-        {
-            resolveId: id => {
-                if (id.startsWith("rxjs/")) {
-                    let result = `${__dirname}/node_modules/rxjs-es/${id.replace("rxjs/", "")}.js`;
-
-                    if (!__dirname.startsWith("/")) {
-                        return result.replace(/\//g, "\\");
-                    }
-                    return result;
-                }
-            }
-        },
-        nodeResolve({
-            module: true //this allows the ESM modules to be treeshakeable.
+        nodeResolve({jsnext: true, module: true}),
+        commonjs({
+            include: [
+                "node_modules/rxjs/**",
+                "node_modules/ng2-bootstrap/**",
+                "node_modules/angular2-jwt/**"
+            ]
         }),
-        commonjs()
+        uglify()
     ]
 };

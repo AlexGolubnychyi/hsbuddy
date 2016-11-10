@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, ChangeDetectionStrategy } from "@angular/core";
+import { Component, Input, OnChanges, ChangeDetectionStrategy, SimpleChanges } from "@angular/core";
 import { Card, CardCount } from "../../interfaces/index";
 import * as hstypes from "../../interfaces/hs-types";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
@@ -29,7 +29,7 @@ export class CardListComponent implements OnChanges {
     cardList1: CardCount<Card>[] = [];
     cardList2: CardCount<Card>[] = [];
 
-    ngOnChanges(changes) {
+    ngOnChanges(changes: SimpleChanges) {
         this.refresh();
     }
 

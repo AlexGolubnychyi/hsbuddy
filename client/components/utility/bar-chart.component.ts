@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state,*/ style, animate } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state,*/ style, animate, SimpleChanges } from "@angular/core";
 
 @Component({
     moduleId: module.id,
@@ -23,7 +23,7 @@ export class BarChartComponent implements OnChanges {
     percentages: number[];
     indexes: number[];
 
-    ngOnChanges(changes) {
+    ngOnChanges(changes: SimpleChanges) {
         this.data.image = this.data.image || <any>{};
         this.percentages = this.data.values.map(v => 100 * v.value / v.maxValue);
         this.indexes = this.data.values.map((v, inx) => inx);

@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy } from "@angular/core";
+import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy, SimpleChanges } from "@angular/core";
 import { AuthService } from "../services/auth.service";
 import { CardHashService } from "../services/card-hash.service";
 import { ConfigService } from "../services/config.service";
@@ -50,7 +50,7 @@ export class DeckComponent implements OnInit, OnChanges {
         this.auth = this.authService.isAuthenticated();
     }
 
-    ngOnChanges(changes) {
+    ngOnChanges(changes: SimpleChanges) {
         //console.log(`deck-changed: ${this.deck.name}`, changes);
         this.utils.updateDeckStats(this.deck);
         this.updateTitle();

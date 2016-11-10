@@ -32,7 +32,7 @@ userSchema.static("auth", function (userId: string, password: string) {
         });
 });
 
-userSchema.static("createUser", function (userId: string, password) {
+userSchema.static("createUser", function (userId: string, password: string) {
     let model = (this as mongoose.Model<UserDB> & UserStatics);
     userId = userId && userId.toLowerCase().trim();
     password = password && password.trim();
@@ -52,7 +52,7 @@ userSchema.static("createUser", function (userId: string, password) {
     });
 });
 
-userSchema.static("getUserDeckIds", function (userId) {
+userSchema.static("getUserDeckIds", function (userId: string) {
     let model = (this as mongoose.Model<UserDB> & UserStatics);
     if (!userId) {
         return Promise.resolve([]);
@@ -66,7 +66,7 @@ userSchema.static("getUserDeckIds", function (userId) {
     });
 });
 
-userSchema.static("setUserDeck", function (userId, deckId, set: boolean) {
+userSchema.static("setUserDeck", function (userId: string, deckId: string, set: boolean) {
     let model = (this as mongoose.Model<UserDB> & UserStatics),
         result: contracts.CollectionChangeStatus = {
             collection: set,
@@ -107,8 +107,8 @@ export interface UserDB extends mongoose.Document {
 
 interface UserStatics {
     encrypt: (password: string) => string;
-    auth: (userId: string, password) => Promise<UserDB>;
-    createUser: (userId: string, password) => Promise<UserDB>;
+    auth: (userId: string, password: string) => Promise<UserDB>;
+    createUser: (userId: string, password: string) => Promise<UserDB>;
     getUserDeckIds: (userId: string) => Promise<string[]>;
     setUserDeck: (userId: string, deckId: string, set: boolean) => Promise<contracts.CollectionChangeStatus>;
 }
