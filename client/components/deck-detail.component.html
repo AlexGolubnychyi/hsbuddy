@@ -49,17 +49,17 @@
 				<div class="col-xs-12" [class.col-md-8]="textOnlyMode()">
 					<div class="row">
 						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
-							<h4>(+) Added to {{ deck.revisions.length > rev.number ? 'Revision'+ (rev.number+1) : 'Latest'}}:</h4>
+							<h4>(+) Added to {{ deck.revisions.length > rev.number ? 'Revision '+ (rev.number+1) : 'Latest'}}:</h4>
 							<div class="card-details">
 								<card *ngFor="let cardCount of rev.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count"
-									[showCount]="true"></card>
+									[showCount]="true" [noHighlight]="true"></card>
 							</div>
 						</div>
 						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
 							<h4>(-) Removed from Revision {{rev.number}}:</h4>
 							<div class="card-details">
 								<card *ngFor="let cardCount of rev.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card" [count]="cardCount.count"
-									[showCount]="true"></card>
+									[showCount]="true" [noHighlight]="true"></card>
 							</div>
 						</div>
 					</div>
@@ -97,14 +97,14 @@
 							<h4>removed (-):</h4>
 							<div class="card-details">
 								<card *ngFor="let cardCount of simDeck.cardRemoval | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card"
-									[count]="cardCount.count" [showCount]="true"></card>
+									[count]="cardCount.count" [showCount]="true" [noHighlight]="true"></card>
 							</div>
 						</div>
 						<div class="col-xs-12 col-sm-6" [class.col-md-6]="textOnlyMode()" [class.col-lg-5]="textOnlyMode()">
 							<h4>added (+):</h4>
 							<div class="card-details">
 								<card *ngFor="let cardCount of simDeck.cardAddition | cardpipe: cardFilterOpts" [config]="config" [card]="cardCount.card"
-									[count]="cardCount.count" [showCount]="true"></card>
+									[count]="cardCount.count" [showCount]="true" [noHighlight]="true"></card>
 							</div>
 						</div>
 					</div>

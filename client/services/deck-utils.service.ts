@@ -27,7 +27,7 @@ export class DeckUtilsService {
 
         deck.cards.forEach(cardCount => {
             if (cardCount.card.id === lastUpdatedCardId) {
-                cardCount.card = lastUpdatedCard;
+                cardCount.card = lastUpdatedCard; // trigger component change check
             }
             dustNeeded -= cardCount.card.cost * Math.min(cardCount.card.numberAvailable, cardCount.count);
             collected = collected && (cardCount.card.numberAvailable >= cardCount.count || cardCount.card.cardSet === CardSet.Basic);

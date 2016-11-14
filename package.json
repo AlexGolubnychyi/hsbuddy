@@ -10,7 +10,7 @@
     "start": "node ./server/bin/index.js",
     "migrate": "node ./server/bin/migration.js",
     "ngc": "ngc -p ngc.json",
-    "rollup": "rollup -f iife -c -o public/app.min.js",
+    "rollup": "rollup -c",
     "build": "del-cli ngfactory && npm run ngc && npm run rollup && tsc",
     "postinstall": "npm run build && npm run migrate"
   },

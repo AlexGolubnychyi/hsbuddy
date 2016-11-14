@@ -1,11 +1,10 @@
 import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy, SimpleChanges } from "@angular/core";
 import { AuthService } from "../services/auth.service";
 import { CardHashService } from "../services/card-hash.service";
-import { ConfigService } from "../services/config.service";
 import { DeckUtilsService } from "../services/deck-utils.service";
-import { PseudoDeck, Deck, Card } from "../../interfaces/index";
+import { PseudoDeck, Card, Deck } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
-import { Config, cardStyles } from "../services/config.service";
+import { Config, cardStyles, ConfigService } from "../services/config.service";
 import "../rxjs-operators";
 
 @Component({
@@ -28,7 +27,6 @@ export class DeckComponent implements OnInit, OnChanges {
     @Output()
     onDeleteDeck = new EventEmitter<string>();
 
-    title: string;
     sortOptions = SortOptions;
     filter: CardPipeArg = {
         hideAvailable: false,
@@ -46,14 +44,12 @@ export class DeckComponent implements OnInit, OnChanges {
     ) { }
 
     ngOnInit() {
-        this.updateTitle();
         this.auth = this.authService.isAuthenticated();
     }
 
     ngOnChanges(changes: SimpleChanges) {
         //console.log(`deck-changed: ${this.deck.name}`, changes);
         this.utils.updateDeckStats(this.deck);
-        this.updateTitle();
         this.updateCardListFilter(); //trigger update in card list
     }
 
@@ -76,14 +72,4 @@ export class DeckComponent implements OnInit, OnChanges {
     private updateCardListFilter() {
         this.filter = Object.assign({}, this.filter);
     }
-
-    private updateTitle() {
-        if (this.replaceTitle) {
-            return;
-        }
-        if (this.utils.isDeck(this.deck)) {
-            this.title = this.utils.getDeckTitle(this.deck);
-        }
-    }
-
 }

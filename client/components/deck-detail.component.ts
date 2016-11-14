@@ -9,8 +9,9 @@ import { FormGroup, FormBuilder, Validators } from "@angular/forms";
 import { DeckUtilsService } from "../services/deck-utils.service";
 import { Observable } from "rxjs/Observable";
 import { DeckComponent } from "./deck.component";
-import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
+import { CardPipeArg, SortOptions } from "../pipes/card.pipe";
 import { BaseComponent } from "./base.component";
+
 
 @Component({
     moduleId: module.id,
@@ -195,7 +196,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
         this.utils.updateDeckStats(this.deck);
 
         if (this.containsChangedCard(this.deck.cards, cardChanged)) {
-            this.deck = Object.assign({}, this.deck);
+            this.deck = Object.assign({}, this.deck); //trigger deck changes check
         }
         if (this.similarDecks) {
             this.similarDecks.forEach(sd => {

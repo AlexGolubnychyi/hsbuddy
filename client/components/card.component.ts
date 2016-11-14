@@ -21,6 +21,9 @@ export class CardComponent implements OnInit {
     showCount: boolean;
     @Input()
     config: Config;
+    @Input()
+    noHighlight = false;
+
     basic: boolean;
     loading: boolean;
     cardImgName: string;
@@ -40,7 +43,7 @@ export class CardComponent implements OnInit {
     }
 
     getAvailStatus() {
-        if (this.basic || !this.authService.isAuthenticated() || this.count <= this.card.numberAvailable) {
+        if (this.noHighlight || this.basic || !this.authService.isAuthenticated() || this.count <= this.card.numberAvailable) {
             return "";
         }
 

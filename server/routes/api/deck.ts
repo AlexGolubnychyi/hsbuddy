@@ -1,5 +1,3 @@
-"use strict";
-
 import * as express from "express";
 import * as authChecks from "../../middleware/authChecks";
 import User from "../../db/user";
