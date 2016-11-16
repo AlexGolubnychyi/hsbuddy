@@ -19,31 +19,49 @@ export class DeckUtilsService {
         return `[${deck.className}] ${deck.name} (${deck.cost})`;
     }
 
-    updateDeckStats(deck: contracts.Deck<contracts.Card> | contracts.PseudoDeck<contracts.Card>) {
+    updateDeckStats<T extends contracts.Deck<contracts.Card> | contracts.PseudoDeck<contracts.Card>>(deck: T)  {
         let collected = true,
             dustNeeded = deck.cost,
             lastUpdatedCardId = this.cardHashService.lastUpdateCardId,
-            lastUpdatedCard = this.cardHashService.getCard(lastUpdatedCardId);
+            lastUpdatedCard = this.cardHashService.getCard(lastUpdatedCardId),
+            changed = false;
 
+        //deck
         deck.cards.forEach(cardCount => {
             if (cardCount.card.id === lastUpdatedCardId) {
+                changed = true;
                 cardCount.card = lastUpdatedCard; // trigger component change check
             }
             dustNeeded -= cardCount.card.cost * Math.min(cardCount.card.numberAvailable, cardCount.count);
             collected = collected && (cardCount.card.numberAvailable >= cardCount.count || cardCount.card.cardSet === CardSet.Basic);
         });
+        deck.dustNeeded = dustNeeded;
+        deck.collected = collected;
 
+        //deck revisions 
         if (this.isDeck(deck) && deck.revisions) {
-            deck.revisions.forEach(rev => {
-                rev.collected = rev.cards.every((cardCount) => cardCount.card.numberAvailable >= cardCount.count);
-                this.updateCards(rev.cards);
+            deck.revisions = deck.revisions.map(rev => {
+                let revChanged = false,
+                    revCollected = true;
+                rev.cards.forEach(cardCount => {
+                    if (cardCount.card.id === lastUpdatedCardId) {
+                        cardCount.card = lastUpdatedCard;
+                        revChanged = true;
+                    }
+                    revCollected = revCollected && cardCount.card.numberAvailable >= cardCount.count;
+                });
+                rev.collected = revCollected;
+
                 this.updateCards(rev.cardAddition);
                 this.updateCards(rev.cardRemoval);
+                if (revChanged) {
+                    return this.updateRef(rev);
+                }
+                return rev;
             });
         }
 
-        deck.dustNeeded = dustNeeded;
-        deck.collected = collected;
+        return changed ? this.updateRef(deck) : deck;
     }
 
     isDeck(deck: contracts.Deck<contracts.Card> | contracts.PseudoDeck<contracts.Card>): deck is contracts.Deck<contracts.Card> {
@@ -51,9 +69,13 @@ export class DeckUtilsService {
     }
 
     updateDeckDiffStats(diff: contracts.DeckDiff<contracts.Card>) {
-        this.updateDeckStats(diff.deck);
         this.updateCards(diff.cardAddition);
         this.updateCards(diff.cardRemoval);
+        diff.deck = this.updateDeckStats(diff.deck);
+    }
+
+    updateRef<T>(obj: T) {
+        return Object.assign({}, obj);
     }
 
     formatDate(date: string | Date) {
