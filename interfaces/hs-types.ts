@@ -3,7 +3,7 @@ export enum CardClass { unknown, neutral, druid, hunter, mage, paladin, priest, 
 export enum CardType { unknown, weapon, ability, minion, hero };
 export enum CardSet {
     unknown = 0, Basic, Expert, BlackrockMountain, TheGrandTournament,
-    LeagueOfExplorers, WhispersoftheOldGods, Naxxramas, GoblinsvsGnomes, Reward, OneNightInKarazhan
+    LeagueOfExplorers, WhispersoftheOldGods, Naxxramas, GoblinsvsGnomes, Reward, OneNightInKarazhan, MeanStreetsOfGadgetzan
 };
 export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, totem };
 
@@ -14,14 +14,15 @@ export var standardCardSets = [
     CardSet.LeagueOfExplorers,
     CardSet.TheGrandTournament,
     CardSet.WhispersoftheOldGods,
-    CardSet.OneNightInKarazhan
+    CardSet.OneNightInKarazhan,
+    CardSet.MeanStreetsOfGadgetzan,
 ];
 
 export var dust = "dust";
 
 const rarityMapping = [-1, 0, 40, 100, 400, 1600],
     cardSetMapping = ["-", "Basic", "Expert", "Blackrock Mountain", "The Grand Tournament", "League of Explorers",
-        "Whispers of the Old Gods", "Curse of Naxxramas", "Goblins vs Gnomes", "Reward", "One Night in Karazhan"];
+        "Whispers of the Old Gods", "Curse of Naxxramas", "Goblins vs Gnomes", "Reward", "One Night in Karazhan", "Mean Streets of Gadgetzan"];
 
 class HsTypeConverter {
     getEnumLabel(enumerable: { [index: number]: string }, key: number) {

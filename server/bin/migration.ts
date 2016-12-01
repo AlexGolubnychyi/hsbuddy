@@ -20,7 +20,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion8,
     updateToVersion9,
     updateToVersion10,
-    updateToVersion11
+    updateToVersion11,
+    updateToVersion12
 ];
 
 (function checkForUpdates() {
@@ -246,6 +247,23 @@ function updateToVersion11(): Promise<void> {
                 });
                 return deck.save();
             }));
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion12(): Promise<void> {
+    let version = 12;
+    console.log(`apply ver${version}`);
+    return Card.findById("abyssalenforcer").exec()
+        .then(card => {
+            if (card === null) {
+                console.log("Mean Streets of Gadgetzan set not found => repopulate!");
+                return Card.remove({}).exec()
+                    .then(() => parser.populateWithCards());
+            }
+            else {
+                console.log("db already contains Mean Streets of Gadgetzan");
+            }
         })
         .then(() => console.log(`ver${version} appplied successfully`));
 }
