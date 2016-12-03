@@ -21,7 +21,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion9,
     updateToVersion10,
     updateToVersion11,
-    updateToVersion12
+    updateToVersion12,
+    updateToVersion13
 ];
 
 (function checkForUpdates() {
@@ -263,6 +264,22 @@ function updateToVersion12(): Promise<void> {
             }
             else {
                 console.log("db already contains Mean Streets of Gadgetzan");
+            }
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+function updateToVersion13(): Promise<void> {
+    let version = 13;
+    console.log(`apply ver${version}`);
+    return Card.findById("wisp").exec()
+        .then(card => {
+            if (card === null) {
+                console.log("0 mana neutrals not found => repopulate!");
+                return Card.remove({}).exec()
+                    .then(() => parser.populateWithCards());
+            }
+            else {
+                console.log("db already has fix card collection");
             }
         })
         .then(() => console.log(`ver${version} appplied successfully`));

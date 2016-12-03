@@ -8,7 +8,7 @@ let hearthPwnUrl = "http://www.hearthpwn.com/cards?page=@@@";
 let hearthPwnUrlExt = "http://www.hearthpwn.com/cards?display=1&filter-premium=1&page=@@@";
 
 export default function () {
-    let cnt = 20,
+    let cnt = 40,
         urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrl.replace("@@@", (inx + 1) + "")),
         cards: { [id: string]: CardDB } = {};
 
