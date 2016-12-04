@@ -31,8 +31,8 @@ userSchema.static("auth", function (userId: string, password: string) {
             if (!user || model.encrypt(password) !== user.passwordHash) {
                 return <any>Promise.reject(new AuthError("invalid username or password"));
             }
-
-            return user.save().then(() => user);
+            user.latestActivityDate = new Date();
+            return user.save();
         });
 });
 
@@ -65,6 +65,7 @@ userSchema.static("createUser", function (userId: string, password: string) {
         user = new model();
         user._id = userId;
         user.passwordHash = model.encrypt(password);
+        user.latestActivityDate = new Date();
         return user.save().then(() => user);
     });
 });
