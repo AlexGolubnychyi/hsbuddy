@@ -45,6 +45,10 @@
 (partial) diff decks
 (!!!)aggro paladin??
 
+- missing cards - prettify deck names, add card filters
+- log user activity dates
+- show dust remaining
+
 - merge deck component and deck detail component ?
 -ability to set deck alias
 

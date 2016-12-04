@@ -9,7 +9,7 @@ export default function (req: Request & {user?: any}, res: Response, next: NextF
         return;
     }
 
-    User.find({ userId: payload.username }).then(user => {
+    User.loadUser(payload.username).then(user => {
         req.user = res.locals.user = user ? payload.username : undefined;
         next();
     });

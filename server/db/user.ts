@@ -13,8 +13,12 @@ const salt = "everything is better with salt";
 const userSchema = new mongoose.Schema({
     _id: String,
     passwordHash: String,
-    decks: [{ type: String, ref: deckSchemaName }]
+    decks: [{ type: String, ref: deckSchemaName }],
+    latestActivityDate: Date
 });
+
+
+let userActivityCache: { [userId: string]: boolean } = {};
 
 userSchema.static("encrypt", (password: string) => crypto.createHmac("sha1", salt).update(password).digest("hex"));
 
@@ -28,8 +32,21 @@ userSchema.static("auth", function (userId: string, password: string) {
                 return <any>Promise.reject(new AuthError("invalid username or password"));
             }
 
-            return Promise.resolve(user);
+            return user.save().then(() => user);
         });
+});
+
+userSchema.static("loadUser", function (userId: string) {
+    let model = (this as mongoose.Model<UserDB> & UserStatics);
+    return model.findById(userId).then(user => {
+        if (userActivityCache[userId] || !user) {
+            return user;
+        }
+        //dates will keep updating cause heroku restarts server all the time
+        user.latestActivityDate = new Date();
+        userActivityCache[userId] = true;
+        return user.save();
+    });
 });
 
 userSchema.static("createUser", function (userId: string, password: string) {
@@ -103,6 +120,7 @@ export interface UserDB extends mongoose.Document {
     _id: string;
     passwordHash: string;
     decks: string[] | DeckDB<string | CardDB>[];
+    latestActivityDate: Date;
 }
 
 interface UserStatics {
@@ -111,6 +129,7 @@ interface UserStatics {
     createUser: (userId: string, password: string) => Promise<UserDB>;
     getUserDeckIds: (userId: string) => Promise<string[]>;
     setUserDeck: (userId: string, deckId: string, set: boolean) => Promise<contracts.CollectionChangeStatus>;
+    loadUser: (userId: string) => Promise<UserDB>;
 }
 export const userSchemaName = "User";
 export default mongoose.model<UserDB>(userSchemaName, userSchema) as mongoose.Model<UserDB> & UserStatics;
