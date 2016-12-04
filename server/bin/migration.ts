@@ -22,7 +22,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion10,
     updateToVersion11,
     updateToVersion12,
-    updateToVersion13
+    updateToVersion13,
+    updateToVersion14
 ];
 
 (function checkForUpdates() {
@@ -280,6 +281,27 @@ function updateToVersion13(): Promise<void> {
             }
             else {
                 console.log("db already has fix card collection");
+            }
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion14(): Promise<void> {
+    let version = 14;
+    console.log(`apply ver${version}`);
+    return Card.findById("cthun").exec()
+        .then(testCard => {
+            if (testCard.cost > 0) {
+                console.log("fix C'Thun");
+                return Card.find({ $or: [{ _id: "cthun" }, { _id: "beckonerofevil" }] }).exec()
+                    .map((card: CardDB) => {
+                        card.cost = 0;
+                        return card.save();
+                    });
+
+            }
+            else {
+                console.log("C'thun is fixed");
             }
         })
         .then(() => console.log(`ver${version} appplied successfully`));

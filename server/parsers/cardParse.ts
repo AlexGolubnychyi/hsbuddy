@@ -1,6 +1,6 @@
 import * as Promise from "bluebird";
 import Card, { CardDB } from "../db/card";
-import {getContent} from "../lib/request";
+import { getContent } from "../lib/request";
 import * as hsTypes from "../../interfaces/hs-types";
 import mongoose from "../lib/mongoose";
 
@@ -73,6 +73,10 @@ export default function () {
 
                 if (typeof card.cost === "undefined") {
                     card.cost = hsTypes.hsTypeConverter.getCardCost(card.rarity);
+                    //2 very special cards, thanks WOG 
+                    if (card._id === "cthun" || card._id === "beckonerofevil") {
+                        card.cost = 0;
+                    }
                 }
 
                 if ([
