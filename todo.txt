@@ -45,6 +45,9 @@
 (partial) diff decks
 (!!!)aggro paladin??
 
+(!) update to TS 2.1.x (https://github.com/angular/angular/issues/13344)
+    update to Angular 2.3 (https://github.com/valor-software/ng2-bootstrap/issues/1307)
+
 - missing cards - prettify deck names, add card filters
 - log user activity dates
 - show dust remaining

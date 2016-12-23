@@ -30,9 +30,7 @@ import { DeckDetailComponent } from "./components/deck-detail.component";
 import { ManaCurveComponent } from "./components/utility/mana-curve.component";
 import { BarChartComponent } from "./components/utility/bar-chart.component";
 import { PillowChartComponent } from "./components/utility/pillow-chart.component";
-import { DropdownModule} from "ng2-bootstrap/components/dropdown";
-import { CollapseModule } from "ng2-bootstrap/components/collapse";
-import { TypeaheadModule } from "ng2-bootstrap/components/typeahead";
+import {DropdownModule, CollapseModule, TypeaheadModule} from "ng2-bootstrap";
 import { CardPipe } from "./pipes/card.pipe";
 import { CardToolTipDirective } from "./directives/card-tooltip.directive";
 import {authProvider} from "./adapters/angular2-jwt.adapter";
@@ -45,9 +43,9 @@ import {authProvider} from "./adapters/angular2-jwt.adapter";
         ReactiveFormsModule,
         FormsModule,
         HttpModule,
-        DropdownModule,
-        CollapseModule,
-        TypeaheadModule
+        DropdownModule.forRoot(),
+        CollapseModule.forRoot(),
+        TypeaheadModule.forRoot()
     ],
     declarations: [
         ManaCurveComponent,

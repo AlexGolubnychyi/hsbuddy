@@ -10,7 +10,7 @@ declare var module: NodeModule;
         map: {
             "app": "client", // "dist",
             "interfaces": "interfaces",
-            "ng2-bootstrap": "npm:ng2-bootstrap",
+            "ng2-bootstrap": "npm:ng2-bootstrap/bundles/ng2-bootstrap.umd.js",
             "rxjs": "npm:rxjs",
             "angular2-jwt": "npm:angular2-jwt",
             "@angular/core": "npm:@angular/core/bundles/core.umd.js",
