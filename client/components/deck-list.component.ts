@@ -1,4 +1,4 @@
-import { Component, ViewChild, AfterViewInit, OnInit, OnDestroy, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
+import { Component, ViewChild, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
 import { ApiService, CardChanged } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService } from "../services/config.service";
@@ -12,7 +12,7 @@ import { BaseComponent } from "./base.component";
     changeDetection: ChangeDetectionStrategy.OnPush
 
 })
-export class DeckListComponent extends BaseComponent implements AfterViewInit, OnInit, OnDestroy {
+export class DeckListComponent extends BaseComponent implements AfterViewInit {
     decks: Deck<Card>[] = [];
     loading: boolean = true;
 
@@ -35,14 +35,6 @@ export class DeckListComponent extends BaseComponent implements AfterViewInit, O
                 this.loading = false;
 
             });
-    }
-
-    ngOnInit() {
-        super.ngOnInit();
-    }
-
-    ngDestroy() {
-        super.ngOnDestroy();
     }
 
     deckIdentity(index: number, deck: Deck<Card>) {

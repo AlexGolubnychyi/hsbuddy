@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from "@angular/core";
+import { Component, OnInit } from "@angular/core";
 import { ApiService, CardChanged } from "../services/api.service";
 import { CardHashService } from "../services/card-hash.service";
 import { AuthService } from "../services/auth.service";
@@ -16,7 +16,7 @@ import { Subject } from "rxjs/Subject";
     selector: "card-library",
     templateUrl: "card-library.component.html",
 })
-export class CardLibraryComponent extends BaseComponent implements OnInit, OnDestroy {
+export class CardLibraryComponent extends BaseComponent implements OnInit {
     constructor(
         apiService: ApiService,
         configService: ConfigService,
@@ -62,10 +62,6 @@ export class CardLibraryComponent extends BaseComponent implements OnInit, OnDes
                 this.filter.name = cardName && cardName.trim().toUpperCase();
                 this.applyFilter();
             });
-    }
-
-    ngDestroy() {
-        super.ngOnDestroy();
     }
 
     enumKvp(enumerable: { [index: number]: string }) {

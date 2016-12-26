@@ -1,4 +1,4 @@
-import { Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, OnInit, OnDestroy } from "@angular/core";
+import { Component, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, OnInit } from "@angular/core";
 import { Router, ActivatedRoute } from "@angular/router";
 import { ApiService, CardChanged } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
@@ -19,7 +19,7 @@ import { BaseComponent } from "./base.component";
     templateUrl: "deck-detail.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DeckDetailComponent extends BaseComponent implements OnInit, OnDestroy {
+export class DeckDetailComponent extends BaseComponent implements OnInit {
     deck: contracts.Deck<contracts.Card>;
     similarDecks: contracts.DeckDiff<contracts.Card>[];
     loading: boolean;
@@ -76,10 +76,6 @@ export class DeckDetailComponent extends BaseComponent implements OnInit, OnDest
                 this.setDefaults();
                 this.ref.markForCheck();
             });
-    }
-
-    ngDestroy() {
-        super.ngOnDestroy();
     }
 
     toggleSimilarDecks() {
