@@ -18,10 +18,10 @@ export default {
                 "node_modules/rxjs/**",
                 "node_modules/ng2-bootstrap/**",
                 "node_modules/angular2-jwt/**"
-            ],
-            namedExports: {
-                "node_modules/ng2-bootstrap/index.js": ["DropdownModule", "CollapseModule","TypeaheadModule"],
-            }
+            ]//,
+            // namedExports: {
+            //     "node_modules/ng2-bootstrap/index.js": ["DropdownModule", "CollapseModule","TypeaheadModule"],
+            // }
         }),
         uglify()
     ]
