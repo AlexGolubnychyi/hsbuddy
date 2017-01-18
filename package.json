@@ -15,16 +15,16 @@
     "postinstall": "npm run build && npm run migrate"
   },
   "dependencies": {
-    "@angular/common": "4.0.0-beta.1",
-    "@angular/compiler": "4.0.0-beta.1",
-    "@angular/compiler-cli": "4.0.0-beta.1",
-    "@angular/core": "4.0.0-beta.1",
-    "@angular/forms": "4.0.0-beta.1",
-    "@angular/http": "4.0.0-beta.1",
-    "@angular/platform-browser": "4.0.0-beta.1",
-    "@angular/platform-browser-dynamic": "4.0.0-beta.1",
-    "@angular/platform-server": "4.0.0-beta.1",
-    "@angular/router": "4.0.0-beta.1",
+    "@angular/common": "4.0.0-beta.3",
+    "@angular/compiler": "4.0.0-beta.3",
+    "@angular/compiler-cli": "4.0.0-beta.3",
+    "@angular/core": "4.0.0-beta.3",
+    "@angular/forms": "4.0.0-beta.3",
+    "@angular/http": "4.0.0-beta.3",
+    "@angular/platform-browser": "4.0.0-beta.3",
+    "@angular/platform-browser-dynamic": "4.0.0-beta.3",
+    "@angular/platform-server": "4.0.0-beta.3",
+    "@angular/router": "4.0.0-beta.3",
     "@types/bluebird": "^3.0.35",
     "@types/body-parser": "0.0.33",
     "@types/chalk": "^0.4.31",
@@ -58,7 +58,7 @@
     "mongodb": "^2.2.16",
     "mongoose": "4.6.6",
     "morgan": "~1.7.0",
-    "ng2-bootstrap": "^1.1.16-10",
+    "ng2-bootstrap": "^1.2.5",
     "pug": "2.0.0-beta6",
     "reflect-metadata": "^0.1.9",
     "request": "2.78.0",
@@ -70,6 +70,6 @@
     "serve-favicon": "~2.3.0",
     "systemjs": "0.19.40",
     "typescript": "2.0.10",
-    "zone.js": "0.7.4"
+    "zone.js": "0.7.6"
   }
 }
