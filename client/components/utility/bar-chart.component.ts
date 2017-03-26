@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state,*/ style, animate, SimpleChanges } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Input, OnChanges,  SimpleChanges } from "@angular/core";
+import {trigger, transition, state, style, animate} from "@angular/animations";
 
 @Component({
     moduleId: module.id,
@@ -7,11 +8,9 @@ import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transiti
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations: [
         trigger("heightSet", [
-            //state("false", style({ height: "0" })),
-            // state("true", style({ height: "*" })),
             transition("void => *", [
-                style({ height: "50%" }),
-                animate(".4s ease")
+                style({ width: "0%" }),
+                animate("0.4s ease")
             ])
         ])
     ]

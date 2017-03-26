@@ -22,5 +22,6 @@
 
     },
     "editor.snippetSuggestions": "bottom",
-    "typescript.check.workspaceVersion": false
+    "typescript.check.workspaceVersion": false,
+    "vsicons.presets.angular": true
 }

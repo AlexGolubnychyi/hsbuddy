@@ -97,6 +97,7 @@ card {
 .card-tooltip {
     position: absolute;
     text-align: center;
+    z-index: 3;
     .set-name {
         height: 20px;
         background-color: #938576;
@@ -443,7 +444,6 @@ select.input-xs {
                 bottom: 1px;
                 left: 1px;
                 right: 1px;
-                transition: .4s, height, ease;
                 border-radius: 2px;
             }
             .bar-image {
@@ -479,10 +479,9 @@ select.input-xs {
             display: inline-block;
             margin-right: 1rem;
             .filler {
-                display: inline-block;
+                //display: inline-block;
                 background: cornflowerblue;
-                width: 50%;
-                height: 100%;
+                height: 20px;
             }
         }
         span {

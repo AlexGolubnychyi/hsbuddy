@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, Input, trigger, transition, style, animate } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Input} from "@angular/core";
+import {trigger, transition, /*state,*/ style, animate} from "@angular/animations";
 
 @Component({
     moduleId: module.id,

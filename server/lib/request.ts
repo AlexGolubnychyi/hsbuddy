@@ -4,10 +4,10 @@ import { IncomingMessage } from "http";
 import * as request from "request";
 import { HttpError } from "../error";
 // for debugging with fiddler
-// let proxied = request.defaults({ proxy: "http://localhost:8888", strictSSL: false, followAllRedirects: true }), 
+ //let proxied = request.defaults({ proxy: "http://localhost:8888", strictSSL: false, followAllRedirects: true }),; 
 
-export var httpPost = Promise.promisify<IncomingMessage & { body: string }, request.OptionsWithUrl>(request.post);
-export var httpGet = Promise.promisify<IncomingMessage & { body: string }, request.OptionsWithUrl>(request.get);
+export var httpPost = Promise.promisify<IncomingMessage & { body: string }, request.OptionsWithUrl>(/*proxied.post*/request.post);
+export var httpGet = Promise.promisify<IncomingMessage & { body: string }, request.OptionsWithUrl>(/*proxied.get*/request.get);
 export { request };
 export function getContent(url: string) {
     return httpGet({

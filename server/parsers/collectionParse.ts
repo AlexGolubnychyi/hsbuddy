@@ -9,7 +9,8 @@ import { CardCount } from "../../interfaces";
 
 const userNameToken = "@username@",
     landingUrl = "http://www.hearthpwn.com",
-    loginUrl = "https://www.hearthpwn.com/login",
+    loginCurseUrl = "https://www.hearthpwn.com/curse-login",
+    loginOriginalUrl = "https://www.hearthpwn.com/login",
     collectionUrl = `http://www.hearthpwn.com/members/${userNameToken}/collection`,
     passwordAlias = "field-loginFormPassword",
     userNameAlis = "field-username",
@@ -17,7 +18,8 @@ const userNameToken = "@username@",
     basicHeaders = {
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/54.0.2799.0 Safari/537.36",
         "Host": "www.hearthpwn.com",
-        "Connection": "keep-alive"
+        "Connection": "keep-alive",
+        "Referer": " https://www.hearthpwn.com/curse-login"
     };
 
 export default function (userId: string, username: string, password: string) {
@@ -66,7 +68,8 @@ export default function (userId: string, username: string, password: string) {
 function getHearthPwnCollectionPageBody(username: string, password: string) {
     const cookieJar = request.jar();
     return httpGet({ url: landingUrl, jar: cookieJar, headers: basicHeaders })
-        .then(() => httpGet({ url: loginUrl, jar: cookieJar, headers: basicHeaders }))
+        .then(() => httpGet({ url: loginOriginalUrl, jar: cookieJar, headers: basicHeaders }))
+        .then(() => httpGet({ url: loginCurseUrl, jar: cookieJar, headers: basicHeaders }))
         .then(response => {
             let loginParams: { [index: string]: string } = {},
                 $ = cheerio.load(response.body);
@@ -87,7 +90,7 @@ function getHearthPwnCollectionPageBody(username: string, password: string) {
             return loginParams;
         })
         .then(loginParams => httpPost({
-            url: loginUrl,
+            url: loginOriginalUrl,
             jar: cookieJar,
             body: querystring.stringify(loginParams),
             headers: Object.assign({}, basicHeaders, {

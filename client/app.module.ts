@@ -1,6 +1,7 @@
 import { NgModule } from "@angular/core";
 import { ReactiveFormsModule, FormsModule } from "@angular/forms";
 import { BrowserModule } from "@angular/platform-browser";
+import { BrowserAnimationsModule } from "@angular/platform-browser/animations";
 
 import { routing } from "./app.routing";
 import { HttpModule } from "@angular/http";
@@ -30,17 +31,18 @@ import { DeckDetailComponent } from "./components/deck-detail.component";
 import { ManaCurveComponent } from "./components/utility/mana-curve.component";
 import { BarChartComponent } from "./components/utility/bar-chart.component";
 import { PillowChartComponent } from "./components/utility/pillow-chart.component";
-import {DropdownModule} from "ng2-bootstrap/dropdown/dropdown.module";
-import {CollapseModule} from "ng2-bootstrap/collapse/collapse.module";
-import {TypeaheadModule} from "ng2-bootstrap/typeahead/typeahead.module";
+import { DropdownModule } from "ng2-bootstrap/dropdown/dropdown.module";
+import { CollapseModule } from "ng2-bootstrap/collapse/collapse.module";
+import { TypeaheadModule } from "ng2-bootstrap/typeahead/typeahead.module";
 import { CardPipe } from "./pipes/card.pipe";
 import { CardToolTipDirective } from "./directives/card-tooltip.directive";
-import {authProvider} from "./adapters/angular2-jwt.adapter";
+import { authProvider } from "./adapters/angular2-jwt.adapter";
 
 
 @NgModule({
     imports: [
         BrowserModule,
+        BrowserAnimationsModule,
         routing,
         ReactiveFormsModule,
         FormsModule,

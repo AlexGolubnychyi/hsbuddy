@@ -1,4 +1,5 @@
-import { Component, ChangeDetectionStrategy, Input, OnChanges, trigger, transition, /*state, */style, animate, SimpleChanges } from "@angular/core";
+import { Component, ChangeDetectionStrategy, Input, OnChanges, SimpleChanges } from "@angular/core";
+import {trigger, transition, /*state,*/ style, animate} from "@angular/animations";
 import { Deck, Card } from "../../../interfaces/index";
 
 
@@ -9,10 +10,8 @@ import { Deck, Card } from "../../../interfaces/index";
     changeDetection: ChangeDetectionStrategy.OnPush,
     animations: [
         trigger("heightSet", [
-            //state("false", style({ height: "0" })),
-           // state("true", style({ height: "*" })),
             transition("void => *", [
-                style({ height: "50%" }),
+                style({ width: "0%" }),
                 animate(".4s ease")
             ])
         ])
