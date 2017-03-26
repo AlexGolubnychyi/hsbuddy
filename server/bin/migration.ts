@@ -23,7 +23,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion11,
     updateToVersion12,
     updateToVersion13,
-    updateToVersion14
+    updateToVersion14,
+    updateToVersion15
 ];
 
 (function checkForUpdates() {
@@ -302,6 +303,33 @@ function updateToVersion14(): Promise<void> {
             }
             else {
                 console.log("C'thun is fixed");
+            }
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+function updateToVersion15(): Promise<void> {
+    let version = 15;
+    console.log(`apply ver${version}`);
+    return Card.findById("small-timebuccaneer").exec()
+        .then(testCard => {
+            if (testCard.health !== 1) {
+                console.log("Patch 7.1.0.17720 (2017-02-28)");
+                return Card.find({ $or: [{ _id: "small-timebuccaneer" }, { _id: "spiritclaws" }] }).exec()
+                    .map((card: CardDB) => {
+                        if (card.id === "small-timebuccaneer") {
+                            card.health = 1;
+                            card.img = "http://media-hearth.cursecdn.com/avatars/317/614/49759.png";
+                        }
+                        else {
+                            card.mana = 2;
+                            card.img = "http://media-hearth.cursecdn.com/avatars/317/611/42042.png";
+                        }
+                        return card.save();
+                    });
+
+            }
+            else {
+                console.log("Patch 7.1.0.17720 (2017-02-28) already applied");
             }
         })
         .then(() => console.log(`ver${version} appplied successfully`));
