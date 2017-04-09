@@ -354,20 +354,10 @@ function updateToVersion16(): Promise<void> {
         })
         .then(() => console.log(`ver${version} appplied successfully`));
 }
+
+//duplicate, but leave it as such because of version numbers..
 function updateToVersion17(): Promise<void> {
     let version = 17;
-    console.log(`apply ver${version}`);
-    
-    return Deck.findOne().exec()
-        .then(card => {
-            if (card === null) {
-                console.log("Journey to Un'Goro set not found => repopulate!");
-                return Card.remove({}).exec()
-                    .then(() => parser.populateWithCards());
-            }
-            else {
-                console.log("db already contains Journey to Un'Goro");
-            }
-        })
-        .then(() => console.log(`ver${version} appplied successfully`));
+    console.log(`dummy ver${version}`);
+    return Promise.resolve();
 }
