@@ -10,10 +10,7 @@ export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, tot
 
 export var standardCardSets = [
     CardSet.Basic,
-    CardSet.BlackrockMountain,
     CardSet.Expert,
-    CardSet.LeagueOfExplorers,
-    CardSet.TheGrandTournament,
     CardSet.WhispersoftheOldGods,
     CardSet.OneNightInKarazhan,
     CardSet.MeanStreetsOfGadgetzan,
@@ -31,7 +28,8 @@ export var wildCardSets = [
     CardSet.WhispersoftheOldGods,
     CardSet.OneNightInKarazhan,
     CardSet.MeanStreetsOfGadgetzan,
-    CardSet.JourneyToUnGoro
+    CardSet.JourneyToUnGoro,
+    CardSet.Reward
 ];
 
 export var dust = "dust";
@@ -62,6 +60,10 @@ class HsTypeConverter {
         }
 
         return cardSetMapping[set];
+    }
+
+    isStandart(card: {cardSet: CardSet}){
+        return standardCardSets.some(set => card.cardSet === set);
     }
 
 }

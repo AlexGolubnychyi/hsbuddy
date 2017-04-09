@@ -27,8 +27,8 @@ export class CardMissingListComponent extends BaseComponent implements AfterView
 
     ngAfterViewInit() {
         this.filter.filter$
-            .do<DeckQuery>(() => this.loading = true)
-            .switchMap(params => this.apiService.getMissingCards(params))
+            .do<[DeckQuery, boolean]>(() => this.loading = true)
+            .switchMap(([params, standart]) => this.apiService.getMissingCards(standart, params))
             .subscribe(cards => {
                 this.missingCards = cards;
                 this.loading = false;

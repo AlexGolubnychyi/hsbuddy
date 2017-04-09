@@ -37,6 +37,7 @@ const deckSchema = new mongoose.Schema({
         }]
     }],
     deleted: Boolean,
+    standart: Boolean,
     userId: String
 });
 
@@ -45,7 +46,8 @@ deckSchema.static("generateId", (cards: { [cardName: string]: number }) => {
     return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
 });
 
-deckSchema.static("getDecksByParams", function (userId: string, params?: contracts.DeckQuery): Promise<contracts.DeckResult<contracts.Deck<string>[]>> {
+deckSchema.static("getDecksByParams", function (userId: string, params?: contracts.DeckQuery & { standart: string })
+    : Promise<contracts.DeckResult<contracts.Deck<string>[]>> {
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         cardAvailability: { [cardId: string]: number },
         userDeckIds: string[],
@@ -77,6 +79,10 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
 
                 if (+params.deckClass > 0) {
                     queryParts.push({ "class": +params.deckClass });
+                }
+
+                if (params.standart === "true") {
+                    queryParts.push({ "standart": true });
                 }
 
                 if (!isNaN(+params.dustNeeded)) {
@@ -177,7 +183,7 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
 });
 
 
-deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): Promise<contracts.DeckResult<contracts.DeckDiff<string>[]>> {
+deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, standart: boolean): Promise<contracts.DeckResult<contracts.DeckDiff<string>[]>> {
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         refDeck: contracts.Deck<string>,
         cardAvailability: { [cardId: string]: number },
@@ -195,8 +201,13 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string): 
             }
             refDeck = mapper.deckToContract(deck, cardAvailability, userDeckIds, cardHash);
         })
-        .then(() => model.find({ "$and": [{ "_id": { "$ne": deckId } }, { "deleted": { "$ne": true } }, { "class": refDeck.class }] })
-            .populate("cards.card").exec())
+        .then(() => {
+            let query = { "$and": [{ "_id": { "$ne": deckId } }, { "deleted": { "$ne": true } }, { "class": refDeck.class }] };
+            if (standart) {
+                query.$and.push(<any>{ "standart": true });
+            }
+            return model.find(query).populate("cards.card").exec();
+        })
         .then(otherDecks => {
             let refCardHash: { [index: string]: number } = {},
                 reducerHash: { [index: string]: boolean } = {};
@@ -243,7 +254,7 @@ deckSchema.static("setDescription", function (userId: string, deckId: string, de
             }
 
             let date = new Date(description.date),
-                {name} = description;
+                { name } = description;
 
             if (!date || !name) {
                 return false;
@@ -290,7 +301,8 @@ deckSchema.static("recycle", function (deckId: string, forceDelete = false, repl
     });
 });
 
-deckSchema.static("getMissingCards", function (userId: string, params?: contracts.DeckQuery): Promise<contracts.DeckResult<contracts.CardMissing<string>[]>> {
+deckSchema.static("getMissingCards", function (userId: string, params?: contracts.DeckQuery & { standart: boolean })
+    : Promise<contracts.DeckResult<contracts.CardMissing<string>[]>> {
     let model = this as mongoose.Model<DeckDB<CardDB | string>> & DeckStatics,
         resultObj: { [cardId: string]: contracts.CardMissing<string> } = {},
         cardHash: contracts.CardHash;
@@ -359,6 +371,7 @@ export interface DeckDB<T extends string | CardDB> extends mongoose.Document {
     dateAdded: Date;
     userId: string;
     deleted: boolean;
+    standart: boolean;
     revisions: DeckRevisionDB<T>[];
 };
 
@@ -383,7 +396,7 @@ interface DeckStatics {
     generateId: (cards: { [cardName: string]: number }) => string;
     getDecksByParams: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.DeckResult<contracts.Deck<string>[]>>;
     getDeck: (userId: string, deckId: string) => Promise<contracts.DeckResult<contracts.Deck<string>>>;
-    getSimilarDecks: (userId: string, deckId: string) => Promise<contracts.DeckResult<contracts.DeckDiff<string>[]>>;
+    getSimilarDecks: (userId: string, deckId: string, standart: boolean) => Promise<contracts.DeckResult<contracts.DeckDiff<string>[]>>;
     getMissingCards: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.DeckResult<contracts.CardMissing<string>[]>>;
 
     upgradeDeck: (oldDeck: DeckDB<string>, newDeck: DeckDB<string>) => Promise<boolean>;

@@ -17,6 +17,7 @@ import "rxjs/add/operator/do";
 import "rxjs/add/operator/filter";
 import "rxjs/add/operator/timeout";
 import "rxjs/add/operator/distinctUntilChanged";
+import "rxjs/add/operator/combineLatest";
 
 //Observables
 import "rxjs/add/observable/timer";

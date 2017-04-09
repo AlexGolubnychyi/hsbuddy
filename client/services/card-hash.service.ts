@@ -70,6 +70,7 @@ export class CardHashService {
                 cardAddition: this.inflateCards(rev.cardAddition),
                 cardRemoval: this.inflateCards(rev.cardRemoval),
             })),
+            standart: deck.standart,
             userCollection: deck.userCollection,
             userId: deck.userId
         };

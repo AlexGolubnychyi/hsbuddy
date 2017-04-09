@@ -4,7 +4,7 @@
 		<div *ngIf="!edit">
 			<h2 class="deck-title-container" (click)="startEdit()">
 				<a class="deck-title" routerLink="/deck/{{deck.id}}">
-					<span>[{{deck.className}}] {{deck.name}}</span>
+					<span>[{{deck.standart ? "mammoth" : "wild"}}] {{deck.name}}</span>
 				</a>
 				<span class="label label-default" *ngIf="deck.collected">collected</span>
 				<span class="label label-warning" *ngIf="!deck.collected">{{(deck.cost - deck.dustNeeded) + " / " + deck.cost}}</span>

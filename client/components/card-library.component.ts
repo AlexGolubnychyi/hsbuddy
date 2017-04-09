@@ -1,10 +1,11 @@
+import { Subscription } from "rxjs/Rx";
 import { Component, OnInit } from "@angular/core";
 import { ApiService, CardChanged } from "../services/api.service";
 import { CardHashService } from "../services/card-hash.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService } from "../services/config.service";
 import { CardLibraryInfo, Card } from "../../interfaces/index";
-import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, dust as dustConst, standardCardSets } from "../../interfaces/hs-types";
+import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, dust as dustConst, standardCardSets, wildCardSets } from "../../interfaces/hs-types";
 import { isEmpty, SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { BaseComponent } from "./base.component";
 import { BarChartData } from "./utility/bar-chart.component";
@@ -36,6 +37,7 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
     mergeCards: boolean = false;
     isEmpty = isEmpty;
     cardNameInputStream = new Subject();
+    request: Subscription;
 
     filter: CardPipeArg = {
         hideAvailable: false,
@@ -49,10 +51,6 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
         super.ngOnInit();
         this.refreshCards();
         this.statsCollapsed = true;
-        this.cardSetKvp = [CardSet.unknown].concat(standardCardSets).map(key => ({
-            name: hsTypeConverter.cardSet(key) as string,
-            value: key
-        }));
 
         this.cardNameInputStream
             .map((e: Event) => (e.target as HTMLInputElement).value)
@@ -112,8 +110,19 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
 
     private refreshCards() {
         this.loading = true;
-        this.apiService
-            .getCardLibraryInfo()
+        this.cardSetKvp = [CardSet.unknown].concat(this.config.standart ? standardCardSets : wildCardSets).map(key => ({
+            name: hsTypeConverter.cardSet(key) as string,
+            value: key
+        }));
+        if (this.config.standart && !standardCardSets.some(set => set === this.filter.cardSet)){
+            this.changeCardSet(0);
+        }
+
+        if (this.request) {
+            this.request.unsubscribe();
+        }
+        this.request = this.apiService
+            .getCardLibraryInfo(this.config.standart)
             .subscribe(info => {
                 this.info = info;
                 this.info.groups.forEach((group, inx) => group.collapsed = inx > 0);
@@ -202,5 +211,11 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
             }
             return false;
         });
+    }
+
+    protected onConfigChanged(standartChanged: boolean) {
+        if (standartChanged) {
+            this.refreshCards();
+        }
     }
 }

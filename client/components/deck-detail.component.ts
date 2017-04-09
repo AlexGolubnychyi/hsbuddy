@@ -85,7 +85,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
         }
         this.loadingSimilarDecks = true;
 
-        this.apiService.getSimilar(this.deck.id)
+        this.apiService.getSimilar(this.deck.id, this.config.standart)
             .timeout(5000)
             .catch(() => Observable.of(null))
             .subscribe(similarDecks => {

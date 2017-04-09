@@ -2,7 +2,7 @@
 <ng-content *ngIf="replaceTitle"></ng-content>
 <h2 class="deck-title-container" *ngIf="!replaceTitle">
 	<a class="deck-title" routerLink="/deck/{{deck.id}}">
-		<span>[{{deck.className}}] {{deck.name}}</span>
+		<span>[{{deck.standart ? "mammoth" : "wild"}}] {{deck.name}}</span>
 		<span class="label label-default" *ngIf="deck.collected">collected</span>
 		<span class="label label-warning" *ngIf="!deck.collected">{{(deck.cost - deck.dustNeeded) + " / " + deck.cost}}</span>
 		<span class="label label-danger" *ngIf="deck.deleted">deleted</span>

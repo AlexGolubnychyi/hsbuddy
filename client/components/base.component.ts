@@ -14,9 +14,10 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.config = this.configService.config;
-        this.configService.configChanged.subscribe(config => {
+        this.configSubscription = this.configService.configChanged.subscribe(config => {
+            let standartChanged = this.config.standart !== config.standart;
             this.config = config;
-            this.onConfigChanged();
+            this.onConfigChanged(standartChanged);
         });
         this.cardChangedSubscription = this.apiService.cardChanged.subscribe(cardChanged => this.onCardChanged(cardChanged));
     }
@@ -32,5 +33,5 @@ export abstract class BaseComponent implements OnInit, OnDestroy {
     }
 
     protected onCardChanged(cardChanged: CardChanged) { };
-    protected onConfigChanged() { };
+    protected onConfigChanged(standartChanged: boolean) { };
 }

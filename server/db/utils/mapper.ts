@@ -24,6 +24,7 @@ class Mapper {
             userCollection: userDeckIds.indexOf(deck._id) >= 0,
             userId: deck.userId,
             deleted: deck.deleted,
+            standart: deck.standart,
             revisions: deck.revisions.map(rev => ({
                 number: rev.number,
                 userId: rev.userId,

@@ -41,6 +41,7 @@ export interface Deck<T extends string | Card> extends PseudoDeck<T> {
     revisions?: DeckRevision<T>[];
     userCollection?: boolean;
     deleted?: boolean;
+    standart: boolean;
 }
 
 export interface DeckRevision<T extends string | Card> extends PseudoDeck<T>, Diff<T> {

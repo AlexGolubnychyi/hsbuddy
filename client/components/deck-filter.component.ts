@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, ChangeDetectorRef } from "@angular/core";
+import { Component, OnInit, OnDestroy, Input, ChangeDetectorRef } from "@angular/core";
 import { CardClass, hsTypeConverter } from "../../interfaces/hs-types";
 import { AuthService } from "../services/auth.service";
 import { CardHashService } from "../services/card-hash.service";
@@ -7,13 +7,14 @@ import { FormGroup, Validators, FormBuilder } from "@angular/forms";
 import { Subject } from "rxjs/Subject";
 import { Observable } from "rxjs/Observable";
 import { Subscriber } from "rxjs/Subscriber";
+import { ConfigService } from "../services/config.service";
 
 @Component({
     moduleId: module.id,
     selector: "deck-filter",
     templateUrl: "deck-filter.component.html",
 })
-export class DeckFilterComponent implements OnInit {
+export class DeckFilterComponent implements OnInit, OnDestroy {
     @Input()
     filterName: string;
 
@@ -21,7 +22,7 @@ export class DeckFilterComponent implements OnInit {
     filterButtonClickStream = new Subject();
     deckNameKeyStream = new Subject();
     cardNameKeyStream = new Subject();
-    filter$: Observable<DeckQuery>;
+    filter$: Observable<[DeckQuery, boolean]>;
     cardNameSource: Observable<string[]>;
     readonly emptyValues: DeckQuery = {
         deckClass: CardClass.unknown,
@@ -36,7 +37,8 @@ export class DeckFilterComponent implements OnInit {
         private authService: AuthService,
         private cardHash: CardHashService,
         private fb: FormBuilder,
-        private ref: ChangeDetectorRef) { }
+        private ref: ChangeDetectorRef,
+        private configService: ConfigService) { }
 
     deckClasses = Object.keys(CardClass)
         .filter(key => !isNaN(+key))
@@ -77,8 +79,15 @@ export class DeckFilterComponent implements OnInit {
                 this.cardNameKeyStream.filter((e: KeyboardEvent) => e.keyCode === 13),
                 Observable.timer(1000)))
             .startWith(defaults)
+            .combineLatest(this.configService.configChanged.map(c => c.standart).startWith(this.configService.config.standart))
             .filter(v => this.filterForm.valid)
             .do(v => localStorage.setItem(this.filterName, JSON.stringify(v)));
+    }
+
+    ngOnDestroy() {
+        this.filterButtonClickStream.unsubscribe();
+        this.deckNameKeyStream.unsubscribe();
+        this.cardNameKeyStream.unsubscribe();
     }
 
     resetFilter() {

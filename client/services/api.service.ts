@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { Http } from "@angular/http";
-import { AuthHttp  } from "angular2-jwt/angular2-jwt";
+import { AuthHttp } from "angular2-jwt/angular2-jwt";
 import { Observable } from "rxjs/Observable";
 import * as contracts from "../../interfaces/index";
 import "../rxjs-operators";
@@ -16,8 +16,8 @@ export class ApiService {
         this.cardChanged = new Subject<CardChanged>();
     }
 
-    getDecks(options?: contracts.DeckQuery): Observable<contracts.Deck<contracts.Card>[]> {
-        let url = this.withParams("api/deck", options);
+    getDecks(standart: boolean, options?: contracts.DeckQuery): Observable<contracts.Deck<contracts.Card>[]> {
+        let url = this.withParams("api/deck", { ...options, standart });
 
         return this.http.get(url)
             .map(resp => resp.json() as contracts.DeckResult<contracts.Deck<string>[]>)
@@ -40,8 +40,8 @@ export class ApiService {
             .catch(this.handleError);
     }
 
-    getSimilar(deckId: string): Observable<contracts.DeckDiff<contracts.Card>[]> {
-        let url = `api/deck/${deckId}/similar`;
+    getSimilar(deckId: string, standart: boolean): Observable<contracts.DeckDiff<contracts.Card>[]> {
+        let url = this.withParams(`api/deck/${deckId}/similar`, { standart });
 
         return this.http.get(url)
             .map(resp => resp.json() as contracts.DeckResult<contracts.DeckDiff<string>[]>)
@@ -60,8 +60,9 @@ export class ApiService {
             .catch(() => Observable.of(false));
     }
 
-    getCardLibraryInfo(): Observable<contracts.CardLibraryInfo<contracts.Card>> {
-        return this.http.get("api/card/library")
+    getCardLibraryInfo(standart: boolean): Observable<contracts.CardLibraryInfo<contracts.Card>> {
+        let url = this.withParams("api/card/library", { standart });
+        return this.http.get(url)
             .map(resp => resp.json() as contracts.DeckResult<contracts.CardLibraryInfo<contracts.Card | string>>)
             .map(deckResult => { //LAZY INFLATE
                 this.cardHashService.feedHash(deckResult.cardHash);
@@ -73,9 +74,8 @@ export class ApiService {
             .catch(this.handleError);
     }
 
-    getMissingCards(options?: contracts.DeckQuery): Observable<contracts.CardMissing<contracts.Card>[]> {
-        let url = this.withParams("api/card/missing", options);
-
+    getMissingCards(standart: boolean, options?: contracts.DeckQuery): Observable<contracts.CardMissing<contracts.Card>[]> {
+        let url = this.withParams("api/card/missing", { ...options, standart });
         return this.http.get(url)
             .map(resp => resp.json() as contracts.DeckResult<contracts.CardMissing<contracts.Card | string>[]>)
             .map(deckResult => { //LAZY INFLATE

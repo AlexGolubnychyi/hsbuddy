@@ -51,9 +51,10 @@ export abstract class BaseDeckParser {
         deck.cost = 0;
         deck.dateAdded = (deckData.date && !isNaN(deckData.date.valueOf())) ? deckData.date : new Date();
         deck.userId = userId;
+        deck.standart = true;
 
         return Deck.findById(deck.id).exec()
-            .then(existing => {
+            .then(existing => { //check for duplicate, update it if needed
                 if (!existing) {
                     return;
                 }
@@ -85,6 +86,9 @@ export abstract class BaseDeckParser {
                     deck.cost += card.cost * deckData.cards[cardNames[i]];
                     if (!deck.class && card.class !== hstypes.CardClass.neutral) {
                         deck.class = card.class;
+                    }
+                    if (!hstypes.hsTypeConverter.isStandart(card)) {
+                        deck.standart = false;
                     }
                 }
             })

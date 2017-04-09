@@ -27,7 +27,7 @@ cardSchema.static("generateId", (name: string) => {
     return name.toLowerCase().replace(/[ |,|`|.|'|’|:|"]*/g, "");
 });
 
-cardSchema.static("getCardLibraryInfo", function (userId: string): Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>> {
+cardSchema.static("getCardLibraryInfo", function (userId: string, standart: boolean): Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>> {
 
     let model = this as mongoose.Model<CardDB>,
         userCards: { [cardId: string]: number },
@@ -39,7 +39,7 @@ cardSchema.static("getCardLibraryInfo", function (userId: string): Promise<contr
 
     return UserCard.getByUserId(userId)
         .then(uc => userCards = uc)
-        .then(() => model.find({ "cardSet": { "$in": hstypes.standardCardSets } }).exec())
+        .then(() => model.find({ "cardSet": { "$in": standart ? hstypes.standardCardSets : hstypes.wildCardSets } }).exec())
         .then(cards => {
             cards.map(card => {
                 let numberAvailable = userCards[card._id],
@@ -117,7 +117,7 @@ export interface CardDB extends mongoose.Document {
 
 interface CardStatics {
     generateId: (name: string) => string;
-    getCardLibraryInfo: (userId: string) => Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>>;
+    getCardLibraryInfo: (userId: string, standart: boolean) => Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>>;
 }
 
 export const cardSchemaName = "Card";

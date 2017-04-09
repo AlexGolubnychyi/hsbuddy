@@ -1,10 +1,11 @@
-import { Component, ViewChild, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef } from "@angular/core";
+import { Component, ViewChild, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, OnDestroy } from "@angular/core";
 import { ApiService, CardChanged } from "../services/api.service";
 import { AuthService } from "../services/auth.service";
 import { ConfigService } from "../services/config.service";
 import { Deck, Card, DeckQuery } from "../../interfaces/index";
 import { DeckFilterComponent } from "./deck-filter.component";
 import { BaseComponent } from "./base.component";
+import { Subscription } from "rxjs/Subscription";
 @Component({
     moduleId: module.id,
     selector: "deck-list",
@@ -12,11 +13,13 @@ import { BaseComponent } from "./base.component";
     changeDetection: ChangeDetectionStrategy.OnPush
 
 })
-export class DeckListComponent extends BaseComponent implements AfterViewInit {
+export class DeckListComponent extends BaseComponent implements AfterViewInit, OnDestroy {
     decks: Deck<Card>[] = [];
     loading: boolean = true;
 
     @ViewChild(DeckFilterComponent) filter: DeckFilterComponent;
+
+    filterSubscription: Subscription;
 
     constructor(
         apiService: ApiService,
@@ -26,15 +29,21 @@ export class DeckListComponent extends BaseComponent implements AfterViewInit {
     ) { super(configService, apiService); }
 
     ngAfterViewInit() {
-        this.filter.filter$
-            .do<DeckQuery>(() => this.loading = true)
-            .switchMap(params => this.apiService.getDecks(params))
+        this.filterSubscription = this.filter.filter$
+            .do<[DeckQuery, boolean]>(() => this.loading = true)
+            .switchMap(([params, standart]) => this.apiService.getDecks(standart, params))
             .subscribe(decks => {
                 this.ref.markForCheck();
                 this.decks = decks;
                 this.loading = false;
 
             });
+    }
+
+    ngOnDestroy() {
+        if (this.filterSubscription) {
+            this.filterSubscription.unsubscribe();
+        }
     }
 
     deckIdentity(index: number, deck: Deck<Card>) {
@@ -55,7 +64,7 @@ export class DeckListComponent extends BaseComponent implements AfterViewInit {
         });
     }
 
-    onConfigChanged() {
+    onConfigChanged(standartChanged: boolean) {
         //trigger deck redraw
         this.ref.markForCheck();
         this.decks = this.decks.map(deck => {

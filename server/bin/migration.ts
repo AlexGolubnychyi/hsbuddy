@@ -25,7 +25,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion13,
     updateToVersion14,
     updateToVersion15,
-    updateToVersion16
+    updateToVersion16,
+    updateToVersion17
 ];
 
 (function checkForUpdates() {
@@ -341,6 +342,23 @@ function updateToVersion16(): Promise<void> {
     let version = 16;
     console.log(`apply ver${version}`);
     return Card.findById("dinosize").exec()
+        .then(card => {
+            if (card === null) {
+                console.log("Journey to Un'Goro set not found => repopulate!");
+                return Card.remove({}).exec()
+                    .then(() => parser.populateWithCards());
+            }
+            else {
+                console.log("db already contains Journey to Un'Goro");
+            }
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+function updateToVersion17(): Promise<void> {
+    let version = 17;
+    console.log(`apply ver${version}`);
+    
+    return Deck.findOne().exec()
         .then(card => {
             if (card === null) {
                 console.log("Journey to Un'Goro set not found => repopulate!");

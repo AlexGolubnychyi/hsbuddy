@@ -18,13 +18,15 @@ export class AppComponent implements OnInit {
     ngOnInit() {
         this.configForm = this.fb.group({
             "cardStyle": this.configService.config.cardStyle + "",
-            "enableCardAvailSelector": this.configService.config.enableCardAvailSelector
+            "enableCardAvailSelector": this.configService.config.enableCardAvailSelector,
+            "standart": this.configService.config.standart
         });
 
         this.configForm.valueChanges.subscribe(v => this.configService.config = {
             cardStyle: +v.cardStyle,
             enableCardAvailSelector: !!v.enableCardAvailSelector,
-            splitCardListByClass: this.configService.config.splitCardListByClass
+            splitCardListByClass: this.configService.config.splitCardListByClass,
+            standart: v.standart
         });
 
         this.authService.authChanged.subscribe(rez => {

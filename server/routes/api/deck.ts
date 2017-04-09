@@ -14,7 +14,7 @@ router.get("/:deckId", (req: Request, res: express.Response, next: express.NextF
     Deck.getDeck(req.user, req.params.deckId).then(deck => res.json(deck));
 });
 router.get("/:deckId/similar", (req: Request, res: express.Response, next: express.NextFunction) => {
-    Deck.getSimilarDecks(req.user, req.params.deckId).then(deck => res.json(deck));
+    Deck.getSimilarDecks(req.user, req.params.deckId, req.query.standart === "true").then(deck => res.json(deck));
 });
 
 router.delete("/:deckId", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
