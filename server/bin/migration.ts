@@ -24,13 +24,14 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion12,
     updateToVersion13,
     updateToVersion14,
-    updateToVersion15
+    updateToVersion15,
+    updateToVersion16
 ];
 
 (function checkForUpdates() {
     console.log("check db for updates");
     version.getVersion().then(versionNumber => {
-
+        console.log(`current db version number is ${versionNumber}`);
         let missingUpdates = updates.slice(versionNumber);
         if (!missingUpdates.length) {
             console.log("db is up to date");
@@ -270,6 +271,7 @@ function updateToVersion12(): Promise<void> {
         })
         .then(() => console.log(`ver${version} appplied successfully`));
 }
+
 function updateToVersion13(): Promise<void> {
     let version = 13;
     console.log(`apply ver${version}`);
@@ -330,6 +332,23 @@ function updateToVersion15(): Promise<void> {
             }
             else {
                 console.log("Patch 7.1.0.17720 (2017-02-28) already applied");
+            }
+        })
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion16(): Promise<void> {
+    let version = 16;
+    console.log(`apply ver${version}`);
+    return Card.findById("dinosize").exec()
+        .then(card => {
+            if (card === null) {
+                console.log("Journey to Un'Goro set not found => repopulate!");
+                return Card.remove({}).exec()
+                    .then(() => parser.populateWithCards());
+            }
+            else {
+                console.log("db already contains Journey to Un'Goro");
             }
         })
         .then(() => console.log(`ver${version} appplied successfully`));
