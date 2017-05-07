@@ -11,6 +11,15 @@ body {
     margin: 2em;
 }
 
+.crisp-image(){
+    image-rendering: optimizeSpeed;             /*                     */
+    image-rendering: -moz-crisp-edges;          /* Firefox             */
+    image-rendering: -o-crisp-edges;            /* Opera               */
+    image-rendering: -webkit-optimize-contrast; /* Chrome (and Safari) */
+    image-rendering: optimize-contrast;         /* CSS3 Proposed       */
+    -ms-interpolation-mode: nearest-neighbor;   /* IE8+                */
+}
+
 .nav {
     a.active {
         font-weight: bold;
@@ -95,6 +104,7 @@ card {
 }
 
 .card-tooltip {
+    .crisp-image;
     position: absolute;
     text-align: center;
     z-index: 3;
@@ -137,6 +147,7 @@ card {
 .card-image {
     height: 300px;
     width: 217px;
+    .crisp-image;
 }
 
 deck {
@@ -188,6 +199,7 @@ deck {
                     border-radius: 2px;
                 }
                 .mana-crystal {
+                    .crisp-image;
                     bottom: -29px;
                     left: -2px;
                     bottom: -34px;
@@ -447,6 +459,7 @@ select.input-xs {
                 border-radius: 2px;
             }
             .bar-image {
+                .crisp-image;
                 bottom: -29px;
                 left: -2px;
                 bottom: -34px;
