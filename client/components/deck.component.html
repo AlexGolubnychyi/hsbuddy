@@ -16,7 +16,7 @@
 </div>
 <button (click)="hideDetails = !hideDetails" class="btn btn-default btn-xs">{{hideDetails ? "Show" : "Hide"}} cards</button>
 <span *ngIf="!hideDetails">
-	<button [hidden]="!canUseClipboard" (click)="copyDeck()" [class.btn-default]="!deckCopyInProgress" [class.btn-warning]="deckCopyInProgress" class="btn  btn-xs">{{deckCopyInProgress ? "Deck copied!" : "Copy deck"}}</button>
+	<button *ngIf="canUseClipboard" (click)="copyDeck()" [class.btn-default]="!deckCopyInProgress" [class.btn-warning]="deckCopyInProgress" class="btn  btn-xs">{{deckCopyInProgress ? "Deck copied!" : "Copy deck"}}</button>
     <button *ngIf="auth && (!deck.collected || filter.hideAvailable)" (click)="changeAvailability()" class="btn btn-default btn-xs" [class.btn-warning]="filter.hideAvailable">
         {{filter.hideAvailable ? "Show all" : "Hide available"}} cards
     </button>
