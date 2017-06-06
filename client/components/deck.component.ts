@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy, SimpleChanges } from "@angular/core";
+import { Component, Input, Output, OnInit, OnChanges, EventEmitter, ChangeDetectionStrategy, SimpleChanges, ChangeDetectorRef } from "@angular/core";
 import { AuthService } from "../services/auth.service";
 import { CardHashService } from "../services/card-hash.service";
 import { DeckUtilsService } from "../services/deck-utils.service";
@@ -34,17 +34,25 @@ export class DeckComponent implements OnInit, OnChanges {
         mana: 0
     };
     auth: boolean;
+    deckCopyInProgress = false;
     cardStyles = cardStyles;
+
+    canUseClipboard = false;
 
     constructor(
         private authService: AuthService,
         private configService: ConfigService,
         private cardHash: CardHashService,
+        private ref: ChangeDetectorRef,
         public utils: DeckUtilsService
     ) { }
 
     ngOnInit() {
         this.auth = this.authService.isAuthenticated();
+        try {
+            this.canUseClipboard = document.queryCommandSupported("copy");
+        }
+        catch (e) { }
     }
 
     ngOnChanges(changes: SimpleChanges) {
@@ -64,12 +72,49 @@ export class DeckComponent implements OnInit, OnChanges {
     }
 
     listStyleChanged(split: boolean) {
-        this.configService.config = Object.assign(this.config, {
-            splitCardListByClass: split
-        });
+        this.configService.config = { ...this.config, splitCardListByClass: split };
     }
+
+    copyDeck() {
+        let text = (this.deck as Deck<Card>).name || "";
+        text = text ? `###${text}\n\n${this.deck.importCode}` : this.deck.importCode;
+
+        if (!this.setClipboardText(text)) {
+            return;
+        }
+
+        this.deckCopyInProgress = true;
+        setTimeout(() => {
+            this.deckCopyInProgress = false;
+            this.ref.markForCheck();
+        }, 1000);
+    }
+
+
 
     private updateCardListFilter() {
         this.filter = Object.assign({}, this.filter);
+    }
+
+
+    private setClipboardText(text: string) {
+        let textArea = document.createElement("textarea");
+        textArea.style.border = "none";
+        textArea.style.outline = "none";
+        textArea.style.boxShadow = "none";
+        textArea.style.background = "transparent";
+        textArea.value = text;
+        document.body.appendChild(textArea);
+        textArea.select();
+        let success = false;
+        try {
+            success = document.execCommand("copy");
+        } catch (err) { }
+
+        document.body.removeChild(textArea);
+        if (!success) {
+            console.log("unable to copie");
+        }
+        return success;
     }
 }

@@ -1,6 +1,6 @@
 import * as Promise from "bluebird";
 import { getJSON } from "../lib/request";
-import { BaseDeckParser, DeckData } from "./baseDeckParser";
+import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
 
 
 

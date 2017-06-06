@@ -1,5 +1,5 @@
 import { getContent } from "../lib/request";
-import { BaseDeckParser, DeckData } from "./baseDeckParser";
+import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
 
 class ManaCrystalsParser extends BaseDeckParser {
     private deckRegex = /manacrystals\.com\/deck_guides\/([0-9]+)/;

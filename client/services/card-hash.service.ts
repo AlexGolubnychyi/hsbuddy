@@ -46,6 +46,7 @@ export class CardHashService {
         return {
             id: deck.id,
             name: deck.name,
+            importCode: deck.importCode,
             url: deck.url,
             cards: this.inflateCards(deck.cards),
             class: deck.class,
@@ -57,6 +58,7 @@ export class CardHashService {
             dustNeeded: deck.dustNeeded,
             revisions: deck.revisions && deck.revisions.map(rev => ({
                 number: rev.number,
+                importCode: rev.importCode,
                 userId: rev.userId,
                 url: rev.url,
                 cost: rev.cost,

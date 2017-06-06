@@ -6,11 +6,12 @@ import * as Promise from "bluebird";
 import User from "./user";
 import Card, { CardDB, cardSchemaName } from "./card";
 import UserCard from "./userCard";
-import differ from "./utils/differ";
 import mapper from "./utils/mapper";
+import { deckDiffer } from "./utils/differ";
 
 const deckSchema = new mongoose.Schema({
     _id: String,
+    importCode: String,
     name: String,
     url: String,
     class: { type: Number, index: true },
@@ -22,11 +23,13 @@ const deckSchema = new mongoose.Schema({
     }],
     revisions: [{
         userId: String,
+        importCode: String,
         url: String,
         number: Number,
         dateAdded: Date,
         diff: Number,
         cost: Number,
+        standart: Boolean,
         cardAddition: [{
             card: { type: String, ref: cardSchemaName },
             count: Number
@@ -145,8 +148,12 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
         oldRevisions = oldDeck.revisions || [];
 
     newDeck.cards.forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
+    if (!newDeck.url) {
+        //imported via code, preserve name
+        newDeck.name = oldDeck.name;
+    }
     //add new revision
-    let newRevDiff = differ.diff(newDeck.cards, oldDeck.cards, refCardHash);
+    let newRevDiff = deckDiffer.diff(newDeck.cards, oldDeck.cards, refCardHash);
     newDeck.revisions = [
         {
             userId: oldDeck.userId,
@@ -157,6 +164,8 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
             diff: newRevDiff.diff,
             cardAddition: newRevDiff.cardAddition,
             cardRemoval: newRevDiff.cardRemoval,
+            importCode: oldDeck.importCode,
+            standart: oldDeck.standart
         }
     ];
 
@@ -168,12 +177,14 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
         newDeck.revisions.push({
             number: rev.number,
             userId: rev.userId,
+            importCode: rev.importCode,
             url: rev.url,
             cost: rev.cost,
             dateAdded: rev.dateAdded,
             diff: rev.diff, //diff.diff,
             cardAddition: rev.cardAddition, //diff.cardAddition,
-            cardRemoval: rev.cardRemoval//diff.cardRemoval
+            cardRemoval: rev.cardRemoval, //diff.cardRemoval
+            standart: rev.standart
         });
     });
 
@@ -216,7 +227,7 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, s
 
             let diffs = otherDecks
                 .map(otherDeck => {
-                    let diff = differ.diff(refDeck.cards, otherDeck.cards.map(c => ({ card: (c.card as CardDB).id, count: c.count })), refCardHash);
+                    let diff = deckDiffer.diff(refDeck.cards, otherDeck.cards.map(c => ({ card: (c.card as CardDB).id, count: c.count })), refCardHash);
 
                     if (diff.diff < 10) {
                         otherDeck.revisions = []; //we don't need revisions on sim decks
@@ -363,6 +374,7 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
 
 export interface DeckDB<T extends string | CardDB> extends mongoose.Document {
     _id: string;
+    importCode: string;
     name: string;
     url: string;
     class: hstypes.CardClass;
@@ -376,12 +388,14 @@ export interface DeckDB<T extends string | CardDB> extends mongoose.Document {
 };
 
 export interface DeckRevisionDB<T extends string | CardDB> {
+    importCode: string;
     userId: string;
     url?: string;
     number: number;
     cost: number;
     dateAdded: Date;
     diff: number;
+    standart: boolean;
     cardAddition: {
         card: T;
         count: number;

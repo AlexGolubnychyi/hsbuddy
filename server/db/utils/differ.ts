@@ -59,4 +59,4 @@ class Differ {
     }
 }
 
-export default new Differ();
+export const deckDiffer = new Differ();

@@ -6,7 +6,9 @@ import * as contracts from "../../interfaces";
 import version from "../db/version";
 import parser from "../parsers";
 import * as Promise from "bluebird";
-import differ from "../db/utils/differ";
+import { getJSON } from "../lib/request";
+import { deckEncoder } from "../db/utils/deckEncoder";
+import { deckDiffer } from "../db/utils/differ";
 
 
 let updates: (() => Promise<void>)[] = [
@@ -26,7 +28,9 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion14,
     updateToVersion15,
     updateToVersion16,
-    updateToVersion17
+    updateToVersion17,
+    updateToVersion18,
+    updateToVersion19
 ];
 
 (function checkForUpdates() {
@@ -239,11 +243,11 @@ function updateToVersion11(): Promise<void> {
             return Promise.all(decks.map((deck: DeckDB<string>) => {
                 revCardsArray = [];
                 deck.revisions.forEach((rev: DeckRevisionDB<string>, index: number) => {
-                    let revCards = differ.reverse(deck.cards, rev.cardAddition, rev.cardRemoval);
+                    let revCards = deckDiffer.reverse(deck.cards, rev.cardAddition, rev.cardRemoval);
                     revCardsArray.push(revCards);
 
                     //diff inversion:
-                    let diff = differ.diff((revCardsArray[index - 1] || deck.cards), revCards);
+                    let diff = deckDiffer.diff((revCardsArray[index - 1] || deck.cards), revCards);
                     rev.diff = diff.diff;
                     rev.cardAddition = diff.cardAddition;
                     rev.cardRemoval = diff.cardRemoval;
@@ -360,4 +364,76 @@ function updateToVersion17(): Promise<void> {
     let version = 17;
     console.log(`dummy ver${version}`);
     return Promise.resolve();
+}
+
+
+function updateToVersion18(): Promise<any> {
+    let version = 18;
+    let hsJson: HSJSONCard[];
+
+    return getJSON("https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json")
+        .then(rez => hsJson = rez)
+        .then(() => Card.find().exec())
+        .then(cards => {
+            console.log("add dbfId, id and text from hearthstonejson");
+            let hash: { [index: string]: HSJSONCard } = {};
+            hsJson.forEach(cardJson => {
+                hash[Card.generateId(cardJson.name)] = cardJson;
+            });
+            cards.forEach(c => {
+                let cardJson = hash[c._id];
+                c.dbfId = cardJson.dbfId;
+                c.officialId = cardJson.id;
+            });
+            return cards;
+        })
+        .map((card: CardDB) => card.save())
+        .then(() => console.log(`apply ver${version}`));
+}
+function updateToVersion19(): Promise<any> {
+    let version = 19;
+    let cardHash: { [index: string]: CardDB } = {};
+
+    console.log(`apply ver${version}`);
+    console.log("set deck/rev standart + import codes");
+    return Card.find().exec()
+        .then(cards => cards.forEach(c => cardHash[c.id] = c))
+        .then(() => Deck.find().exec())
+        .then((decks: DeckDB<string>[]) => {
+            decks.forEach(deck => {
+                deck.standart = deck.cards.every(c => hstypes.hsTypeConverter.isStandart(cardHash[c.card]));
+                deck.importCode = deckEncoder.encode(deck.class, deck.standart, deck.cards.map(c => ({ card: cardHash[c.card], count: c.count })));
+
+                deck.revisions.forEach(r => {
+                    let revCards = deckDiffer
+                        .reverse(deck.cards, r.cardAddition, r.cardRemoval)
+                        .map(cardMin => ({ card: cardHash[cardMin.card], count: cardMin.count }));
+                    r.standart = revCards.every(c => hstypes.hsTypeConverter.isStandart(c.card));
+                    r.importCode = deckEncoder.encode(deck.class, r.standart, revCards);
+                });
+            });
+            return decks;
+        })
+        .map((deck: DeckDB<CardDB>) => deck.save())
+        .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+interface HSJSONCard {
+    "id": string;
+    "dbfId": number;
+    "name": string;
+    "text": string;
+    "flavor": string;
+    "artist": string;
+    "attack": number;
+    "cardClass": string;
+    "collectible": boolean;
+    "cost": number;
+    "elite": boolean;
+    "faction": string;
+    "health": number;
+    "mechanics": string[];
+    "rarity": string;
+    "set": string;
+    "type": string;
 }

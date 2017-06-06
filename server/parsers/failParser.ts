@@ -1,4 +1,6 @@
-import { BaseDeckParser } from "./baseDeckParser";
+import { BaseDeckParser } from "./base/baseDeckParser";
+
+
 class FailParser extends BaseDeckParser {
 
     constructor() {

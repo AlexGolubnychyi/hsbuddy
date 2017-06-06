@@ -7,6 +7,8 @@ import mapper from "./utils/mapper";
 
 const cardSchema = new mongoose.Schema({
     _id: String,
+    dbfId: Number,
+    officialId: String,
     name: String,
     description: String,
     flavorText: String,
@@ -99,6 +101,8 @@ function weightClass(c: hstypes.CardClass) {
 
 export interface CardDB extends mongoose.Document {
     _id: string;
+    dbfId: number;
+    officialId: string;
     name: string;
     description: string;
     flavorText: string;

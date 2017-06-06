@@ -1,11 +1,15 @@
 import * as urlHelper from "url";
-import * as hstypes from "../../interfaces/hs-types";
+import * as hstypes from "../../../interfaces/hs-types";
 import * as Promise from "bluebird";
-import { HttpError } from "../error";
-import { ParseError, ParseReportItem } from "./index";
-import { ParseStatus } from "../../interfaces";
-import Deck, { DeckDB } from "../db/deck";
-import Card from "../db/card";
+import { HttpError } from "../../error";
+import { ParseError, ParseReportItem } from "../index";
+import { ParseStatus } from "../../../interfaces";
+import Deck, { DeckDB } from "../../db/deck";
+import Card from "../../db/card";
+import { deckImportCodeParser } from "../deckImportCodeParser";
+import { deckEncoder } from "../../db/utils/deckEncoder";
+
+
 
 export abstract class BaseDeckParser {
 
@@ -13,6 +17,14 @@ export abstract class BaseDeckParser {
     protected abstract getDeckData(url: string): Promise<DeckData[]>;
 
     protected parserNotFound = false;
+
+    protected urlClean(url: string) {
+        let prefix = "http://";
+        if (!/https?:\/\//.test(url)) {
+            return prefix + url;
+        }
+        return url;
+    }
 
 
     parse(userId: string, url: string, upgradeDeckId?: string): Promise<ParseReportItem[]> {
@@ -25,7 +37,7 @@ export abstract class BaseDeckParser {
         }
 
         return this
-            .getDeckData(url)
+            .getDeckData(this.urlClean(url))
             .then(decksData => {
                 if (upgradeDeckId && decksData.length !== 1) {
                     return Promise.resolve([<ParseReportItem>{ status: ParseStatus.fail, url, reason: "upgrade url should point to exactly one deck" }]);
@@ -63,7 +75,8 @@ export abstract class BaseDeckParser {
                     return existing.remove();
                 }
 
-                if (existing.url !== deck.url && urlHelper.parse(existing.url).host === urlHelper.parse(deck.url).host) {
+                if (existing.url && deck.url && existing.url !== deck.url
+                    && urlHelper.parse(existing.url).host === urlHelper.parse(deck.url).host) {
                     //still mark as duplicate but update url (to deal with that nasty habit of tempostorm to change deck urls, 
                     //thus breakig old references)
                     existing.url = deck.url;
@@ -91,6 +104,9 @@ export abstract class BaseDeckParser {
                         deck.standart = false;
                     }
                 }
+
+                deck.importCode =
+                    deckEncoder.encode(deck.class, deck.standart, deck.cards.map(c => ({ count: c.count, card: cardDbs.find(cdb => cdb.id === c.card) })));
             })
             .then(() => {
                 let cardTotal = deck.cards.reduce((acc, card) => acc + card.count, 0);
@@ -98,7 +114,7 @@ export abstract class BaseDeckParser {
                     return Promise.reject(new ParseError(`deck malformed: card amount is ${cardTotal} instead of 30`, ParseStatus.fail, deckData.url));
                 }
             })
-            .then(() => Deck.findOne({ "$or": [{ "url": deck.url }, { "_id": upgradeDeckId || "" }] }))
+            .then(() => Deck.findOne({ "$or": [{ "url": (deck.url || "ignore_those_missing_url") }, { "_id": upgradeDeckId || "" }] }))
             .then((existing: DeckDB<string>) => {
                 if (!existing) {
                     if (upgradeDeckId) {

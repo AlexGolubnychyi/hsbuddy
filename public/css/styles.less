@@ -11,7 +11,11 @@ body {
     margin: 2em;
 }
 
-.crisp-image(){
+button:focus {
+    outline: none !important; 
+}
+
+.crisp-image() {
     image-rendering: optimizeSpeed;             /*                     */
     image-rendering: -moz-crisp-edges;          /* Firefox             */
     image-rendering: -o-crisp-edges;            /* Opera               */
@@ -226,6 +230,9 @@ deck, .deck-detail {
     .deck-url {
         margin-bottom: 10px;
     }
+    .deck-import-code {
+        font-size: 10px;
+    }
     .deck-title {
         text-decoration: none;
         color: #f78f00;
@@ -292,7 +299,7 @@ deck, .deck-detail {
 
 /*hack, somehow it broke since 1.1.1.16-something*/
 deck-filter typeahead-container {
-    position: static !important;  
+    position: static !important;
     .dropdown-menu {
         left: 100px;
     }

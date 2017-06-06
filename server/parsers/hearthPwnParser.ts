@@ -1,5 +1,5 @@
 import { getContent } from "../lib/request";
-import { BaseDeckParser, DeckData } from "./baseDeckParser";
+import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
 
 class HearthPwnParser extends BaseDeckParser {
     private deckRegex = /hearthpwn\.com\/decks\/([0-9]+)[a-z\-]*/;

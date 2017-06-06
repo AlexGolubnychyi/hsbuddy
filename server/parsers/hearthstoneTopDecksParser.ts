@@ -1,5 +1,5 @@
 import { getContent } from "../lib/request";
-import { BaseDeckParser, DeckData } from "./baseDeckParser";
+import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
 
 class HearthStoneTopDecksParser extends BaseDeckParser {
     deckRegex = /hearthstonetopdecks\.com\/decks\/([0-9a-z\-]+)/;

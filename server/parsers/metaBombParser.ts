@@ -1,5 +1,5 @@
 import { getContent } from "../lib/request";
-import { BaseDeckParser, DeckData } from "./baseDeckParser";
+import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
 
 //TODO change to regex
 let keywords = { deckUrl: "/deck-guides/", deckListUrl: "game-guides" };

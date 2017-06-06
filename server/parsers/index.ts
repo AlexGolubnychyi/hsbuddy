@@ -9,7 +9,9 @@ import manaCrystalsParser from "./manaCrystalsParser";
 import hearthstoneTopDecksParser from "./hearthstoneTopDecksParser";
 import tempoStormParser from "./tempoStormParser";
 import failParser from "./failParser";
-import { BaseDeckParser } from "./baseDeckParser";
+import { BaseDeckParser } from "./base/baseDeckParser";
+import { deckImportCodeParser } from "./deckImportCodeParser";
+
 
 
 class Parser {
@@ -22,6 +24,8 @@ class Parser {
             hearthstoneTopDecksParser,
             metaBombParser,
             tempoStormParser,
+            //<-----deckCodeParser should always be at the botto, before failParser
+            deckImportCodeParser,
             //<-----failParser should always be the last in the list
             failParser
         ];
@@ -29,7 +33,6 @@ class Parser {
 
     parse(userId: string, urls: string[]) {
         let tasks = urls
-            .map(this.urlClean)
             .map(url => this.parsers.find(p => p.canParse(url)).parse(userId, url));
 
         return Promise
@@ -39,7 +42,6 @@ class Parser {
     }
 
     parseUpgrade(userId: string, url: string, upgradeDeckId: string) {
-        url = this.urlClean(url);
         let parser = this.parsers.find(p => p.canParse(url));
 
         return parser
@@ -53,13 +55,6 @@ class Parser {
             .then(() => console.log("[done] populate db with cards"));
     }
 
-    private urlClean(url: string) {
-        let prefix = "http://";
-        if (!/https?:\/\//.test(url)) {
-            return prefix + url;
-        }
-        return url;
-    }
 }
 
 export default new Parser();

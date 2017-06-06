@@ -4,6 +4,9 @@ export enum OrderBy { date, dust };
 
 export interface Card {
     id: string;
+
+    dbfId: number;
+    officialId: string;
     name: string;
     description: string;
     flavorText: string;
@@ -25,6 +28,7 @@ export interface Card {
 
 export interface PseudoDeck<T extends string | Card> {
     url: string;
+    importCode: string;
     dateAdded: Date;
     userId: string;
     class: hstypes.CardClass;

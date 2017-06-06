@@ -2,7 +2,7 @@ import * as hstypes from "../../../interfaces/hs-types";
 import * as contracts from "../../../interfaces/";
 import { CardDB } from "../card";
 import { DeckDB } from "../deck";
-import differ from "./differ";
+import { deckDiffer } from "./differ";
 
 
 class Mapper {
@@ -12,6 +12,7 @@ class Mapper {
         }
         let contract: contracts.Deck<string> = {
             id: deck._id,
+            importCode: deck.importCode,
             name: deck.name,
             url: deck.url,
             dateAdded: deck.dateAdded,
@@ -28,6 +29,7 @@ class Mapper {
             revisions: deck.revisions.map(rev => ({
                 number: rev.number,
                 userId: rev.userId,
+                importCode: rev.importCode,
                 url: rev.url || "",
                 cost: rev.cost || 0,
                 dustNeeded: 0, //TODO
@@ -43,7 +45,7 @@ class Mapper {
         }, collected = true;
 
         contract.cards = deck.cards.map(cardCountDB => {
-            let {cardCount, cardContract} = this.cardToContract(cardCountDB, cardAvail[cardCountDB.card._id], cardHash);
+            let { cardCount, cardContract } = this.cardToContract(cardCountDB, cardAvail[cardCountDB.card._id], cardHash);
 
             contract.dustNeeded -= Math.min(cardCount.count, cardContract.numberAvailable) * cardContract.cost;
             collected = collected && cardContract.numberAvailable >= cardCount.count;
@@ -54,7 +56,7 @@ class Mapper {
 
         //restore rev cards, depend on contract cards
         contract.revisions.forEach((rev, index) => {
-            rev.cards = differ.reverse((contract.revisions[index - 1] || contract).cards, rev.cardAddition, rev.cardRemoval);
+            rev.cards = deckDiffer.reverse((contract.revisions[index - 1] || contract).cards, rev.cardAddition, rev.cardRemoval);
             //diff inversion:
             // let diff = differ.diff((contract.revisions[index - 1] || contract).cards, rev.cards);
             // rev.cardAddition = diff.cardAddition;
@@ -71,6 +73,8 @@ class Mapper {
 
         let cardContract = cardHash[card.id] = cardHash[card.id] || {
             id: card._id,
+            officialId: card.officialId,
+            dbfId: card.dbfId,
             name: card.name,
             description: card.description,
             flavorText: card.flavorText,
