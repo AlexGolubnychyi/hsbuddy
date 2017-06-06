@@ -80,6 +80,7 @@ export class DeckComponent implements OnInit, OnChanges {
         text = text ? `###${text}\n\n${this.deck.importCode}` : this.deck.importCode;
 
         if (!this.setClipboardText(text)) {
+            this.canUseClipboard = false;
             return;
         }
 
@@ -105,6 +106,22 @@ export class DeckComponent implements OnInit, OnChanges {
         textArea.style.background = "transparent";
         textArea.value = text;
         document.body.appendChild(textArea);
+
+        if (navigator.userAgent.match(/ipad|ipod|iphone/i)) {
+            var editable = textArea.contentEditable;
+            var readOnly = textArea.readOnly;
+            textArea.contentEditable = "true";
+            textArea.readOnly = false;
+            var range = document.createRange();
+            range.selectNodeContents(textArea);
+            var sel = window.getSelection();
+            sel.removeAllRanges();
+            sel.addRange(range);
+            textArea.setSelectionRange(0, 999999);
+            textArea.contentEditable = editable;
+            textArea.readOnly = readOnly;
+        }
+
         textArea.select();
         let success = false;
         try {
