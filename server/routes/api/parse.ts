@@ -8,7 +8,7 @@ import { Request } from "../index";
 let router = express.Router();
 
 router.post("/", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
-    let links = (req.body.links as string).replace(/[\n|\r]+/g, "|").split("|").filter(l => l[0] !== "#");
+    let links = (req.body.links as string).replace(/[\n|\r]+/g, "|").split("|").filter(l => !!l && l[0] !== "#");
 
     let promises = links.map(link => parser.parse(req.user, [link]));
     Promise.all(promises).then(reports => {
