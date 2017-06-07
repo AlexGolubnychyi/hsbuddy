@@ -81,7 +81,7 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
             .startWith(defaults)
             .combineLatest(this.configService.configChanged.map(c => c.standart).startWith(this.configService.config.standart))
             .filter(v => this.filterForm.valid)
-            .do(v => localStorage.setItem(this.filterName, JSON.stringify(v)));
+            .do(v => localStorage.setItem(this.filterName, JSON.stringify(v[0])));
     }
 
     ngOnDestroy() {

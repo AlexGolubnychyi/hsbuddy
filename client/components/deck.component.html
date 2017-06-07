@@ -8,9 +8,6 @@
 		<span class="label label-danger" *ngIf="deck.deleted">deleted</span>
 	</a>
 </h2>
-<div [hidden]="canUseClipboard" class="deck-import-code">
-	Import code: {{deck.importCode}}
-</div>
 <div class="deck-url">
 	<a [href]="deck.url" class="deck-url">{{deck.url}}</a>
 </div>
@@ -39,6 +36,9 @@
 		</ul>
 	</div>
 </span>
+<div [hidden]="hideDetails || canUseClipboard" class="deck-import-code">
+	<input type="text" class="form-control" [value]="deck.importCode"/>
+</div>
 
 <div *ngIf="!hideDetails">
 	<div class="row">
