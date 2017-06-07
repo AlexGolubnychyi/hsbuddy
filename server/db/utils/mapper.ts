@@ -3,10 +3,11 @@ import * as contracts from "../../../interfaces/";
 import { CardDB } from "../card";
 import { DeckDB } from "../deck";
 import { deckDiffer } from "./differ";
+import { UserDecks } from "../user";
 
 
 class Mapper {
-    deckToContract(deck: DeckDB<CardDB>, cardAvail: { [cardId: string]: number }, userDeckIds: string[], cardHash: contracts.CardHash) {
+    deckToContract(deck: DeckDB<CardDB>, cardAvail: { [cardId: string]: number }, userDecks: UserDecks, cardHash: contracts.CardHash) {
         if (!deck) {
             return null;
         }
@@ -22,7 +23,8 @@ class Mapper {
             dustNeeded: deck.cost,
             collected: true,
             cards: [],
-            userCollection: userDeckIds.indexOf(deck._id) >= 0,
+            userCollection: userDecks.favorites.indexOf(deck._id) >= 0,
+            ignored: userDecks.ignored.indexOf(deck._id) >= 0,
             userId: deck.userId,
             deleted: deck.deleted,
             standart: deck.standart,

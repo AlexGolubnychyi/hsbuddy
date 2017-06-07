@@ -29,6 +29,7 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
         dustNeeded: undefined,
         orderBy: OrderBy.dust,
         userCollection: false,
+        showIgnored: false,
         deckName: undefined,
         cardName: undefined
     };
@@ -59,6 +60,7 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
             "deckClass": defaults.deckClass,
             "orderBy": defaults.orderBy,
             "userCollection": defaults.userCollection,
+            "showIgnored": defaults.showIgnored,
             "deckName": defaults.deckName,
             "cardName": defaults.cardName
         };

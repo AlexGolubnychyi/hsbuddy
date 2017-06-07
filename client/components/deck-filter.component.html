@@ -36,14 +36,20 @@
                 </div>
             </div>
         </div>
-        <div *ngIf="useUserCollectionFilter" class="col-sm-3">
+        <div *ngIf="useUserCollectionFilter" class="col-sm-3 user-collection-filter">
             <div class="row hidden-xs">&nbsp;</div>
             <div class="row">
                 <div class="col-sm-12">
                     <div class="checkbox" style="margin-bottom:0;">
                         <label>
                             <input type="checkbox" formControlName="userCollection"/>
-                            Personal collection
+                            Favorites
+                        </label>
+                    </div>
+                    <div class="checkbox" style="margin-bottom:0;">
+                        <label>
+                            <input type="checkbox" formControlName="showIgnored"/>
+                            Ignored
                         </label>
                     </div>
                 </div>

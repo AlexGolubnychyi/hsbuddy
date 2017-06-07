@@ -28,5 +28,8 @@ router.post("/:deckId", authChecks.api, (req: Request, res: express.Response, ne
 router.get("/collection/:deckId/:status", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
     User.setUserDeck(req.user, req.params.deckId, req.params.status === "true").then(result => res.json(result));
 });
+router.get("/ignore/:deckId/:status", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
+    User.setIgnoredDeck(req.user, req.params.deckId, req.params.status === "true").then(result => res.json(result));
+});
 
 export default router;

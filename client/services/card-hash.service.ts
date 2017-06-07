@@ -43,45 +43,23 @@ export class CardHashService {
         if (!deck) {
             return null;
         }
+
         return {
-            id: deck.id,
-            name: deck.name,
-            importCode: deck.importCode,
-            url: deck.url,
+            ...deck,
             cards: this.inflateCards(deck.cards),
-            class: deck.class,
-            className: deck.className,
-            collected: deck.collected,
-            cost: deck.cost,
-            dateAdded: deck.dateAdded,
-            deleted: deck.deleted,
-            dustNeeded: deck.dustNeeded,
             revisions: deck.revisions && deck.revisions.map(rev => ({
-                number: rev.number,
-                importCode: rev.importCode,
-                userId: rev.userId,
-                url: rev.url,
-                cost: rev.cost,
-                dustNeeded: rev.dustNeeded,
-                dateAdded: rev.dateAdded,
-                class: rev.class,
-                className: rev.className,
+                ...rev,
                 cards: this.inflateCards(rev.cards),
-                collected: rev.collected,
-                diff: rev.diff,
                 cardAddition: this.inflateCards(rev.cardAddition),
-                cardRemoval: this.inflateCards(rev.cardRemoval),
-            })),
-            standart: deck.standart,
-            userCollection: deck.userCollection,
-            userId: deck.userId
+                cardRemoval: this.inflateCards(rev.cardRemoval)
+            }))
         };
     }
 
     inflateDiff(diff: contracts.DeckDiff<string>): contracts.DeckDiff<contracts.Card> {
         return {
+            ...diff,
             deck: this.inflateDeck(diff.deck),
-            diff: diff.diff,
             cardAddition: this.inflateCards(diff.cardAddition),
             cardRemoval: this.inflateCards(diff.cardRemoval),
         };

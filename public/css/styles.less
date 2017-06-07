@@ -253,7 +253,8 @@ deck, .deck-detail {
             line-height: 1.42857143;
             color: #333;
             .checkbox {
-                margin: 0;
+                margin: 0 .5em 0 0;
+                display: inline-block;
             }
         }
     }
@@ -302,6 +303,16 @@ deck-filter typeahead-container {
     position: static !important;
     .dropdown-menu {
         left: 100px;
+    }
+}
+
+
+.deck-filter {
+    .user-collection-filter{
+        .checkbox {
+            display:inline-block;
+            margin-right: .5em;
+        }
     }
 }
 

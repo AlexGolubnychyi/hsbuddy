@@ -8,6 +8,7 @@ import Card, { CardDB, cardSchemaName } from "./card";
 import UserCard from "./userCard";
 import mapper from "./utils/mapper";
 import { deckDiffer } from "./utils/differ";
+import { UserDecks } from "./user";
 
 const deckSchema = new mongoose.Schema({
     _id: String,
@@ -53,13 +54,13 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
     : Promise<contracts.DeckResult<contracts.Deck<string>[]>> {
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         cardAvailability: { [cardId: string]: number },
-        userDeckIds: string[],
+        userDecks: UserDecks,
         query: {} = void 0,
         dustNeededParam: number,
         cardHash: contracts.CardHash = {};
 
     return User.getUserDeckIds(userId)
-        .then(ids => userDeckIds = ids)
+        .then(usrDecks => userDecks = usrDecks)
         .then(() => UserCard.getByUserId(userId))
         .then(uc => cardAvailability = uc)
         .then(() => {
@@ -77,7 +78,11 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                 }
 
                 if (params.userCollection === "true") {
-                    queryParts.push({ "_id": { "$in": userDeckIds } });
+                    queryParts.push({ "_id": { "$in": userDecks.favorites } });
+                }
+
+                if (params.showIgnored !== "true") {
+                    queryParts.push({ "_id": { "$not": { "$in": userDecks.ignored } } });
                 }
 
                 if (+params.deckClass > 0) {
@@ -105,7 +110,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
             let result = decks
                 .map(deck => {
                     deck.revisions = []; //reduce unneeded processing
-                    return mapper.deckToContract(deck, cardAvailability, userDeckIds, cardHash);
+                    return mapper.deckToContract(deck, cardAvailability, userDecks, cardHash);
                 })
                 .filter(deck => !deck.deleted || deck.userCollection);
 
@@ -129,15 +134,15 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
 deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<contracts.DeckResult<contracts.Deck<string>>> {
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         cardAvailability: { [cardId: string]: number },
-        userDeckIds: string[],
+        userDecks: UserDecks,
         cardHash: contracts.CardHash = {};
 
     return User.getUserDeckIds(userId)
-        .then(ids => userDeckIds = ids)
+        .then(usrDecks => userDecks = usrDecks)
         .then(() => UserCard.getByUserId(userId))
         .then(uc => cardAvailability = uc)
         .then(() => model.findById(deckId).populate("cards.card").populate("revisions.cardAddition.card").populate("revisions.cardRemoval.card").exec())
-        .then(deck => mapper.wrapResult(mapper.deckToContract(deck, cardAvailability, userDeckIds, cardHash), cardHash));
+        .then(deck => mapper.wrapResult(mapper.deckToContract(deck, cardAvailability, userDecks, cardHash), cardHash));
 });
 
 
@@ -198,11 +203,11 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, s
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         refDeck: contracts.Deck<string>,
         cardAvailability: { [cardId: string]: number },
-        userDeckIds: string[],
+        userDecks: UserDecks,
         cardHash: contracts.CardHash = {};
 
     return User.getUserDeckIds(userId)
-        .then(ids => userDeckIds = ids)
+        .then(usrDecks => userDecks = usrDecks)
         .then(() => UserCard.getByUserId(userId))
         .then(uc => cardAvailability = uc)
         .then(() => model.findById(deckId).populate("cards.card").exec())
@@ -210,7 +215,7 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, s
             if (!deck) {
                 Promise.reject(new Error("deck not found"));
             }
-            refDeck = mapper.deckToContract(deck, cardAvailability, userDeckIds, cardHash);
+            refDeck = mapper.deckToContract(deck, cardAvailability, userDecks, cardHash);
         })
         .then(() => {
             let query = { "$and": [{ "_id": { "$ne": deckId } }, { "deleted": { "$ne": true } }, { "class": refDeck.class }] };
@@ -231,7 +236,7 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, s
 
                     if (diff.diff < 10) {
                         otherDeck.revisions = []; //we don't need revisions on sim decks
-                        let deck = mapper.deckToContract(otherDeck, cardAvailability, userDeckIds, cardHash);
+                        let deck = mapper.deckToContract(otherDeck, cardAvailability, userDecks, cardHash);
                         diff.cardAddition.forEach(cardCount => reducerHash[cardCount.card] = true);
                         return {
                             deck,
@@ -285,30 +290,45 @@ deckSchema.static("recycle", function (deckId: string, forceDelete = false, repl
             return false;
         }
 
-        return User.find({ decks: deck._id }).exec().then(users => {
-            let promise = Promise.resolve() as Promise<any>;
+        return User.find({ "$or": [{ decks: deck._id }, { ignoredDecks: deck._id }] }).exec()
+            .then(users => {
+                let promise = Promise.resolve() as Promise<any>;
 
-            if (users && users.length) {
-                if (!replaceWithDeckId) {
-                    if (deck.deleted) {
-                        //already soft deleted
-                        return false;
-                    }
-                    //soft delete
-                    deck.deleted = true;
-                    return deck.save().then(() => false);
-                }
-                else {
-                    promise = Promise.all(users.map(user => {
-                        //replace deckId in user collections (when upgrading deck)
-                        user.decks = (user.decks as string[]).map((innerId) => innerId === deckId ? replaceWithDeckId : innerId);
-                        return user.save();
-                    }));
-                }
-            }
+                let usersFavoredTheDeck = users && users.filter(u => (u.decks as string[]).some(dId => dId === deck._id));
+                let usersIgnoredTheDeck = users && users.filter(u => u.ignoredDecks.some(dId => dId === deck._id));
 
-            return promise.then(() => model.findByIdAndRemove(deckId).exec()).then(() => true); //hard delete
-        });
+                return Promise.resolve()
+                    .then(() => {
+                        if (usersIgnoredTheDeck && usersIgnoredTheDeck.length) {
+                            return Promise.all(usersIgnoredTheDeck.map(user => {
+                                //clean up ignore lists
+                                user.ignoredDecks = user.ignoredDecks.filter(dId => dId !== deck._id);
+                                return user.save();
+                            }));
+                        }
+                    }).then(() => {
+                        if (usersFavoredTheDeck && usersFavoredTheDeck.length) {
+                            if (!replaceWithDeckId) {
+                                if (deck.deleted) {
+                                    //already soft deleted
+                                    return false;
+                                }
+                                //soft delete
+                                deck.deleted = true;
+                                return deck.save().then(() => false);
+                            }
+                            else {
+                                promise = Promise.all(usersFavoredTheDeck.map(user => {
+                                    //replace deckId in user collections (when upgrading deck)
+                                    user.decks = (user.decks as string[]).map((innerId) => innerId === deckId ? replaceWithDeckId : innerId);
+                                    return user.save();
+                                }));
+                            }
+                        }
+
+                        return promise.then(() => model.findByIdAndRemove(deckId).exec()).then(() => true); //hard delete
+                    });
+            });
     });
 });
 

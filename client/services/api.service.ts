@@ -1,5 +1,4 @@
 import { Injectable } from "@angular/core";
-import { Http } from "@angular/http";
 import { AuthHttp } from "angular2-jwt/angular2-jwt";
 import { Observable } from "rxjs/Observable";
 import * as contracts from "../../interfaces/index";
@@ -100,6 +99,11 @@ export class ApiService {
         return this.http.get(`api/deck/collection/${enc(deckId)}/${status}`)
             .map(resp => resp.json() as contracts.CollectionChangeStatus)
             .catch(() => Observable.of(<contracts.CollectionChangeStatus>{ success: false }));
+    }
+    toggleIgnoredDeck(deckId: string, status: boolean) {
+        return this.http.get(`api/deck/ignore/${deckId}/${status}`)
+            .map(resp => resp.json() as contracts.IgnoredChangeStatus)
+            .catch(() => Observable.of(<contracts.IgnoredChangeStatus>{ success: false }));
     }
 
     deleteDeck(deckId: string) {

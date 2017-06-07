@@ -1,4 +1,4 @@
-import { Component, Input, Output, OnInit, EventEmitter, ChangeDetectionStrategy } from "@angular/core";
+import { Component, Input, Output, OnInit, EventEmitter, ChangeDetectionStrategy, OnDestroy } from "@angular/core";
 import { AuthService } from "../services/auth.service";
 import { ApiService } from "../services/api.service";
 import { DeckUtilsService } from "../services/deck-utils.service";
@@ -12,14 +12,14 @@ import "../rxjs-operators";
     templateUrl: "deck-info.component.html",
     changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class DeckInfoComponent implements OnInit {
+export class DeckInfoComponent implements OnInit, OnDestroy {
     @Input()
     deck: PseudoDeck<Card> | Deck<Card>;
     @Output()
     onDeleteDeck = new EventEmitter<string>();
-
     showUserCollection: boolean;
     userCollectionChangeStream = new Subject();
+    userIgnoreDeckChangeStream = new Subject();
 
     constructor(
         private authService: AuthService,
@@ -47,6 +47,23 @@ export class DeckInfoComponent implements OnInit {
                     this.onDeleteDeck.emit(deck.id);
                 }
             });
+
+        (this.userIgnoreDeckChangeStream as Observable<boolean>)
+            .debounceTime(200)
+            .switchMap(val => this.apiService.toggleIgnoredDeck(deck.id, val))
+            .subscribe((result) => {
+                if (result.success) {
+                    deck.ignored = result.ignored;
+                }
+            });
+    }
+    ngOnDestroy(): void {
+        if (this.userCollectionChangeStream) {
+            this.userCollectionChangeStream.unsubscribe();
+        }
+        if (this.userIgnoreDeckChangeStream) {
+            this.userIgnoreDeckChangeStream.unsubscribe();
+        }
     }
 
 }

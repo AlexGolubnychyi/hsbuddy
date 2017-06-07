@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     _id: String,
     passwordHash: String,
     decks: [{ type: String, ref: deckSchemaName }],
+    ignoredDecks: [{ type: String, ref: deckSchemaName }],
     latestActivityDate: Date
 });
 
@@ -71,16 +72,22 @@ userSchema.static("createUser", function (userId: string, password: string) {
 });
 
 userSchema.static("getUserDeckIds", function (userId: string) {
-    let model = (this as mongoose.Model<UserDB> & UserStatics);
+    let model = (this as mongoose.Model<UserDB> & UserStatics),
+        usersDecks: UserDecks = {
+            favorites: [],
+            ignored: []
+        };
     if (!userId) {
-        return Promise.resolve([]);
+        return Promise.resolve(usersDecks);
     }
 
     return model.findById(userId).exec().then(user => {
-        if (!user || !user.decks) {
-            return [];
+        if (!user) {
+            return usersDecks;
         }
-        return user.decks.slice();
+        usersDecks.favorites = user.decks ? user.decks.slice() as string[] : usersDecks.favorites;
+        usersDecks.ignored = user.ignoredDecks ? user.ignoredDecks.slice() as string[] : usersDecks.ignored;
+        return usersDecks;
     });
 });
 
@@ -115,21 +122,56 @@ userSchema.static("setUserDeck", function (userId: string, deckId: string, set: 
         });
     });
 });
+userSchema.static("setIgnoredDeck", function (userId: string, deckId: string, set: boolean) {
+    let model = (this as mongoose.Model<UserDB> & UserStatics),
+        result: contracts.IgnoredChangeStatus = {
+            ignored: set,
+            success: true
+        };
+
+    return model.findById(userId).exec().then(user => {
+        let decks = user.ignoredDecks as string[],
+            index = decks.indexOf(deckId);
+
+        if (set) {
+            if (index >= 0) {
+                return result;
+            }
+            decks.push(deckId);
+            return user.save().then(() => result);
+        }
+
+        if (index < 0) {
+            return result;
+        }
+
+        decks.splice(index, 1);
+        return user.save().then(() => result);
+    });
+});
 
 
 export interface UserDB extends mongoose.Document {
     _id: string;
     passwordHash: string;
     decks: string[] | DeckDB<string | CardDB>[];
+    ignoredDecks: string[];
     latestActivityDate: Date;
+}
+
+export interface UserDecks {
+    favorites: string[];
+    ignored: string[];
 }
 
 interface UserStatics {
     encrypt: (password: string) => string;
     auth: (userId: string, password: string) => Promise<UserDB>;
     createUser: (userId: string, password: string) => Promise<UserDB>;
-    getUserDeckIds: (userId: string) => Promise<string[]>;
+    getUserDeckIds: (userId: string) => Promise<UserDecks>;
+    getUserIgnoreDeckIds: (userId: string) => Promise<string[]>;
     setUserDeck: (userId: string, deckId: string, set: boolean) => Promise<contracts.CollectionChangeStatus>;
+    setIgnoredDeck: (userId: string, deckId: string, set: boolean) => Promise<contracts.IgnoredChangeStatus>;
     loadUser: (userId: string) => Promise<UserDB>;
 }
 export const userSchemaName = "User";

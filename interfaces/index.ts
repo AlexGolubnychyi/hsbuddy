@@ -44,6 +44,7 @@ export interface Deck<T extends string | Card> extends PseudoDeck<T> {
     name: string;
     revisions?: DeckRevision<T>[];
     userCollection?: boolean;
+    ignored?: boolean;
     deleted?: boolean;
     standart: boolean;
 }
@@ -96,6 +97,7 @@ export interface CardMissing<T extends string | Card> {
 
 export interface DeckQuery {
     userCollection?: boolean | string;
+    showIgnored?: boolean | string;
     deckClass?: hstypes.CardClass | string;
     dustNeeded?: number | string;
     orderBy: OrderBy;
@@ -145,4 +147,9 @@ export interface CollectionChangeStatus {
     collection: boolean;
     success: boolean;
     deckDeleted?: boolean;
+}
+
+export interface IgnoredChangeStatus {
+    ignored: boolean;
+    success: boolean;
 }

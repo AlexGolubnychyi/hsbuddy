@@ -3,7 +3,13 @@
 		<div class="checkbox ">
 			<label>
                 <input type="checkbox" id="blankCheckbox" [ngModel]="deck.userCollection" (ngModelChange)="userCollectionChangeStream.next($event)">
-                Include in personal collection
+                Favorite
+            </label>
+		</div>
+		<div class="checkbox ">
+			<label>
+                <input type="checkbox" id="blankCheckbox2" [ngModel]="deck.ignored" (ngModelChange)="userIgnoreDeckChangeStream.next($event)">
+                Ignored
             </label>
 		</div>
 	</div>
