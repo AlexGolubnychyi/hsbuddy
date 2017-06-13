@@ -51,12 +51,12 @@ export class ApiService {
             .catch(this.handleError);
     }
 
-    setDescription(deckId: string, description: contracts.DeckChange): Observable<boolean> {
+    setDescription(deckId: string, description: contracts.DeckChange): Observable<contracts.DeckChange> {
         let url = `api/deck/${deckId}`;
 
         return this.http.post(url, description)
-            .map(resp => (resp.json() as contracts.Result).success)
-            .catch(() => Observable.of(false));
+            .map(resp => (resp.json() as contracts.DeckChange))
+            .catch(() => Observable.of(null));
     }
 
     getCardLibraryInfo(standart: boolean): Observable<contracts.CardLibraryInfo<contracts.Card>> {

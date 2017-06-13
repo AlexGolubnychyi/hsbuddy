@@ -25,6 +25,10 @@
 					<label>Date: </label>
 					<input type="date" class="form-control" formControlName="date" aria-describedby="basic-addon2">
 				</div>
+				<div *ngIf="!deck.url" class="form-group">
+					<label>Url: </label>
+					<input type="text" class="form-control" formControlName="url" aria-describedby="basic-addon3">
+				</div>
 			</form>
 			<button *ngIf="!upgrading" (click)="change()" class="btn btn-default" [disabled]="!form.valid || loading || !form.dirty">Change</button>
 			<button *ngIf="!upgrading && !deck.deleted" (click)="delete()" class="btn" [class.btn-default]="!confirmDeletion" [class.btn-danger]="confirmDeletion">{{confirmDeletion ? 'Confirm delete' : 'Delete'}}</button>

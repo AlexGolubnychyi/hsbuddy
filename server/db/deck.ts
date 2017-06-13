@@ -1,4 +1,5 @@
 import * as crypto from "crypto";
+import * as validUrl from "valid-url";
 import mongoose from "../lib/mongoose";
 import * as hstypes from "../../interfaces/hs-types";
 import * as contracts from "../../interfaces/";
@@ -260,25 +261,36 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, s
         });
 });
 
-deckSchema.static("setDescription", function (userId: string, deckId: string, description: contracts.DeckChange): Promise<boolean> {
+deckSchema.static("setDescription", function (userId: string, deckId: string, description: contracts.DeckChange): Promise<contracts.DeckChange> {
     let model = this as mongoose.Model<DeckDB<CardDB | string>>;
 
     return model.findById(deckId).exec()
         .then(deck => {
             if (!deck || !description) {
-                return false;
+                return null;
             }
 
             let date = new Date(description.date),
-                { name } = description;
+                { name, url } = description;
 
             if (!date || !name) {
-                return false;
+                return null;
             }
 
             deck.name = name;
             deck.dateAdded = date;
-            return deck.save().then(() => true);
+            if (!deck.url && url) {
+                if (validUrl.isUri(url)) {
+                    deck.url = url;
+                }
+                else {
+                    description.url = "";
+                }
+            }
+            else{
+                description.url = deck.url;
+            }
+            return deck.save().then(() => description);
         });
 });
 
@@ -434,7 +446,7 @@ interface DeckStatics {
     getMissingCards: (userId: string, params?: contracts.DeckQuery) => Promise<contracts.DeckResult<contracts.CardMissing<string>[]>>;
 
     upgradeDeck: (oldDeck: DeckDB<string>, newDeck: DeckDB<string>) => Promise<boolean>;
-    setDescription: (userId: string, deckId: string, description: contracts.DeckChange) => Promise<boolean>;
+    setDescription: (userId: string, deckId: string, description: contracts.DeckChange) => Promise<contracts.DeckChange>;
     recycle: (deckId: string, forceDelete?: boolean, replaceWithDeckId?: string) => Promise<boolean>;
 }
 

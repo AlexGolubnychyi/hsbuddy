@@ -22,7 +22,7 @@ router.delete("/:deckId", authChecks.api, (req: Request, res: express.Response, 
 });
 
 router.post("/:deckId", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {
-    Deck.setDescription(req.user, req.params.deckId, req.body).then(success => res.json({success}));
+    Deck.setDescription(req.user, req.params.deckId, req.body).then(result => res.json(result));
 });
 
 router.get("/collection/:deckId/:status", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {

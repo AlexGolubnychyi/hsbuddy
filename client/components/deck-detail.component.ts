@@ -56,7 +56,8 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
 
         this.form = this.fb.group({
             name: ["", Validators.required],
-            date: ["", Validators.required]
+            date: ["", Validators.required],
+            url: [""]
         });
 
         this.route.params
@@ -110,8 +111,9 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
             this.ref.markForCheck();
             if (result) {
 
-                this.deck.name = this.form.get("name").value;
-                this.deck.dateAdded = this.form.get("date").value;
+                this.deck.name = result.name;
+                this.deck.dateAdded = result.date;
+                this.deck.url = result.url;
                 this.cancelEdit();
                 return;
             }
@@ -209,9 +211,15 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
     };
 
     private setDefaults() {
+        let date: Date | string = this.deck.dateAdded;
+        if (date) {
+            if (typeof date === "string") {
+                date = (this.deck.dateAdded + "").split("T")[0];
+            }
+        }
         this.form.reset({
             name: this.deck.name,
-            date: this.deck.dateAdded && (this.deck.dateAdded + "").split("T")[0]
+            date
         });
         this.upgradeUrl = "";
     }

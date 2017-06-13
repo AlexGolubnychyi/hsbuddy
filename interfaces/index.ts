@@ -29,7 +29,7 @@ export interface Card {
 export interface PseudoDeck<T extends string | Card> {
     url: string;
     importCode: string;
-    dateAdded: Date;
+    dateAdded: Date | string;
     userId: string;
     class: hstypes.CardClass;
     className: string;
@@ -70,6 +70,7 @@ export interface CardCount<T extends Card | string> {
 
 export interface DeckChange {
     name: string;
+    url?: string;
     date: string;
 }
 
