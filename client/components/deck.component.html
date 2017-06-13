@@ -21,7 +21,7 @@
 		<button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
 			Sort: <i>{{sortOptions[filter.sort]}}</i> <span class="caret"></span>
 		</button>
-		<ul class="dropdown-menu" dropdownMenu>
+		<ul class="dropdown-menu" *dropdownMenu>
 			<li><a href="#" (click)="changeSort(sortOptions.classic)">Classic</a></li>
 			<li><a href="#" (click)="changeSort(sortOptions.expense)">Expense</a></li>
 			<li><a href="#" (click)="changeSort(sortOptions.mana)">Mana</a></li>
@@ -31,7 +31,7 @@
 		<button dropdownToggle class="btn btn-default btn-xs dropdown-toggle" type="button" >
 			List style: <i>{{config.splitCardListByClass ? "Split by class" : "No split"}}</i> <span class="caret"></span>
 		</button>
-		<ul class="dropdown-menu" dropdownMenu>
+		<ul class="dropdown-menu" *dropdownMenu>
 			<li><a href="#" (click)="listStyleChanged(true)">Split by class</a></li>
 			<li><a href="#" (click)="listStyleChanged(false)">No split</a></li>
 		</ul>

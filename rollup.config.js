@@ -16,11 +16,11 @@ export default {
         commonjs({
             include: [
                 "node_modules/rxjs/**",
-                "node_modules/ng2-bootstrap/**",
+                "node_modules/ngx-bootstrap/**",
                 "node_modules/angular2-jwt/**"
             ]//,
             // namedExports: {
-            //     "node_modules/ng2-bootstrap/index.js": ["DropdownModule", "CollapseModule","TypeaheadModule"],
+            //     "node_modules/ngx-bootstrap/index.js": ["DropdownModule", "CollapseModule","TypeaheadModule"],
             // }
         }),
         uglify()

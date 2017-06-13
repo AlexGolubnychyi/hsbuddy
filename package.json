@@ -52,7 +52,7 @@
     "compression": "1.6.2",
     "core-js": "^2.4.1",
     "debug": "~2.3.0",
-    "del-cli": "0.2.0",
+    "del-cli": "^0.2.0",
     "express": "~4.14.0",
     "express-jwt": "^5.1.0",
     "jsonwebtoken": "^7.1.9",
@@ -60,7 +60,7 @@
     "mongodb": "^2.2.16",
     "mongoose": "4.6.6",
     "morgan": "~1.7.0",
-    "ng2-bootstrap": "1.4.2",
+    "ngx-bootstrap": "1.7.1",
     "pug": "2.0.0-beta11",
     "reflect-metadata": "0.1.10",
     "request": "2.78.0",
@@ -71,7 +71,7 @@
     "rxjs": "5.0.2",
     "serve-favicon": "~2.3.0",
     "systemjs": "0.19.40",
-    "typescript": "2.2.1",
+    "typescript": "2.3.4",
     "valid-url": "^1.0.9",
     "zone.js": "0.8.5"
   }
