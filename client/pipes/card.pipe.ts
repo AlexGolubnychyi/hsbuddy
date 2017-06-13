@@ -13,7 +13,17 @@ export class CardPipe implements PipeTransform {
         if (options.sort === SortOptions.keepOrder) {
             return filtered;
         }
-        return filtered.sort(options.sort === SortOptions.expense ? this.expenseSort : this.classicSort);
+
+        switch (options.sort) {
+            case SortOptions.classic:
+                return filtered.sort(this.classicSort);
+            case SortOptions.expense:
+                return filtered.sort(this.expenseSort);
+            case SortOptions.mana:
+                return filtered.sort(this.manaSort);
+            default:
+                return filtered;
+        }
     }
 
     private expenseSort(cardCount1: CardCount<Card>, cardCount2: CardCount<Card>) {
@@ -30,6 +40,17 @@ export class CardPipe implements PipeTransform {
             return diff;
         }
 
+        return card1.name > card2.name ? 1 : -1;
+    }
+
+    private manaSort(cardCount1: CardCount<Card>, cardCount2: CardCount<Card>) {
+        let card1 = cardCount1.card,
+            card2 = cardCount2.card,
+            diff = card1.mana - card2.mana;
+
+        if (diff) {
+            return diff;
+        }
         return card1.name > card2.name ? 1 : -1;
     }
 
@@ -83,4 +104,4 @@ export interface CardPipeArg {
     name?: string;
 }
 
-export enum SortOptions { classic, expense, keepOrder };
+export enum SortOptions { classic, expense, mana, keepOrder };
