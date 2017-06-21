@@ -3,6 +3,7 @@ import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
 
 class HearthPwnParser extends BaseDeckParser {
     private deckRegex = /hearthpwn\.com\/decks\/([0-9]+)[a-z\-]*/;
+    name = "HearthPwn";
 
     canParse(url: string) {
         return this.deckRegex.test(url);

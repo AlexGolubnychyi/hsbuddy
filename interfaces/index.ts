@@ -142,6 +142,7 @@ export interface ParseResult {
     status: ParseStatus;
     url: string;
     error?: string;
+    parserName: string;
 }
 
 export interface CollectionChangeStatus {

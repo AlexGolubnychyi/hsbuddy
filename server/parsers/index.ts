@@ -68,6 +68,7 @@ export interface ParseReport {
 }
 
 export interface ParseReportItem {
+    parserName: string;
     status: ParseStatus;
     reason?: string;
     url: string;
@@ -77,13 +78,13 @@ export interface ParseReportItem {
 export class ParseError extends Error {
     name = "ParseError";
 
-    constructor(public message: string, public status: ParseStatus, public url: string, public deckId?: string) {
-        super(message);
+    constructor(public parseReportItem: ParseReportItem) {
+        super(parseReportItem.reason);
         Error.captureStackTrace(this, ParseError);
     }
 
     getParseStatusReportItem() {
-        return <ParseReportItem>{ reason: this.message, status: this.status, url: this.url, id: this.deckId };
+        return this.parseReportItem;
     }
 }
 

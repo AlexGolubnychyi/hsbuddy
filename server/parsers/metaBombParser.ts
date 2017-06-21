@@ -8,7 +8,7 @@ let keywords = { deckUrl: "/deck-guides/", deckListUrl: "game-guides" };
 class MetaBombParser extends BaseDeckParser {
     private deckRegex = /hearthstone\.metabomb.net\/deck-guides\/([0-9a-zA-Z\-]+)/;
     private deckListRegex = /hearthstone\.metabomb.net\/game-guides\/([0-9a-zA-Z\-]+)/;
-
+    name = "MetaBomb";
     canParse(url: string) {
         return this.deckRegex.test(url) || this.deckListRegex.test(url);
     }

@@ -6,7 +6,8 @@ import { deckEncoder } from "../db/utils/deckEncoder";
 
 
 export class DeckImportCodeParser extends BaseDeckParser {
-    private deckRegex = /[A-Za-z0-9+/]+/;
+    private deckRegex = /^[A-Za-z0-9+/=]+$/;
+    name = "DeckCode";
     protected getDeckData(url: string): Promise<DeckData[]> {
         return this.parseDeck(url).then(reportItem => [reportItem]);
     }

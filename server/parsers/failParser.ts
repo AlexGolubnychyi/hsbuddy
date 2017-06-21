@@ -2,6 +2,7 @@ import { BaseDeckParser } from "./base/baseDeckParser";
 
 
 class FailParser extends BaseDeckParser {
+    name: "";
 
     constructor() {
         super();

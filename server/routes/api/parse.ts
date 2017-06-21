@@ -16,6 +16,7 @@ router.post("/", authChecks.api, (req: Request, res: express.Response, next: exp
             deckId: rez.id,
             url: rez.url,
             status: rez.status,
+            parserName: rez.parserName,
             error: rez.status === contracts.ParseStatus.fail
                 ? rez.reason || ""
                 : ""

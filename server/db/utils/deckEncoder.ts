@@ -46,7 +46,7 @@ class DeckEncoder {
             }
         });
         if (!heroCode) {
-            throw "card class is not found";
+            throw new DeckEncoderError("card class is not found");
         }
         this.writeHSValue(byteArray, heroCode);
 
@@ -93,29 +93,29 @@ class DeckEncoder {
 
         const start = this.readUIntValue(data);
         if (start !== startMarker) {
-            throw `unsupported deck url format: start = ${start}`;
+            throw new DeckEncoderError(`unsupported deck url format: start = ${start}`);
         }
 
         const version = this.readUIntValue(data);
         if (version !== deckStringVersion) {
-            throw `unsupported deck url version: ${version}`;
+            throw new DeckEncoderError(`unsupported deck url version: ${version}`);
         }
 
         const format = this.readUIntValue(data);
         let isStandart = format === standartDeckFlag;
         if (!isStandart && format !== wildDeckFlag) {
-            throw `unsupported deck format: ${format}`;
+            throw new DeckEncoderError(`unsupported deck format: ${format}`);
         }
 
         const cards = [];
         let heroNumber = this.readHSValue(data);
         if (heroNumber !== 1) {
-            throw `unsupported number of heroes: ${heroNumber}`;
+            throw new DeckEncoderError(`unsupported number of heroes: ${heroNumber}`);
         }
         let heroCode = this.readHSValue(data);
         let hero = сardClassIdMapping[heroCode];
         if (!hero) {
-            throw `unsupported heroe: ${heroCode}`;
+            throw new DeckEncoderError(`unsupported heroe: ${heroCode}`);
         }
 
         const singles = this.readUIntValue(data);
@@ -132,7 +132,7 @@ class DeckEncoder {
 
         const end = this.readUIntValue(data);
         if (end !== endMarker) {
-            throw `unsupported deck url format: end = ${end}`;
+            throw new DeckEncoderError(`unsupported deck url format: end = ${end}`);
         }
 
         return cards;
@@ -181,6 +181,8 @@ class DeckEncoder {
 
 
 export const deckEncoder = new DeckEncoder();
+
+export class DeckEncoderError extends Error { }
 
 
 interface HsStringUrlData {

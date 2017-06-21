@@ -3,7 +3,7 @@ import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
 
 class ManaCrystalsParser extends BaseDeckParser {
     private deckRegex = /manacrystals\.com\/deck_guides\/([0-9]+)/;
-
+    name = "ManaCrystals";
     canParse(url: string) {
         return this.deckRegex.test(url);
     };

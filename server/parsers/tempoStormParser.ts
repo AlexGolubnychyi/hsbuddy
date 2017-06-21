@@ -7,7 +7,7 @@ import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
 class TempoStormParser extends BaseDeckParser {
     private deckRegex = /tempostorm\.com\/hearthstone\/decks\/([0-9a-z\-]+)/;
     private deckListRegex = /tempostorm\.com\/hearthstone\/meta-snapshot\/standard\/([0-9a-z\-]+)/;
-
+    name = "TempoStorm";
     protected getDeckData(url: string) {
         if (this.deckRegex.test(url)) {
             return this.parseDeck(url).then(reportItem => [reportItem]);

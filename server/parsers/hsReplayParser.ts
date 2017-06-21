@@ -6,7 +6,7 @@ import { cardDB } from "../db/card";
 
 class HsReplayParser extends BaseDeckParser {
     private deckRegex = /hsreplay\.net\/decks\/([0-9a-zA-Z\-\/]+)/;
-
+    name = "HsReplays";
     canParse(url: string) {
         return this.deckRegex.test(url.split("#")[0]);
     };

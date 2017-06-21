@@ -1,3 +1,4 @@
+
 import { DeckData, BaseDeckParser } from "./base/baseDeckParser";
 import { getContent } from "../lib/request";
 import { deckEncoder } from "../db/utils/deckEncoder";
@@ -6,7 +7,7 @@ import { deckEncoder } from "../db/utils/deckEncoder";
 
 class MetaStatsParser extends BaseDeckParser {
     private deckRegex = /metastats\.net\/deck\/([0-9a-zA-Z\-\/]+)/;
-
+    name = "MetaStats";
     canParse(url: string) {
         return this.deckRegex.test(url);
     };

@@ -33,9 +33,9 @@ export class ParseComponent implements OnInit {
 
     format(result: contracts.ParseResult) {
         if (result.error) {
-            return `[${result.error}] ${result.url}`;
+            return `[${result.parserName || "server"}: ${result.error}] ${result.url}`;
         }
-        return `[${contracts.ParseStatus[result.status]}] ${result.url}`;
+        return `[${result.parserName || "server"}: ${contracts.ParseStatus[result.status]}] ${result.url}`;
     }
 
 }
