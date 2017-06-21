@@ -1,5 +1,5 @@
 import * as Promise from "bluebird";
-import Card, { CardDB } from "../db/card";
+import { cardDB, CardDB } from "../db/card";
 import { getContent } from "../lib/request";
 import * as hsTypes from "../../interfaces/hs-types";
 import mongoose from "../lib/mongoose";
@@ -16,7 +16,7 @@ export default function () {
         .map(($: CheerioStatic) => {
             $("table.listing.cards-visual.listing-cards>tbody tr").each((inx, el) => {
                 let $tr = $(el),
-                    card = new Card(),
+                    card = new cardDB(),
                     token = false;
 
                 card.name = $tr.find("h3").text();
@@ -97,7 +97,7 @@ export default function () {
                     console.log(`[skipped] token/hero: ${card.name}`);
                     return;
                 }
-                card._id = Card.generateId(card.name);
+                card._id = cardDB.generateId(card.name);
                 cards[card._id] = card;
             });
         })
@@ -117,7 +117,7 @@ function getAdditionalCardInfo(cards: { [id: string]: CardDB }) {
                     mana = +$tr.find(".col-cost").text().trim() || 0,
                     attack = +$tr.find(".col-attack").text().trim() || 0,
                     health = +$tr.find(".col-health").text().trim() || 0,
-                    card = cards[Card.generateId(name)];
+                    card = cards[cardDB.generateId(name)];
 
                 if (!card) {
                     console.log(`card not found ${name}`);
@@ -132,7 +132,7 @@ function getAdditionalCardInfo(cards: { [id: string]: CardDB }) {
 
             });
         })
-        .then(() => Card.insertMany(Object.keys(cards).map(key => cards[key])))
+        .then(() => cardDB.insertMany(Object.keys(cards).map(key => cards[key])))
         .then(() => {
             console.log("[done] loading additional card info");
         }).catch(e => {

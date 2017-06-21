@@ -1,5 +1,5 @@
 import mongoose from "../lib/mongoose";
-import Card, { CardDB } from "../db/card";
+import { cardDB, CardDB } from "../db/card";
 import Deck, { DeckDB, DeckRevisionDB } from "../db/deck";
 import * as hstypes from "../../interfaces/hs-types";
 import * as contracts from "../../interfaces";
@@ -57,7 +57,7 @@ function updateToVersion1(): Promise<void> {
     let version = 1;
 
     console.log(`apply ver${version}`);
-    return Card.findOne().exec()
+    return cardDB.findOne().exec()
         .then(card => {
             if (card === null) {
                 console.log("db is empty => population");
@@ -87,7 +87,7 @@ function updateToVersion3(): Promise<void> {
     let version = 3;
 
     console.log(`apply ver${version}`);
-    return Card.find({ "cardSet": 0 }).exec()
+    return cardDB.find({ "cardSet": 0 }).exec()
         .then(cards => {
             console.log("fix Naxx cards");
             cards.forEach(c => c.cardSet = hstypes.CardSet.Naxxramas);
@@ -114,7 +114,7 @@ function updateToVersion5(): Promise<void> {
 
     console.log(`apply ver${version}`);
     console.log("fix cards from basic set to be free not common");
-    return Card.find({ cardSet: 1 }).exec()
+    return cardDB.find({ cardSet: 1 }).exec()
         .then(badDecks => Promise.map(badDecks, bc => {
             bc.rarity = hstypes.CardRarity.free;
             return bc.save();
@@ -148,11 +148,11 @@ function updateToVersion6(): Promise<void> {
 function updateToVersion7(): Promise<void> {
     let version = 7;
     console.log(`apply ver${version}`);
-    return Card.findById("arcanegiant").exec()
+    return cardDB.findById("arcanegiant").exec()
         .then(card => {
             if (card === null) {
                 console.log("One Night in Karazhan set not found => repopulate!");
-                return Card.remove({}).exec()
+                return cardDB.remove({}).exec()
                     .then(() => parser.populateWithCards());
             }
             else {
@@ -165,7 +165,7 @@ function updateToVersion7(): Promise<void> {
 function updateToVersion8(): Promise<void> {
     let version = 8;
     console.log(`apply ver${version}`);
-    return Card.find({ "cardSet": hstypes.CardSet.OneNightInKarazhan }).exec()
+    return cardDB.find({ "cardSet": hstypes.CardSet.OneNightInKarazhan }).exec()
         .then(cards => {
             console.log("fix OneNightInKarazhan cards: set cost to 0. Remove bad deck");
             cards.forEach(c => c.cost = 0);
@@ -180,11 +180,11 @@ function updateToVersion8(): Promise<void> {
 function updateToVersion9(): Promise<void> {
     let version = 9;
     console.log(`apply ver${version}`);
-    return Card.findById("charge").exec()
+    return cardDB.findById("charge").exec()
         .then(card => {
             if (!card || card.mana !== 1) {
                 console.log("apply card nerf from 2016/10/03");
-                return Card.remove({}).exec()
+                return cardDB.remove({}).exec()
                     .then(() => parser.populateWithCards());
             }
             else {
@@ -198,13 +198,13 @@ function updateToVersion10(): Promise<void> {
     let version = 10;
     let cardHash: { [index: string]: CardDB } = {};
     console.log(`apply ver${version}`);
-    return Card.findById("emperorthaurissan").exec()
+    return cardDB.findById("emperorthaurissan").exec()
         .then(card => {
             if (!card || card.cost > 0) {
                 console.log("card cost correction needed");
-                return Card.remove({}).exec()
+                return cardDB.remove({}).exec()
                     .then(() => parser.populateWithCards())
-                    .then(() => Card.find({ "cardSet": { "$in": hstypes.standardCardSets } }).exec())
+                    .then(() => cardDB.find({ "cardSet": { "$in": hstypes.standardCardSets } }).exec())
                     .then(cards => cards.forEach(c => cardHash[c.id] = c))
                     .then(() => Deck.find().exec())
                     .map((deck: DeckDB<string>) => {
@@ -235,7 +235,7 @@ function updateToVersion11(): Promise<void> {
     //get decks with more than 1 revision
     //return Deck.find({"revisions.1": { $exists: true }}).exec()
     //get decks that have atleast 1 revision
-    return Card.find().exec()
+    return cardDB.find().exec()
         .then(cards => cards.forEach(c => cardHash[c.id] = c))
         .then(() => Deck.find({ revisions: { $gt: [] } }).exec())
         .then(decks => {
@@ -263,11 +263,11 @@ function updateToVersion11(): Promise<void> {
 function updateToVersion12(): Promise<void> {
     let version = 12;
     console.log(`apply ver${version}`);
-    return Card.findById("abyssalenforcer").exec()
+    return cardDB.findById("abyssalenforcer").exec()
         .then(card => {
             if (card === null) {
                 console.log("Mean Streets of Gadgetzan set not found => repopulate!");
-                return Card.remove({}).exec()
+                return cardDB.remove({}).exec()
                     .then(() => parser.populateWithCards());
             }
             else {
@@ -280,11 +280,11 @@ function updateToVersion12(): Promise<void> {
 function updateToVersion13(): Promise<void> {
     let version = 13;
     console.log(`apply ver${version}`);
-    return Card.findById("wisp").exec()
+    return cardDB.findById("wisp").exec()
         .then(card => {
             if (card === null) {
                 console.log("0 mana neutrals not found => repopulate!");
-                return Card.remove({}).exec()
+                return cardDB.remove({}).exec()
                     .then(() => parser.populateWithCards());
             }
             else {
@@ -297,11 +297,11 @@ function updateToVersion13(): Promise<void> {
 function updateToVersion14(): Promise<void> {
     let version = 14;
     console.log(`apply ver${version}`);
-    return Card.findById("cthun").exec()
+    return cardDB.findById("cthun").exec()
         .then(testCard => {
             if (testCard.cost > 0) {
                 console.log("fix C'Thun");
-                return Card.find({ $or: [{ _id: "cthun" }, { _id: "beckonerofevil" }] }).exec()
+                return cardDB.find({ $or: [{ _id: "cthun" }, { _id: "beckonerofevil" }] }).exec()
                     .map((card: CardDB) => {
                         card.cost = 0;
                         return card.save();
@@ -317,11 +317,11 @@ function updateToVersion14(): Promise<void> {
 function updateToVersion15(): Promise<void> {
     let version = 15;
     console.log(`apply ver${version}`);
-    return Card.findById("small-timebuccaneer").exec()
+    return cardDB.findById("small-timebuccaneer").exec()
         .then(testCard => {
             if (testCard.health !== 1) {
                 console.log("Patch 7.1.0.17720 (2017-02-28)");
-                return Card.find({ $or: [{ _id: "small-timebuccaneer" }, { _id: "spiritclaws" }] }).exec()
+                return cardDB.find({ $or: [{ _id: "small-timebuccaneer" }, { _id: "spiritclaws" }] }).exec()
                     .map((card: CardDB) => {
                         if (card.id === "small-timebuccaneer") {
                             card.health = 1;
@@ -345,11 +345,11 @@ function updateToVersion15(): Promise<void> {
 function updateToVersion16(): Promise<void> {
     let version = 16;
     console.log(`apply ver${version}`);
-    return Card.findById("dinosize").exec()
+    return cardDB.findById("dinosize").exec()
         .then(card => {
             if (card === null) {
                 console.log("Journey to Un'Goro set not found => repopulate!");
-                return Card.remove({}).exec()
+                return cardDB.remove({}).exec()
                     .then(() => parser.populateWithCards());
             }
             else {
@@ -373,12 +373,12 @@ function updateToVersion18(): Promise<any> {
 
     return getJSON("https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json")
         .then(rez => hsJson = rez)
-        .then(() => Card.find().exec())
+        .then(() => cardDB.find().exec())
         .then(cards => {
             console.log("add dbfId, id and text from hearthstonejson");
             let hash: { [index: string]: HSJSONCard } = {};
             hsJson.forEach(cardJson => {
-                hash[Card.generateId(cardJson.name)] = cardJson;
+                hash[cardDB.generateId(cardJson.name)] = cardJson;
             });
             cards.forEach(c => {
                 let cardJson = hash[c._id];
@@ -396,7 +396,7 @@ function updateToVersion19(): Promise<any> {
 
     console.log(`apply ver${version}`);
     console.log("set deck/rev standart + import codes");
-    return Card.find().exec()
+    return cardDB.find().exec()
         .then(cards => cards.forEach(c => cardHash[c.id] = c))
         .then(() => Deck.find().exec())
         .then((decks: DeckDB<string>[]) => {

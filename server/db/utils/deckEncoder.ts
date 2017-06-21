@@ -1,7 +1,7 @@
 
 import * as Promise from "bluebird";
 import { CardClass } from "../../../interfaces/hs-types";
-import Card from "../card";
+import { cardDB } from "../card";
 import { CardCount } from "../../../interfaces/index";
 
 
@@ -80,7 +80,7 @@ class DeckEncoder {
             cardCodeCounts.reduce((acc, current) => (acc[current.dbfId] = current.count, acc), {});
 
         return Promise
-            .all(cardCodeCounts.map(c => Card.findOne({ dbfId: c.dbfId })))
+            .all(cardCodeCounts.map(c => cardDB.findOne({ dbfId: c.dbfId })))
             .then(cards => cards.map(c => ({ card: c.id, count: hash[c.dbfId] })));
 
     }

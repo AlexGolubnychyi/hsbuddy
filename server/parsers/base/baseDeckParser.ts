@@ -5,7 +5,7 @@ import { HttpError } from "../../error";
 import { ParseError, ParseReportItem } from "../index";
 import { ParseStatus } from "../../../interfaces";
 import Deck, { DeckDB } from "../../db/deck";
-import Card from "../../db/card";
+import { cardDB } from "../../db/card";
 import { deckEncoder } from "../../db/utils/deckEncoder";
 import { CardCount } from "../../../interfaces/index";
 
@@ -54,8 +54,8 @@ export abstract class BaseDeckParser {
     }
 
     protected addDeckUnsafe(userId: string, deckData: DeckData, upgradeDeckId?: string): Promise<ParseReportItem> {
-        if (Array.isArray(deckData.cards)){
-            deckData.cards =  deckData.cards.reduce((acc, cur) => (acc[cur.card] = cur.count, acc), {});
+        if (Array.isArray(deckData.cards)) {
+            deckData.cards = deckData.cards.reduce((acc, cur) => (acc[cur.card] = cur.count, acc), {});
         }
 
         let cardNames = Object.keys(deckData.cards),
@@ -89,7 +89,7 @@ export abstract class BaseDeckParser {
 
                 return Promise.reject(new ParseError("", ParseStatus.duplicate, deckData.url, existing.id));
             })
-            .then(() => Promise.map(cardNames, cardName => Card.findById(Card.generateId(cardName))))
+            .then(() => Promise.map(cardNames, cardName => cardDB.findById(cardDB.generateId(cardName))))
             .then(cardDbs => {
                 for (let i = 0; i < cardNames.length; i++) {
                     let card = cardDbs[i];

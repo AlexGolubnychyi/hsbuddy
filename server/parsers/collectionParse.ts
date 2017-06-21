@@ -4,7 +4,7 @@ import * as cheerio from "cheerio";
 import * as querystring from "querystring";
 import mongoose from "../lib/mongoose";
 import UserCard from "../db/userCard";
-import Card from "../db/card";
+import { cardDB } from "../db/card";
 import { CardCount } from "../../interfaces";
 
 const userNameToken = "@username@",
@@ -32,7 +32,7 @@ export default function (userId: string, username: string, password: string) {
                 let $el = $(el),
                     name = $el.attr("data-card-name"),
                     count = +$el.find(".inline-card-count").attr("data-card-count"),
-                    cardId = Card.generateId(name);
+                    cardId = cardDB.generateId(name);
 
                 if (!name) {
                     withErrors = true;

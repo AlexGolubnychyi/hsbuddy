@@ -4,7 +4,7 @@ import * as express from "express";
 import * as authChecks from "../../middleware/authChecks";
 import UserCard from "../../db/userCard";
 import Deck from "../../db/deck";
-import Card from "../../db/card";
+import { cardDB } from "../../db/card";
 import { Request } from "../index";
 import * as contracts from "../../../interfaces";
 import importCollection from "../../parsers/collectionParse";
@@ -12,7 +12,7 @@ import importCollection from "../../parsers/collectionParse";
 let router = express.Router();
 
 router.get("/library", (req: Request, res: express.Response, next: express.NextFunction) => {
-    Card.getCardLibraryInfo(req.user, req.query.standart === "true").then((cards) => res.json(cards));
+    cardDB.getCardLibraryInfo(req.user, req.query.standart === "true").then((cards) => res.json(cards));
 });
 
 router.get("/missing/", authChecks.api, (req: Request, res: express.Response, next: express.NextFunction) => {

@@ -5,7 +5,7 @@ import * as hstypes from "../../interfaces/hs-types";
 import * as contracts from "../../interfaces/";
 import * as Promise from "bluebird";
 import User from "./user";
-import Card, { CardDB, cardSchemaName } from "./card";
+import { CardDB, cardSchemaName, cardDB } from "./card";
 import UserCard from "./userCard";
 import mapper from "./utils/mapper";
 import { deckDiffer } from "./utils/differ";
@@ -47,7 +47,7 @@ const deckSchema = new mongoose.Schema({
 });
 
 deckSchema.static("generateId", (cards: { [cardName: string]: number }) => {
-    let deckDNA = Object.keys(cards).map(cardName => Card.generateId(cardName) + cards[cardName]).sort().join("");
+    let deckDNA = Object.keys(cards).map(cardName => cardDB.generateId(cardName) + cards[cardName]).sort().join("");
     return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
 });
 
@@ -75,7 +75,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                 }
 
                 if (params.cardName) {
-                    queryParts.push({ "cards.card": new RegExp(`.*${Card.generateId(params.cardName)}.*`, "i") });
+                    queryParts.push({ "cards.card": new RegExp(`.*${cardDB.generateId(params.cardName)}.*`, "i") });
                 }
 
                 if (params.userCollection === "true") {

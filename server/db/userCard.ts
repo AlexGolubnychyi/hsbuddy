@@ -2,7 +2,7 @@ import mongoose from "../lib/mongoose";
 import * as hstypes from "../../interfaces/hs-types";
 import { CardCount } from "../../interfaces";
 import * as Promise from "bluebird";
-import cardModel, { CardDB, cardSchemaName } from "./card";
+import { cardDB, CardDB, cardSchemaName } from "./card";
 import { userSchemaName } from "./user";
 
 const userCardSchema = new mongoose.Schema({
@@ -25,7 +25,7 @@ userCardSchema.static("setWithChecks", function (userId: string, cardId: string,
     let model = (this as mongoose.Model<UserCardDB>),
         card: CardDB;
 
-    return cardModel.findById(cardId).exec()
+    return cardDB.findById(cardId).exec()
         .then(c => card = c)
         .then(() => model.findOne({ "$and": [{ userId }, { cardId }] }).exec())
         .then(userCard => {
@@ -46,7 +46,7 @@ userCardSchema.static("import", function (userId: string, cardCounts: CardCount<
     let model = (this as mongoose.Model<UserCardDB>),
         cardHash: { [index: string]: CardDB } = {};
 
-    return cardModel.find().exec()
+    return cardDB.find().exec()
         .then(cards => {
             cardHash = cards.reduce((acc, card) => { acc[card.id] = card; return acc; }, {} as { [index: string]: CardDB });
             let cardsNotFound = cardCounts.filter(cc => !cardHash[cc.card]);

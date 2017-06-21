@@ -125,4 +125,4 @@ interface CardStatics {
 }
 
 export const cardSchemaName = "Card";
-export default mongoose.model<CardDB>(cardSchemaName, cardSchema) as mongoose.Model<CardDB> & CardStatics;
+export const cardDB =  mongoose.model<CardDB>(cardSchemaName, cardSchema) as mongoose.Model<CardDB> & CardStatics;
