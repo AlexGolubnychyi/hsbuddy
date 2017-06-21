@@ -6,8 +6,8 @@ import { ParseError, ParseReportItem } from "../index";
 import { ParseStatus } from "../../../interfaces";
 import Deck, { DeckDB } from "../../db/deck";
 import Card from "../../db/card";
-import { deckImportCodeParser } from "../deckImportCodeParser";
 import { deckEncoder } from "../../db/utils/deckEncoder";
+import { CardCount } from "../../../interfaces/index";
 
 
 
@@ -54,6 +54,10 @@ export abstract class BaseDeckParser {
     }
 
     protected addDeckUnsafe(userId: string, deckData: DeckData, upgradeDeckId?: string): Promise<ParseReportItem> {
+        if (Array.isArray(deckData.cards)){
+            deckData.cards =  deckData.cards.reduce((acc, cur) => (acc[cur.card] = cur.count, acc), {});
+        }
+
         let cardNames = Object.keys(deckData.cards),
             deck = new Deck() as DeckDB<string>;
         deck._id = Deck.generateId(deckData.cards);
@@ -146,6 +150,6 @@ export abstract class BaseDeckParser {
 export interface DeckData {
     name: string;
     url: string;
-    cards: { [cardName: string]: number };
+    cards: { [cardName: string]: number } | CardCount<string>[];
     date?: Date;
 }

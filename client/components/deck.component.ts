@@ -114,7 +114,7 @@ export class DeckComponent implements OnInit, OnChanges {
 
         document.body.removeChild(textArea);
         if (!success) {
-            console.log("unable to copie");
+            console.log("unable to copy");
         }
         return success;
     }

@@ -11,6 +11,7 @@ import tempoStormParser from "./tempoStormParser";
 import failParser from "./failParser";
 import { BaseDeckParser } from "./base/baseDeckParser";
 import { deckImportCodeParser } from "./deckImportCodeParser";
+import { metaStatsParser } from "./metastatsParser";
 
 
 
@@ -24,6 +25,7 @@ class Parser {
             hearthstoneTopDecksParser,
             metaBombParser,
             tempoStormParser,
+            metaStatsParser,
             //<-----deckCodeParser should always be at the botto, before failParser
             deckImportCodeParser,
             //<-----failParser should always be the last in the list
