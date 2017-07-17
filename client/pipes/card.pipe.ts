@@ -88,8 +88,25 @@ function filter(cardCount: CardCount<Card>, options: CardPipeArg) {
         return false;
     }
 
-    if (options.name && card.name.toUpperCase().indexOf(options.name.toUpperCase()) < 0) {
-        return false;
+    // if (options.name && card.name.toUpperCase().indexOf(options.name.toUpperCase()) < 0) {
+    //     return false;
+    // }
+
+    if (options.keyword) {
+        if (typeof options.keyword === "string") {
+            if (card.keywords.indexOf(options.keyword) < 0) {
+                return false;
+            }
+        }
+        else {
+            let cardKeywords = card.keywords.split("$$$");
+            let approx = options.keyword.approx.every(keyword => cardKeywords.some(cardKeyword => cardKeyword.indexOf(keyword) >= 0)),
+                exact = options.keyword.exact.every(keyword => cardKeywords.some(cardKeyword => cardKeyword === keyword));
+
+            if (!approx || !exact) {
+                return false;
+            }
+        }
     }
 
     return options.mana === 0 || (Math.pow(2, Math.min(card.mana, 7)) & options.mana) > 0;
@@ -101,7 +118,10 @@ export interface CardPipeArg {
     mana: number;
     rarity?: CardRarity;
     cardSet?: CardSet;
-    name?: string;
+    keyword?: string | {
+        exact: string[],
+        approx: string[]
+    };
 }
 
 export enum SortOptions { classic, expense, mana, keepOrder };

@@ -22,7 +22,8 @@ const cardSchema = new mongoose.Schema({
     cost: Number,
     mana: Number,
     attack: Number,
-    health: Number
+    health: Number,
+    keywords: { type: String, index: true }
 });
 
 cardSchema.static("generateId", (name: string) => {
@@ -117,6 +118,7 @@ export interface CardDB extends mongoose.Document {
     mana: number;
     attack?: number;
     health?: number;
+    keywords: string;
 };
 
 interface CardStatics {
@@ -125,4 +127,4 @@ interface CardStatics {
 }
 
 export const cardSchemaName = "Card";
-export const cardDB =  mongoose.model<CardDB>(cardSchemaName, cardSchema) as mongoose.Model<CardDB> & CardStatics;
+export const cardDB = mongoose.model<CardDB>(cardSchemaName, cardSchema) as mongoose.Model<CardDB> & CardStatics;

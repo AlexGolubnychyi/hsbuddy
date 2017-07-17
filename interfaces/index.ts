@@ -23,6 +23,7 @@ export interface Card {
     mana: number;
     attack?: number;
     health?: number;
+    keywords?: string;
     numberAvailable?: number;
 }
 
@@ -37,6 +38,14 @@ export interface PseudoDeck<T extends string | Card> {
     dustNeeded: number;
     collected: boolean;
     cards: CardCount<T>[];
+
+    /* compatibility */
+    id?: string;
+    name?: string;
+    deleted?: boolean;
+    standart?: boolean;
+    ignored?: boolean;
+    userCollection?: boolean;
 }
 
 export interface Deck<T extends string | Card> extends PseudoDeck<T> {

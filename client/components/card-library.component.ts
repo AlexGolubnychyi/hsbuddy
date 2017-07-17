@@ -36,7 +36,7 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
     summaryStats: PillowChartData[] = [];
     mergeCards: boolean = false;
     isEmpty = isEmpty;
-    cardNameInputStream = new Subject();
+    cardKeywordInputStream = new Subject();
     request: Subscription;
 
     filter: CardPipeArg = {
@@ -52,12 +52,31 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
         this.refreshCards();
         this.statsCollapsed = true;
 
-        this.cardNameInputStream
+        this.cardKeywordInputStream
             .map((e: Event) => (e.target as HTMLInputElement).value)
             .debounceTime(200)
             .distinctUntilChanged()
-            .subscribe(cardName => {
-                this.filter.name = cardName && cardName.trim().toUpperCase();
+            .subscribe((query: string) => {
+                if (!query) {
+                    this.filter.keyword = null;
+                }
+                query = query.trim().toLocaleUpperCase();
+                const exactMarker = `"`, delimetr = `$`;
+
+                if ([exactMarker, delimetr].some(char => query.indexOf(char) >= 0)) {
+                    let keywords = query.split(delimetr),
+                        exactRegex = new RegExp(`^${exactMarker}[^${exactMarker}]+${exactMarker}$`),
+                        replaceRegex = new RegExp(exactMarker, "g"),
+                        exact = [], approx = [];
+
+                    keywords.forEach(keyword => (exactRegex.test(keyword) ? exact : approx).push(keyword.replace(replaceRegex, "")));
+                    this.filter.keyword = { exact, approx };
+                }
+                else {
+                    //simple query
+                    this.filter.keyword = query;
+                }
+
                 this.applyFilter();
             });
     }
@@ -114,7 +133,7 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
             name: hsTypeConverter.cardSet(key) as string,
             value: key
         }));
-        if (this.config.standart && !standardCardSets.some(set => set === this.filter.cardSet)){
+        if (this.config.standart && !standardCardSets.some(set => set === this.filter.cardSet)) {
             this.changeCardSet(0);
         }
 

@@ -93,6 +93,7 @@ class Mapper {
             mana: card.mana,
             attack: card.attack,
             health: card.health,
+            keywords: card.keywords,
             numberAvailable: numberAvailable
         };
 

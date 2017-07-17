@@ -6,7 +6,7 @@ export enum CardSet {
     LeagueOfExplorers, WhispersoftheOldGods, Naxxramas, GoblinsvsGnomes, Reward, OneNightInKarazhan, MeanStreetsOfGadgetzan,
     JourneyToUnGoro
 };
-export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, totem };
+export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, totem, elemental };
 
 export var standardCardSets = [
     CardSet.Basic,

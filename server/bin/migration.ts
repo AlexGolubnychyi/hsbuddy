@@ -30,7 +30,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion16,
     updateToVersion17,
     updateToVersion18,
-    updateToVersion19
+    updateToVersion19,
+    updateToVersion20
 ];
 
 (function checkForUpdates() {
@@ -418,6 +419,36 @@ function updateToVersion19(): Promise<any> {
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 
+function updateToVersion20(): Promise<any> {
+    let version = 20;
+    let hsJson: HSJSONCard[];
+
+
+    console.log(`apply ver${version}, repopulate cards to include quest rogue nerf`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => getJSON("https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json"))
+        .then(rez => hsJson = rez)
+        .then(() => cardDB.find().exec())
+        .then(cards => {
+            console.log("add card keywords from hearthstonejson");
+            let hash: { [index: string]: HSJSONCard } = {};
+            hsJson.forEach(cardJson => {
+                hash[cardDB.generateId(cardJson.name)] = cardJson;
+            });
+            cards.forEach(c => {
+                let cardJson = hash[c._id];
+
+                c.keywords = [c.name, cardJson.race, ...(cardJson.mechanics || []), cardJson.rarity, cardJson.type, c.description]
+                    .filter(keyword => !!keyword).join("$$$").toLocaleUpperCase();
+            });
+            return cards;
+        })
+        .map((card: CardDB) => card.save())
+        .then(() => console.log(`apply ver${version}`));
+}
+
+
 interface HSJSONCard {
     "id": string;
     "dbfId": number;
@@ -436,4 +467,6 @@ interface HSJSONCard {
     "rarity": string;
     "set": string;
     "type": string;
+
+    "race": string;
 }
