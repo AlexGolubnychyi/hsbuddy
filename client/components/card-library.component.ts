@@ -67,7 +67,7 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
                     let keywords = query.split(delimetr),
                         exactRegex = new RegExp(`^${exactMarker}[^${exactMarker}]+${exactMarker}$`),
                         replaceRegex = new RegExp(exactMarker, "g"),
-                        exact = [], approx = [];
+                        exact: string[] = [], approx: string[] = [];
 
                     keywords.forEach(keyword => (exactRegex.test(keyword) ? exact : approx).push(keyword.replace(replaceRegex, "")));
                     this.filter.keyword = { exact, approx };
