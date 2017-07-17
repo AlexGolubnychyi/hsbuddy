@@ -153,7 +153,7 @@ function getAdditionalCardInfo(cards: cardHash) {
 
 function getHsDbStats(cards: cardHash) {
     return getJSON("https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json")
-        .then(hsJson => {
+        .then((hsJson: HSJSONCard[]) => {
             let hash: { [index: string]: HSJSONCard } = {};
             hsJson.forEach(cardJson => {
                 hash[cardDB.generateId(cardJson.name)] = cardJson;
