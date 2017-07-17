@@ -1,16 +1,28 @@
 import * as Promise from "bluebird";
 import { cardDB, CardDB } from "../db/card";
-import { getContent } from "../lib/request";
+import { getContent, getJSON } from "../lib/request";
 import * as hsTypes from "../../interfaces/hs-types";
 import mongoose from "../lib/mongoose";
 
 let hearthPwnUrl = "http://www.hearthpwn.com/cards?page=@@@";
 let hearthPwnUrlExt = "http://www.hearthpwn.com/cards?display=1&filter-premium=1&page=@@@";
 
-export default function () {
+type cardHash = {
+    [id: string]: CardDB;
+}
+
+export function parseCards() {
+    return loadBasicInfo()
+        .then(getAdditionalCardInfo)
+        .then(getHsDbStats)
+        .then(saveAll);
+
+}
+
+function loadBasicInfo() {
     let cnt = 40,
         urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrl.replace("@@@", (inx + 1) + "")),
-        cards: { [id: string]: CardDB } = {};
+        cards: cardHash = {};
 
     return Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 })
         .map(($: CheerioStatic) => {
@@ -101,15 +113,15 @@ export default function () {
                 cards[card._id] = card;
             });
         })
-        .then(() => console.log("[done] loading basic card info from hearthpwn"))
-        .then(() => getAdditionalCardInfo(cards));
+        .then(() => (console.log("basic card info from hearthpwn loaded"), cards));
 };
 
-function getAdditionalCardInfo(cards: { [id: string]: CardDB }) {
+function getAdditionalCardInfo(cards: cardHash) {
     let cnt = 15,
         urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrlExt.replace("@@@", (inx + 1) + ""));
 
-    return Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 })
+    return Promise
+        .map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 })
         .map(($: CheerioStatic) => {
             $("table.listing.listing-cards-tabular>tbody tr").each((inx, el) => {
                 let $tr = $(el),
@@ -132,10 +144,61 @@ function getAdditionalCardInfo(cards: { [id: string]: CardDB }) {
 
             });
         })
-        .then(() => cardDB.insertMany(Object.keys(cards).map(key => cards[key])))
+        .all()
         .then(() => {
-            console.log("[done] loading additional card info");
+            console.log("additional info collected");
+            return cards;
+        });
+}
+
+function getHsDbStats(cards: cardHash) {
+    return getJSON("https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json")
+        .then(hsJson => {
+            let hash: { [index: string]: HSJSONCard } = {};
+            hsJson.forEach(cardJson => {
+                hash[cardDB.generateId(cardJson.name)] = cardJson;
+            });
+
+            Object.keys(cards).map(cardId => cards[cardId]).forEach(c => {
+                let cardJson = hash[c._id];
+                c.dbfId = cardJson.dbfId;
+                c.officialId = cardJson.id;
+                c.keywords = [c.name, cardJson.race, ...(cardJson.mechanics || []), cardJson.rarity, cardJson.type, c.description]
+                    .filter(keyword => !!keyword).join("$$$").toLocaleUpperCase();
+            });
+            return cards;
+        });
+}
+
+function saveAll(cards: cardHash) {
+    return cardDB
+        .insertMany(Object.keys(cards).map(key => cards[key]))
+        .then(() => {
+            console.log("[done] cards saved successfully");
         }).catch(e => {
             console.log(e);
         });
+}
+
+
+export interface HSJSONCard {
+    "id": string;
+    "dbfId": number;
+    "name": string;
+    "text": string;
+    "flavor": string;
+    "artist": string;
+    "attack": number;
+    "cardClass": string;
+    "collectible": boolean;
+    "cost": number;
+    "elite": boolean;
+    "faction": string;
+    "health": number;
+    "mechanics": string[];
+    "rarity": string;
+    "set": string;
+    "type": string;
+
+    "race": string;
 }

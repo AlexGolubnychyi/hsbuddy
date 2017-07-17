@@ -9,6 +9,7 @@ import * as Promise from "bluebird";
 import { getJSON } from "../lib/request";
 import { deckEncoder } from "../db/utils/deckEncoder";
 import { deckDiffer } from "../db/utils/differ";
+import { HSJSONCard } from "../parsers/cardParse";
 
 
 let updates: (() => Promise<void>)[] = [
@@ -31,7 +32,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion17,
     updateToVersion18,
     updateToVersion19,
-    updateToVersion20
+    updateToVersion20,
+    updateToVersion21
 ];
 
 (function checkForUpdates() {
@@ -391,7 +393,7 @@ function updateToVersion18(): Promise<any> {
         .map((card: CardDB) => card.save())
         .then(() => console.log(`apply ver${version}`));
 }
-function updateToVersion19(): Promise<any> {
+function updateToVersion19() {
     let version = 19;
     let cardHash: { [index: string]: CardDB } = {};
 
@@ -419,7 +421,7 @@ function updateToVersion19(): Promise<any> {
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 
-function updateToVersion20(): Promise<any> {
+function updateToVersion20() {
     let version = 20;
     let hsJson: HSJSONCard[];
 
@@ -448,25 +450,12 @@ function updateToVersion20(): Promise<any> {
         .then(() => console.log(`apply ver${version}`));
 }
 
+function updateToVersion21() {
+    let version = 21;
 
-interface HSJSONCard {
-    "id": string;
-    "dbfId": number;
-    "name": string;
-    "text": string;
-    "flavor": string;
-    "artist": string;
-    "attack": number;
-    "cardClass": string;
-    "collectible": boolean;
-    "cost": number;
-    "elite": boolean;
-    "faction": string;
-    "health": number;
-    "mechanics": string[];
-    "rarity": string;
-    "set": string;
-    "type": string;
-
-    "race": string;
+    console.log(`apply ver${version}, repopulate cards`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
 }
+

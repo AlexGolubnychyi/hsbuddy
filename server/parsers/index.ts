@@ -1,6 +1,5 @@
 "use strict";
 import * as Promise from "bluebird";
-import cardParse from "./cardParse";
 import metaBombParser from "./metaBombParser";
 import { ParseStatus } from "../../interfaces";
 
@@ -13,6 +12,7 @@ import { BaseDeckParser } from "./base/baseDeckParser";
 import { deckImportCodeParser } from "./deckImportCodeParser";
 import { metaStatsParser } from "./metastatsParser";
 import { hsReplayParser } from "./hsReplayParser";
+import { parseCards } from "./cardParse";
 
 
 
@@ -55,7 +55,7 @@ class Parser {
 
     populateWithCards() {
         console.log("[start] populate db with cards");
-        return cardParse()
+        return parseCards()
             .then(() => console.log("[done] populate db with cards"));
     }
 
