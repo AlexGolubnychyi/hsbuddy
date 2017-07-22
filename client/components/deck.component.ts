@@ -6,6 +6,7 @@ import { PseudoDeck, Card, Deck } from "../../interfaces/index";
 import { SortOptions, CardPipeArg } from "../pipes/card.pipe";
 import { Config, cardStyles, ConfigService } from "../services/config.service";
 import "../rxjs-operators";
+import { config } from "../../server/lib/config";
 
 @Component({
     moduleId: module.id,
@@ -73,6 +74,13 @@ export class DeckComponent implements OnInit, OnChanges {
 
     listStyleChanged(split: boolean) {
         this.configService.config = { ...this.config, splitCardListByClass: split };
+    }
+
+    getDeckName() {
+        if (this.config.standart) {
+            return this.deck.name;
+        }
+        return `[${this.deck.standart ? "standart" : "wild"}] ${this.deck.name}`;
     }
 
     copyDeck() {

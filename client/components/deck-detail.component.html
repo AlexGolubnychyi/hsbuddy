@@ -3,12 +3,12 @@
 	<deck [deck]="deck" [config]="config" [hideDetails]="false" [replaceTitle]="true" (onDeleteDeck)=onDeleteDeck($event) [showManaCurve]="true">
 		<div *ngIf="!edit">
 			<h2 class="deck-title-container" (click)="startEdit()">
-				<a class="deck-title" routerLink="/deck/{{deck.id}}">
-					<span>[{{deck.standart ? "mammoth" : "wild"}}] {{deck.name}}</span>
+				<a class="deck-title" >
+					<span>{{getDeckName()}}</span>
+					<span class="label label-default" *ngIf="deck.collected">collected</span>
+					<span class="label label-warning" *ngIf="!deck.collected">{{(deck.cost - deck.dustNeeded) + " / " + deck.cost}}</span>
+					<span class="label label-danger" *ngIf="deck.deleted">deleted</span>
 				</a>
-				<span class="label label-default" *ngIf="deck.collected">collected</span>
-				<span class="label label-warning" *ngIf="!deck.collected">{{(deck.cost - deck.dustNeeded) + " / " + deck.cost}}</span>
-				<span class="label label-danger" *ngIf="deck.deleted">deleted</span>
 			</h2>
 		</div>
 		<div *ngIf="edit">

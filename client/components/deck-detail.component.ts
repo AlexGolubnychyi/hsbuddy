@@ -36,6 +36,8 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
         mana: 0
     };
 
+    showRevision = false;
+
     @ViewChild(DeckComponent) deckComponent: DeckComponent;
 
     constructor(
@@ -129,7 +131,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
         this.loading = true;
         (this.deck.userCollection
             ? this.apiService.toggleUserDeck(this.deck.id, false)
-            : Observable.of({ success: true }))
+            : Observable.of({ collection: false, success: true }))
             .do<contracts.CollectionChangeStatus>(result => this.loading = result.success)
             .filter(result => result.success)
             .switchMap(() => this.apiService.deleteDeck(this.deck.id))
@@ -188,6 +190,13 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
 
     revIdentity(index: number, rev: contracts.DeckRevision<contracts.Card>) {
         return rev.number;
+    }
+
+     getDeckName() {
+        if (this.config.standart) {
+            return this.deck.name;
+        }
+        return `[${this.deck.standart ? "standart" : "wild"}] ${this.deck.name}`;
     }
 
     protected onCardChanged(cardChanged: CardChanged) {
