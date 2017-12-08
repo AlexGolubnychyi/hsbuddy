@@ -1,0 +1,23 @@
+<h1>Missing Cards</h1>
+
+<deck-filter filterName="card-missing-filter"></deck-filter>
+<spinner *ngIf="loading"></spinner>
+
+<div *ngFor="let missingCard of missingCards">
+    <div class="row">
+        <div class="col-md-4 col-lg-3">
+            <div class="card-details" [class.hidden]="hideDetails">
+                <card [config]="config" [card]="missingCard.cardCount.card" [count]="missingCard.cardCount.count"></card>
+            </div>
+        </div>
+        <div class="col-md-7 col-lg-9">
+            <p>Decks: </p>
+            <div *ngFor="let deck of missingCard.decks">
+                (<i>{{deck.className}}</i>, dust:{{deck.dustNeeded}}) {{deck.count}}: <a routerLink="/deck/{{deck.id}}">{{deck.name}}</a>
+                <span>(full cost: {{deck.cost}})</span>
+            </div>
+        </div>
+    </div>
+    <hr/>
+</div>  
+<h3 [class.hidden]="loading || (missingCards && missingCards.length)">nothing found..</h3>

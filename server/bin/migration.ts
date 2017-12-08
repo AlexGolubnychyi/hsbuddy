@@ -34,7 +34,8 @@ let updates: (() => Promise<void>)[] = [
     updateToVersion19,
     updateToVersion20,
     updateToVersion21,
-    updateToVersion22
+    updateToVersion22,
+    updateToVersion23
 ];
 
 (function checkForUpdates() {
@@ -464,6 +465,15 @@ function updateToVersion22() {
     let version = 22;
 
     console.log(`apply ver${version}, repopulate cards to include KotFT`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
+}
+
+function updateToVersion23() {
+    let version = 23;
+
+    console.log(`apply ver${version}, repopulate cards to include KaC`);
     return cardDB.remove({}).exec()
         .then(() => parser.populateWithCards())
         .then(() => console.log(`apply ver${version}`));

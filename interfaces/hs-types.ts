@@ -4,7 +4,7 @@ export enum CardType { unknown, weapon, ability, minion, hero };
 export enum CardSet {
     unknown = 0, Basic, Expert, BlackrockMountain, TheGrandTournament,
     LeagueOfExplorers, WhispersoftheOldGods, Naxxramas, GoblinsvsGnomes, Reward, OneNightInKarazhan, MeanStreetsOfGadgetzan,
-    JourneyToUnGoro, KnightsOfTheFrozenThrone
+    JourneyToUnGoro, KnightsOfTheFrozenThrone, KoboldsAndCatacombs
 };
 export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, totem, elemental };
 
@@ -15,7 +15,8 @@ export var standardCardSets = [
     CardSet.OneNightInKarazhan,
     CardSet.MeanStreetsOfGadgetzan,
     CardSet.JourneyToUnGoro,
-    CardSet.KnightsOfTheFrozenThrone
+    CardSet.KnightsOfTheFrozenThrone,
+    CardSet.KoboldsAndCatacombs
 ];
 
 export var wildCardSets = [
@@ -31,6 +32,7 @@ export var wildCardSets = [
     CardSet.MeanStreetsOfGadgetzan,
     CardSet.JourneyToUnGoro,
     CardSet.KnightsOfTheFrozenThrone,
+    CardSet.KoboldsAndCatacombs,
     CardSet.Reward
 ];
 
@@ -39,7 +41,7 @@ export var dust = "dust";
 const rarityMapping = [-1, 0, 40, 100, 400, 1600],
     cardSetMapping = ["-", "Basic", "Expert", "Blackrock Mountain", "The Grand Tournament", "League of Explorers",
         "Whispers of the Old Gods", "Curse of Naxxramas", "Goblins vs Gnomes", "Reward", "One Night in Karazhan", "Mean Streets of Gadgetzan",
-        "Journey to Un'Goro", "Knights of the Frozen Throne"
+        "Journey to Un'Goro", "Knights of the Frozen Throne", "Kobolds and Catacombs"
     ];
 
 class HsTypeConverter {
@@ -64,7 +66,7 @@ class HsTypeConverter {
         return cardSetMapping[set];
     }
 
-    isStandart(card: {cardSet: CardSet}){
+    isStandart(card: { cardSet: CardSet }) {
         return standardCardSets.some(set => card.cardSet === set);
     }
 
