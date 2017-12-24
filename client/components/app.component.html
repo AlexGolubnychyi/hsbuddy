@@ -12,7 +12,8 @@
                 <li><a routerLink="/decks" routerLinkActive="active">Decks</a></li>
                 <li><a routerLink="/cards" routerLinkActive="active">Cards</a></li>
                 <li *ngIf="isAuthenticated()"><a routerLink="/cards-missing" routerLinkActive="active">Missing</a></li>
-                <li *ngIf="isAuthenticated()"><a routerLink="/card-import" routerLinkActive="active">Import</a></li>
+                <!-- <li *ngIf="isAuthenticated()"><a routerLink="/cards-wanted" routerLinkActive="active">Wanted</a></li> -->
+                <!-- <li *ngIf="isAuthenticated()"><a routerLink="/card-import" routerLinkActive="active">Import</a></li> -->
                 <li *ngIf="isAuthenticated()"><a routerLink="/parse" routerLinkActive="active">Parse</a></li>
                 <li><a routerLink="/about" routerLinkActive="active">About</a></li>
             </ul>
