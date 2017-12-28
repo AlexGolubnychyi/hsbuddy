@@ -1,4 +1,5 @@
 <form class="form-group deck-filter" [formGroup]="filterForm">
+
     <div class="row">
         <div class="col-sm-3 cols-md-2">
             <div class="row">
@@ -13,7 +14,7 @@
             </div>
         </div>
         <p class="visible-xs"></p>
-        <div class="col-sm-3 cols-md-2">
+        <!-- <div class="col-sm-3 cols-md-2">
             <div class="row">
                 <label for="dustNeeded" class="col-sm-12 control-label">Dust needed:</label>
             </div>
@@ -22,7 +23,7 @@
                     <input type="number" min="0" max="50000" class="form-control" id="dustNeeded" formControlName="dustNeeded">
                 </div>
             </div>
-        </div>
+        </div> -->
         <div class="col-sm-3 cols-md-2">
             <div class="row">
                 <label for="orderBy" class="col-sm-12 control-label">Order By:</label>
@@ -36,25 +37,41 @@
                 </div>
             </div>
         </div>
-        <div *ngIf="useUserCollectionFilter" class="col-sm-3 user-collection-filter">
-            <div class="row hidden-xs">&nbsp;</div>
-            <div class="row">
-                <div class="col-sm-12">
-                    <div class="checkbox" style="margin-bottom:0;">
-                        <label>
-                            <input type="checkbox" formControlName="userCollection"/>
-                            Favorites
-                        </label>
-                    </div>
-                    <div class="checkbox" style="margin-bottom:0;">
-                        <label>
-                            <input type="checkbox" formControlName="showIgnored"/>
-                            Ignored
-                        </label>
+        <div class="col-xs-12 col-sm-6">
+            <div  class="col-sm-12 user-collection-filter">
+                <div class="row hidden-xs">&nbsp;</div>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div *ngIf="useUserCollectionFilter" class="checkbox" style="margin-bottom:0;">
+                            <label>
+                                <input type="checkbox" formControlName="userCollection"/>
+                                Favorites
+                            </label>
+                        </div>
+                        <div *ngIf="useUserCollectionFilter" class="checkbox" style="margin-bottom:0;">
+                            <label>
+                                <input type="checkbox" formControlName="showIgnored"/>
+                                Ignored
+                            </label>
+                        </div>
+                        <div class="checkbox" style="margin-bottom:0;">
+                            <label>
+                                <input type="checkbox" formControlName="latestSet"/>
+                                Latest Set
+                            </label>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+        <!-- <div class="col-sm-3">
+            <div class="checkbox" style="margin-bottom:0;">
+                <label>
+                    <input type="checkbox" formControlName="latest"/>
+                    Latest Set
+                </label>
+            </div>
+        </div> -->
     </div>
     <br/>
      <div class="row">

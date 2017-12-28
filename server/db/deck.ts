@@ -10,6 +10,7 @@ import UserCard from "./userCard";
 import mapper from "./utils/mapper";
 import { deckDiffer } from "./utils/differ";
 import { UserDecks } from "./user";
+import { debug } from "util";
 
 const deckSchema = new mongoose.Schema({
     _id: String,
@@ -58,6 +59,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
         userDecks: UserDecks,
         query: {} = void 0,
         dustNeededParam: number,
+        latestSetParam = false,
         cardHash: contracts.CardHash = {};
 
     return User.getUserDeckIds(userId)
@@ -80,6 +82,10 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
 
                 if (params.userCollection === "true") {
                     queryParts.push({ "_id": { "$in": userDecks.favorites } });
+                }
+
+                if (params.latestSet === "true") {
+                    latestSetParam = true;
                 }
 
                 if (params.showIgnored !== "true") {
@@ -118,6 +124,11 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
             //dust
             if (typeof dustNeededParam === "number") {
                 result = result.filter(d => d.dustNeeded <= dustNeededParam);
+            }
+
+            //latest set
+            if (latestSetParam) {
+                result = result.filter(d => d.latestSet);
             }
 
             //sort
@@ -287,7 +298,7 @@ deckSchema.static("setDescription", function (userId: string, deckId: string, de
                     description.url = "";
                 }
             }
-            else{
+            else {
                 description.url = deck.url;
             }
             return deck.save().then(() => description);

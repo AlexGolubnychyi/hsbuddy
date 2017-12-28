@@ -20,8 +20,8 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
 
     filterForm: FormGroup;
     filterButtonClickStream = new Subject();
-    deckNameKeyStream = new Subject();
-    cardNameKeyStream = new Subject();
+    deckNameKeyStream = new Subject<KeyboardEvent>();
+    cardNameKeyStream = new Subject<KeyboardEvent>();
     filter$: Observable<[DeckQuery, boolean]>;
     cardNameSource: Observable<string[]>;
     readonly emptyValues: DeckQuery = {
@@ -29,6 +29,7 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
         dustNeeded: undefined,
         orderBy: OrderBy.dust,
         userCollection: false,
+        latestSet: false,
         showIgnored: false,
         deckName: undefined,
         cardName: undefined
@@ -52,7 +53,7 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
     ngOnInit() {
         let auth = this.authService.isAuthenticated(),
             filters = auth && localStorage.getItem(this.filterName),
-            defaults: DeckQuery = (filters && JSON.parse(filters)) || this.emptyValues;
+            defaults: DeckQuery = { ...this.emptyValues, ...((filters && JSON.parse(filters)) || {}) };
         this.useUserCollectionFilter = auth;
 
         let group: { [index: string]: any } = {
@@ -62,7 +63,8 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
             "userCollection": defaults.userCollection,
             "showIgnored": defaults.showIgnored,
             "deckName": defaults.deckName,
-            "cardName": defaults.cardName
+            "cardName": defaults.cardName,
+            "latestSet": defaults.latestSet
         };
 
         this.filterForm = this.fb.group(group);

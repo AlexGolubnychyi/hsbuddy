@@ -28,6 +28,7 @@ class Mapper {
             userId: deck.userId,
             deleted: deck.deleted,
             standart: deck.standart,
+            latestSet: false,
             revisions: deck.revisions.map(rev => ({
                 number: rev.number,
                 userId: rev.userId,
@@ -51,6 +52,7 @@ class Mapper {
 
             contract.dustNeeded -= Math.min(cardCount.count, cardContract.numberAvailable) * cardContract.cost;
             collected = collected && cardContract.numberAvailable >= cardCount.count;
+            contract.latestSet = contract.latestSet || cardContract.cardSet === hstypes.latestSet;
             return cardCount;
         });
 

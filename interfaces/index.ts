@@ -56,6 +56,7 @@ export interface Deck<T extends string | Card> extends PseudoDeck<T> {
     ignored?: boolean;
     deleted?: boolean;
     standart: boolean;
+    latestSet: boolean;
 }
 
 export interface DeckRevision<T extends string | Card> extends PseudoDeck<T>, Diff<T> {
@@ -113,6 +114,7 @@ export interface DeckQuery {
     orderBy: OrderBy;
     deckName?: string;
     cardName?: string;
+    latestSet?: boolean | string;
 };
 
 export interface CardGroup<T extends string | Card> {
