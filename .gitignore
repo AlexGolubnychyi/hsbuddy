@@ -4,6 +4,4 @@ node_modules/
 !rollup.config.js
 **/*.js.map
 **/*.css
-client/**/*.json
-interfaces/**/*.json
 dist/
