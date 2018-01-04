@@ -1,0 +1,42 @@
+<h1>Card collection import</h1>
+<p>This is a tricky thing.. </p>
+<p>You'll need to use <a href="http://www.innkeeper.com/">Innkeeper</a> which does all the magic</p>
+<p><b>Warning: import will override whatever was entered before</b></p>
+
+Steps:
+<ul>
+	<li>Install HS on your PC</li>
+	<li>Install Innkeeper</li>
+	<li>Follow Innkeeper's instructions to export your collection</li>
+	<li>Go to http://www.hearthpwn.com =&gt; login =&gt; My Collection =&gt; Edit Collection =&gt; Set to public (I need this because I can't auto-login logic anymore)</li>
+	<li>Provide login you used with Innkeeper below:</li>
+	<li>???</li>
+	<li>Done!</li>
+</ul>
+
+<form [formGroup]="form">
+	<div *ngIf="error" class="alert alert-danger" role="alert">
+		<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
+		<span class="sr-only">Error:</span> {{error}}
+	</div>
+	<div class="form-group">
+		<label class="sr-only" for="username">innkeeper's username</label>
+		<div class="input-group">
+			<div class="input-group-addon">Innkeeper's username</div>
+			<input id="username" name="username" type="text" placeholder="username.." class="form-control" formControlName="username"
+			/>
+		</div>
+	</div>
+	<!-- <div class="form-group">
+		<label class="sr-only" for="password">password</label>
+		<div class="input-group">
+			<div class="input-group-addon">password</div>
+			<input id="password" name="password" type="password" placeholder="password.." class="form-control" formControlName="password"
+			/>
+		</div>
+	</div> -->
+	<button (click)="import()" class="btn btn-primary" [disabled]="!form.valid || loading">Import</button>
+	<spinner *ngIf="loading"></spinner>
+	<p></p>
+	<div *ngIf="!loading && success" class="alert alert-success"> [success] You got lucky, congrats!</div>
+</form>

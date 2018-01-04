@@ -1,23 +1,13 @@
 {
+  "compileOnSave": false,
   "compilerOptions": {
-    "target": "es6",
-    "module": "commonjs",
-    "moduleResolution": "node",
     "sourceMap": true,
+    "declaration": false,
+    "moduleResolution": "node",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
-    "removeComments": false,
-    "noImplicitAny": true,
-    "suppressImplicitAnyIndexErrors": true,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-    "noImplicitUseStrict": false,
-    "noFallthroughCasesInSwitch": true,
-    "lib": ["dom","es5","es6"]
-  },
-  "exclude": [
-    "node_modules",
-    "client/main-prod.ts",
-    "ngfactory"
-  ]
+    "lib": [
+      "es2015", "dom"
+    ]
+  }
 }

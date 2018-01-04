@@ -1,6 +1,6 @@
-import * as hstypes from "./hs-types";
+import * as hstypes from './hs-types';
 
-export enum OrderBy { date, dust };
+export enum OrderBy { date, dust }
 
 export interface Card {
     id: string;
@@ -115,7 +115,7 @@ export interface DeckQuery {
     deckName?: string;
     cardName?: string;
     latestSet?: boolean | string;
-};
+}
 
 export interface CardGroup<T extends string | Card> {
     name: string;

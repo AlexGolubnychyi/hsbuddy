@@ -5,9 +5,9 @@ import { AuthResult, TokenPayload } from "../../interfaces";
 import * as jwt from "jsonwebtoken";
 import { config } from "../lib/config";
 
-let router = express.Router();
+export const loginRouter = express.Router();
 
-router.post("/login", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+loginRouter.post("/login", (req: express.Request, res: express.Response, next: express.NextFunction) => {
     User.auth(req.body.username, req.body.password)
         .then(user => res.json(toAuthResult(user)))
         .catch(e => {
@@ -15,7 +15,7 @@ router.post("/login", (req: express.Request, res: express.Response, next: expres
         });
 });
 
-router.post("/register", (req: express.Request, res: express.Response, next: express.NextFunction) => {
+loginRouter.post("/register", (req: express.Request, res: express.Response, next: express.NextFunction) => {
     User.createUser(req.body.username, req.body.password)
         .then(user => res.json(toAuthResult(user)))
         .catch(e => {
@@ -23,15 +23,9 @@ router.post("/register", (req: express.Request, res: express.Response, next: exp
         });
 });
 
-function getToken(payload: TokenPayload) {
-    return jwt.sign(payload, config.mySecret);
-}
-
-function toAuthResult(user: UserDB) {
-    return <AuthResult>{
+function toAuthResult(user: UserDB): AuthResult {
+    return {
         success: true,
-        token: getToken({ username: user.id })
+        token: jwt.sign({ username: user.id }, config.mySecret)
     };
 }
-
-export default router;

@@ -1,25 +1,24 @@
-import * as urlHelper from "url";
-import * as hstypes from "../../../interfaces/hs-types";
-import * as Promise from "bluebird";
-import { HttpError } from "../../error";
-import { ParseError, ParseReportItem } from "../index";
-import { ParseStatus } from "../../../interfaces";
-import Deck, { DeckDB } from "../../db/deck";
-import { cardDB } from "../../db/card";
-import { deckEncoder, DeckEncoderError } from "../../db/utils/deckEncoder";
-import { CardCount } from "../../../interfaces/index";
+import * as urlHelper from 'url';
+import * as hstypes from '../../../interfaces/hs-types';
+import * as Promise from 'bluebird';
+import { HttpError } from '../../error';
+import { ParseError, ParseReportItem } from '../index';
+import { ParseStatus } from '../../../interfaces';
+import Deck, { DeckDB } from '../../db/deck';
+import { cardDB } from '../../db/card';
+import { deckEncoder, DeckEncoderError } from '../../db/utils/deckEncoder';
+import { CardCount } from '../../../interfaces/index';
 
 
 
 export abstract class BaseDeckParser {
     abstract name: string;
+    protected parserNotFound = false;
     abstract canParse(url: string): boolean;
     protected abstract getDeckData(url: string): Promise<DeckData[]>;
 
-    protected parserNotFound = false;
-
     protected urlClean(url: string) {
-        let prefix = "http://";
+        const prefix = 'http://';
         if (!/https?:\/\//.test(url)) {
             return prefix + url;
         }
@@ -42,25 +41,25 @@ export abstract class BaseDeckParser {
                 if (upgradeDeckId && decksData.length !== 1) {
                     return Promise.resolve([<ParseReportItem>{
                         parserName: this.name, status: ParseStatus.fail, url,
-                        reason: "upgrade url should point to exactly one deck"
+                        reason: 'upgrade url should point to exactly one deck'
                     }]);
                 }
                 return Promise.map(decksData, deckData => this.addDeckUnsafe(userId, deckData, upgradeDeckId));
             })
             .catch(error => {
                 if (error instanceof HttpError) {
-                    let reason = `provided url seems to be invalid, status code: ${error.status}`;
+                    const reason = `provided url seems to be invalid, status code: ${error.status}`;
                     return Promise.resolve([<ParseReportItem>{ parserName: this.name, status: ParseStatus.fail, url, reason }]);
                 }
                 if (error instanceof DeckEncoderError) {
                     return Promise.resolve(<ParseReportItem>{ parserName: this.name, status: ParseStatus.fail, url, reason: error.message });
                 }
-                //let's try to be open about errors since I know all the users personally :)
-                let msg = error instanceof Error
+                // let's try to be open about errors since I know all the users personally :)
+                const msg = error instanceof Error
                     ? error.message
-                    : typeof error === "string"
+                    : typeof error === 'string'
                         ? error
-                        : "internal error";
+                        : 'internal error';
                 return Promise.resolve(<ParseReportItem>{ parserName: this.name, status: ParseStatus.fail, url, reason: msg });
             });
     }
@@ -70,7 +69,7 @@ export abstract class BaseDeckParser {
             deckData.cards = deckData.cards.reduce((acc, cur) => (acc[cur.card] = cur.count, acc), {});
         }
 
-        let cardNames = Object.keys(deckData.cards),
+        const cardNames = Object.keys(deckData.cards),
             deck = new Deck() as DeckDB<string>;
         deck._id = Deck.generateId(deckData.cards);
         deck.name = deckData.name.trim();
@@ -82,7 +81,7 @@ export abstract class BaseDeckParser {
         deck.standart = true;
 
         return Deck.findById(deck.id).exec()
-            .then(existing => { //check for duplicate, update it if needed
+            .then(existing => { // check for duplicate, update it if needed
                 if (!existing) {
                     return;
                 }
@@ -93,22 +92,22 @@ export abstract class BaseDeckParser {
 
                 if (existing.url && deck.url && existing.url !== deck.url
                     && urlHelper.parse(existing.url).host === urlHelper.parse(deck.url).host) {
-                    //still mark as duplicate but update url (to deal with that nasty habit of tempostorm to change deck urls, 
-                    //thus breakig old references)
+                    // still mark as duplicate but update url (to deal with that nasty habit of tempostorm to change deck urls,
+                    // thus breakig old references)
                     existing.url = deck.url;
                     return existing.save().then(() => Promise.reject(new ParseError({
-                        parserName: this.name, reason: "", status: ParseStatus.duplicate, url: deckData.url, id: existing.id
+                        parserName: this.name, reason: '', status: ParseStatus.duplicate, url: deckData.url, id: existing.id
                     })));
                 }
 
                 return Promise.reject(new ParseError({
-                    parserName: this.name, reason: "", status: ParseStatus.duplicate, url: deckData.url, id: existing.id
+                    parserName: this.name, reason: '', status: ParseStatus.duplicate, url: deckData.url, id: existing.id
                 }));
             })
             .then(() => Promise.map(cardNames, cardName => cardDB.findById(cardDB.generateId(cardName))))
             .then(cardDbs => {
                 for (let i = 0; i < cardNames.length; i++) {
-                    let card = cardDbs[i];
+                    const card = cardDbs[i];
                     if (card === null) {
                         return Promise.reject(new ParseError({
                             parserName: this.name, reason: `card not found: ${cardNames[i]}`, status: ParseStatus.fail, url: deckData.url
@@ -131,28 +130,28 @@ export abstract class BaseDeckParser {
                     deckEncoder.encode(deck.class, deck.standart, deck.cards.map(c => ({ count: c.count, card: cardDbs.find(cdb => cdb.id === c.card) })));
             })
             .then(() => {
-                let cardTotal = deck.cards.reduce((acc, card) => acc + card.count, 0);
+                const cardTotal = deck.cards.reduce((acc, card) => acc + card.count, 0);
                 if (cardTotal !== 30) {
                     return Promise.reject(new ParseError({
                         parserName: this.name, reason: `deck malformed: card amount is ${cardTotal} instead of 30`, status: ParseStatus.fail, url: deckData.url
                     }));
                 }
             })
-            .then(() => Deck.findOne({ "$or": [{ "url": (deck.url || "ignore_those_missing_url") }, { "_id": upgradeDeckId || "" }] }))
+            .then(() => Deck.findOne({ '$or': [{ 'url': (deck.url || 'ignore_those_missing_url') }, { '_id': upgradeDeckId || '' }] }))
             .then((existing: DeckDB<string>) => {
                 if (!existing) {
                     if (upgradeDeckId) {
                         return Promise.reject(new ParseError({
-                            parserName: this.name, reason: "could not find deck to upgrade", status: ParseStatus.fail, url: deckData.url, id: upgradeDeckId
+                            parserName: this.name, reason: 'could not find deck to upgrade', status: ParseStatus.fail, url: deckData.url, id: upgradeDeckId
                         }));
                     }
                     return deck.save().then(() => <ParseReportItem>{
-                        parserName: this.name, status: ParseStatus.success, reason: "", url: deckData.url, id: deck.id
+                        parserName: this.name, status: ParseStatus.success, reason: '', url: deckData.url, id: deck.id
                     });
                 }
-                let status = upgradeDeckId ? ParseStatus.success : ParseStatus.upgrade;
+                const status = upgradeDeckId ? ParseStatus.success : ParseStatus.upgrade;
                 return Deck.upgradeDeck(existing, deck)
-                    .then(() => <ParseReportItem>{ parserName: this.name, status, reason: "", url: deckData.url, id: deck.id });
+                    .then(() => <ParseReportItem>{ parserName: this.name, status, reason: '', url: deckData.url, id: deck.id });
             })
             .catch((rejection: Error | ParseError) => {
                 if (rejection instanceof ParseError) {
@@ -163,11 +162,11 @@ export abstract class BaseDeckParser {
     }
 
     protected reportUnrecognized(url: string) {
-        return Promise.resolve([<ParseReportItem>{ parserName: "", status: ParseStatus.fail, url, reason: "url not recognized" }]);
+        return Promise.resolve([<ParseReportItem>{ parserName: '', status: ParseStatus.fail, url, reason: 'url not recognized' }]);
     }
 
     protected reportParserNotFound(url: string) {
-        return Promise.resolve([<ParseReportItem>{ parserName: "", status: ParseStatus.fail, url: url, reason: "url not supported" }]);
+        return Promise.resolve([<ParseReportItem>{ parserName: '', status: ParseStatus.fail, url: url, reason: 'url not supported' }]);
     }
 }
 

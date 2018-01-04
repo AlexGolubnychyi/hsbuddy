@@ -1,0 +1,56 @@
+<nav role="navigation" class="navbar navbar-default">
+    <div class="container-fluid">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" (click)="isCollapsed = !isCollapsed">
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse" [collapse]="isCollapsed">
+            <ul class="nav navbar-nav">
+                <li><a routerLink="/decks" routerLinkActive="active">Decks</a></li>
+                <li><a routerLink="/cards" routerLinkActive="active">Cards</a></li>
+                <li *ngIf="isAuthenticated()"><a routerLink="/cards-missing" routerLinkActive="active">Missing</a></li>
+                <!-- <li *ngIf="isAuthenticated()"><a routerLink="/cards-wanted" routerLinkActive="active">Wanted</a></li> -->
+                <li *ngIf="isAuthenticated()"><a routerLink="/card-import" routerLinkActive="active">Import</a></li>
+                <li *ngIf="isAuthenticated()"><a routerLink="/parse" routerLinkActive="active">Parse</a></li>
+                <li><a routerLink="/about" routerLinkActive="active">About</a></li>
+            </ul>
+            <form class="navbar-form navbar-left" [formGroup]="configForm">
+                <div class="form-group">
+                    <span>Style: </span>
+                    <select class="form-control" formControlName="cardStyle">
+                        <option [value]="cardStyles.default">default</option>
+                        <option [value]="cardStyles.compact">compact</option>
+                        <option [value]="cardStyles.textOnly">mini</option>
+                    </select>
+                </div>
+                <div class="form-group" *ngIf="isAuthenticated() && configForm.value.cardStyle != cardStyles.textOnly">
+                    <div class="checkbox">
+                        <label>
+                        <input type="checkbox" formControlName="enableCardAvailSelector">
+                        Card availability
+                    </label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="checkbox">
+                        <label>
+                        <input type="checkbox" formControlName="standart">
+                        Standart
+                    </label>
+                    </div>
+                </div>
+            </form>
+            <ul *ngIf="isAuthenticated()" class="nav navbar-nav navbar-right">
+                <li><a>Welcome, {{username}}!</a></li>
+                <li (click)="logout($event)"><a href="#">Logout</a></li>
+            </ul>
+            <ul *ngIf="!isAuthenticated()" class="nav navbar-nav navbar-right">
+                <li><a routerLink="/login" routerLinkActive="hidden">Login or Register</a></li>
+            </ul>
+        </div>    
+    </div>
+</nav>
+<router-outlet></router-outlet>

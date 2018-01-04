@@ -2,10 +2,20 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "type": "node",
+            "request": "launch",
+            "name": "nodemon",
+            "runtimeExecutable": "nodemon",
+            "program": "${workspaceRoot}/server/bin/index.js",
+            "restart": true,
+            "console": "integratedTerminal",
+            "internalConsoleOptions": "neverOpen"
+        },
+        {
             "name": "LaunchDev",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/server/bin/index.js",
+            "program": "${workspaceRoot}/dist/server/bin/index.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",
@@ -19,7 +29,15 @@
             },
             "console": "internalConsole",
             "sourceMaps": true,
-            "outDir": null
+        },
+        {
+            "name": "AttachDev",
+            "type": "node",
+            "protocol": "inspector",
+            "request": "attach",
+            "restart": true,
+            "port": 9229,
+            "sourceMaps": true,
         },
         {
             "name": "LaunchProd",
@@ -67,7 +85,10 @@
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/@angular/compiler-cli/src/main.js",
             "stopOnEntry": false,
-            "args": ["-p", "ngc.json"],
+            "args": [
+                "-p",
+                "ngc.json"
+            ],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
             "runtimeExecutable": null,
@@ -78,7 +99,7 @@
                 "NODE_ENV": "development"
             },
             "console": "internalConsole",
-            "sourceMaps": false,//true,
+            "sourceMaps": false, //true,
             "outDir": null
         },
         {
@@ -87,7 +108,13 @@
             "request": "launch",
             "program": "${workspaceRoot}/node_modules/rollup/bin/rollup",
             "stopOnEntry": false,
-            "args": ["-f", "iife", "-c", "-o","public/app.es2015.js"],
+            "args": [
+                "-f",
+                "iife",
+                "-c",
+                "-o",
+                "public/app.es2015.js"
+            ],
             "cwd": "${workspaceRoot}",
             "preLaunchTask": null,
             "runtimeExecutable": null,

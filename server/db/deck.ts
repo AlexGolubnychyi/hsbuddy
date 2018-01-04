@@ -1,16 +1,16 @@
-import * as crypto from "crypto";
-import * as validUrl from "valid-url";
-import mongoose from "../lib/mongoose";
-import * as hstypes from "../../interfaces/hs-types";
-import * as contracts from "../../interfaces/";
-import * as Promise from "bluebird";
-import User from "./user";
-import { CardDB, cardSchemaName, cardDB } from "./card";
-import UserCard from "./userCard";
-import mapper from "./utils/mapper";
-import { deckDiffer } from "./utils/differ";
-import { UserDecks } from "./user";
-import { debug } from "util";
+import * as crypto from 'crypto';
+import * as validUrl from 'valid-url';
+import mongoose from '../lib/mongoose';
+import * as hstypes from '../../interfaces/hs-types';
+import * as contracts from '../../interfaces/';
+import * as Promise from 'bluebird';
+import User from './user';
+import { CardDB, cardSchemaName, cardDB } from './card';
+import UserCard from './userCard';
+import mapper from './utils/mapper';
+import { deckDiffer } from './utils/differ';
+import { UserDecks } from './user';
+import { debug } from 'util';
 
 const deckSchema = new mongoose.Schema({
     _id: String,
@@ -47,12 +47,12 @@ const deckSchema = new mongoose.Schema({
     userId: String
 });
 
-deckSchema.static("generateId", (cards: { [cardName: string]: number }) => {
-    let deckDNA = Object.keys(cards).map(cardName => cardDB.generateId(cardName) + cards[cardName]).sort().join("");
-    return crypto.createHmac("sha1", "it's just a deck").update(deckDNA).digest("hex");
+deckSchema.static('generateId', (cards: { [cardName: string]: number }) => {
+    const deckDNA = Object.keys(cards).map(cardName => cardDB.generateId(cardName) + cards[cardName]).sort().join('');
+    return crypto.createHmac('sha1', 'it\'s just a deck').update(deckDNA).digest('hex');
 });
 
-deckSchema.static("getDecksByParams", function (userId: string, params?: contracts.DeckQuery & { standart: string })
+deckSchema.static('getDecksByParams', function (userId: string, params?: contracts.DeckQuery & { standart: string })
     : Promise<contracts.DeckResult<contracts.Deck<string>[]>> {
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         cardAvailability: { [cardId: string]: number },
@@ -68,36 +68,36 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
         .then(uc => cardAvailability = uc)
         .then(() => {
             if (params) {
-                let queryParts: {}[] = [];
+                const queryParts: {}[] = [];
                 //     { "deleted": { "$ne": true } }
                 // ];
 
                 if (params.deckName) {
-                    queryParts.push({ "name": new RegExp(`.*${params.deckName}.*`, "i") });
+                    queryParts.push({ 'name': new RegExp(`.*${params.deckName}.*`, 'i') });
                 }
 
                 if (params.cardName) {
-                    queryParts.push({ "cards.card": new RegExp(`.*${cardDB.generateId(params.cardName)}.*`, "i") });
+                    queryParts.push({ 'cards.card': new RegExp(`.*${cardDB.generateId(params.cardName)}.*`, 'i') });
                 }
 
-                if (params.userCollection === "true") {
-                    queryParts.push({ "_id": { "$in": userDecks.favorites } });
+                if (params.userCollection === 'true') {
+                    queryParts.push({ '_id': { '$in': userDecks.favorites } });
                 }
 
-                if (params.latestSet === "true") {
+                if (params.latestSet === 'true') {
                     latestSetParam = true;
                 }
 
-                if (params.showIgnored !== "true") {
-                    queryParts.push({ "_id": { "$not": { "$in": userDecks.ignored } } });
+                if (params.showIgnored !== 'true') {
+                    queryParts.push({ '_id': { '$not': { '$in': userDecks.ignored } } });
                 }
 
                 if (+params.deckClass > 0) {
-                    queryParts.push({ "class": +params.deckClass });
+                    queryParts.push({ 'class': +params.deckClass });
                 }
 
-                if (params.standart === "true") {
-                    queryParts.push({ "standart": true });
+                if (params.standart === 'true') {
+                    queryParts.push({ 'standart': true });
                 }
 
                 if (!isNaN(+params.dustNeeded)) {
@@ -108,30 +108,30 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
                     query = queryParts[0];
                 }
                 else if (queryParts.length > 0) {
-                    query = { "$and": queryParts };
+                    query = { '$and': queryParts };
                 }
             }
-            return model.find(query).populate("cards.card").exec();
+            return model.find(query).populate('cards.card').exec();
         })
         .then(decks => {
             let result = decks
                 .map(deck => {
-                    deck.revisions = []; //reduce unneeded processing
+                    deck.revisions = []; // reduce unneeded processing
                     return mapper.deckToContract(deck, cardAvailability, userDecks, cardHash);
                 })
                 .filter(deck => !deck.deleted || deck.userCollection);
 
-            //dust
-            if (typeof dustNeededParam === "number") {
+            // dust
+            if (typeof dustNeededParam === 'number') {
                 result = result.filter(d => d.dustNeeded <= dustNeededParam);
             }
 
-            //latest set
+            // latest set
             if (latestSetParam) {
                 result = result.filter(d => d.latestSet);
             }
 
-            //sort
+            // sort
             if (+params.orderBy === contracts.OrderBy.date) {
                 result = result.sort((f, s) => s.dateAdded > f.dateAdded ? 1 : -1);
             }
@@ -143,7 +143,7 @@ deckSchema.static("getDecksByParams", function (userId: string, params?: contrac
         });
 });
 
-deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<contracts.DeckResult<contracts.Deck<string>>> {
+deckSchema.static('getDeck', function (userId: string, deckId: string): Promise<contracts.DeckResult<contracts.Deck<string>>> {
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         cardAvailability: { [cardId: string]: number },
         userDecks: UserDecks,
@@ -153,24 +153,24 @@ deckSchema.static("getDeck", function (userId: string, deckId: string): Promise<
         .then(usrDecks => userDecks = usrDecks)
         .then(() => UserCard.getByUserId(userId))
         .then(uc => cardAvailability = uc)
-        .then(() => model.findById(deckId).populate("cards.card").populate("revisions.cardAddition.card").populate("revisions.cardRemoval.card").exec())
+        .then(() => model.findById(deckId).populate('cards.card').populate('revisions.cardAddition.card').populate('revisions.cardRemoval.card').exec())
         .then(deck => mapper.wrapResult(mapper.deckToContract(deck, cardAvailability, userDecks, cardHash), cardHash));
 });
 
 
-deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: DeckDB<string>): Promise<boolean> {
+deckSchema.static('upgradeDeck', function (oldDeck: DeckDB<string>, newDeck: DeckDB<string>): Promise<boolean> {
 
-    let model = this as mongoose.Model<DeckDB<string | CardDB>> & DeckStatics,
+    const model = this as mongoose.Model<DeckDB<string | CardDB>> & DeckStatics,
         refCardHash: { [index: string]: number } = {},
         oldRevisions = oldDeck.revisions || [];
 
     newDeck.cards.forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
     if (!newDeck.url) {
-        //imported via code, preserve name
+        // imported via code, preserve name
         newDeck.name = oldDeck.name;
     }
-    //add new revision
-    let newRevDiff = deckDiffer.diff(newDeck.cards, oldDeck.cards, refCardHash);
+    // add new revision
+    const newRevDiff = deckDiffer.diff(newDeck.cards, oldDeck.cards, refCardHash);
     newDeck.revisions = [
         {
             userId: oldDeck.userId,
@@ -186,9 +186,9 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
         }
     ];
 
-    //add old revisions
+    // add old revisions
     oldRevisions.forEach(rev => {
-        //let revCards = differ.reverse(oldDeck.cards, rev.cardAddition, rev.cardRemoval),
+        // let revCards = differ.reverse(oldDeck.cards, rev.cardAddition, rev.cardRemoval),
         //    diff = differ.diff(newDeck.cards, revCards, refCardHash);
 
         newDeck.revisions.push({
@@ -198,9 +198,9 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
             url: rev.url,
             cost: rev.cost,
             dateAdded: rev.dateAdded,
-            diff: rev.diff, //diff.diff,
-            cardAddition: rev.cardAddition, //diff.cardAddition,
-            cardRemoval: rev.cardRemoval, //diff.cardRemoval
+            diff: rev.diff, // diff.diff,
+            cardAddition: rev.cardAddition, // diff.cardAddition,
+            cardRemoval: rev.cardRemoval, // diff.cardRemoval
             standart: rev.standart
         });
     });
@@ -211,7 +211,7 @@ deckSchema.static("upgradeDeck", function (oldDeck: DeckDB<string>, newDeck: Dec
 });
 
 
-deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, standart: boolean): Promise<contracts.DeckResult<contracts.DeckDiff<string>[]>> {
+deckSchema.static('getSimilarDecks', function (userId: string, deckId: string, standart: boolean): Promise<contracts.DeckResult<contracts.DeckDiff<string>[]>> {
     let model = this as mongoose.Model<DeckDB<CardDB>>,
         refDeck: contracts.Deck<string>,
         cardAvailability: { [cardId: string]: number },
@@ -222,33 +222,33 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, s
         .then(usrDecks => userDecks = usrDecks)
         .then(() => UserCard.getByUserId(userId))
         .then(uc => cardAvailability = uc)
-        .then(() => model.findById(deckId).populate("cards.card").exec())
+        .then(() => model.findById(deckId).populate('cards.card').exec())
         .then(deck => {
             if (!deck) {
-                Promise.reject(new Error("deck not found"));
+                Promise.reject(new Error('deck not found'));
             }
             refDeck = mapper.deckToContract(deck, cardAvailability, userDecks, cardHash);
         })
         .then(() => {
-            let query = { "$and": [{ "_id": { "$ne": deckId } }, { "deleted": { "$ne": true } }, { "class": refDeck.class }] };
+            const query = { '$and': [{ '_id': { '$ne': deckId } }, { 'deleted': { '$ne': true } }, { 'class': refDeck.class }] };
             if (standart) {
-                query.$and.push(<any>{ "standart": true });
+                query.$and.push(<any>{ 'standart': true });
             }
-            return model.find(query).populate("cards.card").exec();
+            return model.find(query).populate('cards.card').exec();
         })
         .then(otherDecks => {
-            let refCardHash: { [index: string]: number } = {},
+            const refCardHash: { [index: string]: number } = {},
                 reducerHash: { [index: string]: boolean } = {};
 
             refDeck.cards.forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
 
-            let diffs = otherDecks
+            const diffs = otherDecks
                 .map(otherDeck => {
-                    let diff = deckDiffer.diff(refDeck.cards, otherDeck.cards.map(c => ({ card: (c.card as CardDB).id, count: c.count })), refCardHash);
+                    const diff = deckDiffer.diff(refDeck.cards, otherDeck.cards.map(c => ({ card: (c.card as CardDB).id, count: c.count })), refCardHash);
 
                     if (diff.diff < 10) {
-                        otherDeck.revisions = []; //we don't need revisions on sim decks
-                        let deck = mapper.deckToContract(otherDeck, cardAvailability, userDecks, cardHash);
+                        otherDeck.revisions = []; // we don't need revisions on sim decks
+                        const deck = mapper.deckToContract(otherDeck, cardAvailability, userDecks, cardHash);
                         diff.cardAddition.forEach(cardCount => reducerHash[cardCount.card] = true);
                         return {
                             deck,
@@ -262,7 +262,7 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, s
                 .filter(deckDiff => !!deckDiff)
                 .sort((d1, d2) => d1.diff - d2.diff);
 
-            //reduce response size, send only additions 
+            // reduce response size, send only additions
             cardHash = Object.keys(cardHash).filter(id => reducerHash[id]).reduce((hash, cardId) => {
                 hash[cardId] = cardHash[cardId];
                 return hash;
@@ -272,8 +272,8 @@ deckSchema.static("getSimilarDecks", function (userId: string, deckId: string, s
         });
 });
 
-deckSchema.static("setDescription", function (userId: string, deckId: string, description: contracts.DeckChange): Promise<contracts.DeckChange> {
-    let model = this as mongoose.Model<DeckDB<CardDB | string>>;
+deckSchema.static('setDescription', function (userId: string, deckId: string, description: contracts.DeckChange): Promise<contracts.DeckChange> {
+    const model = this as mongoose.Model<DeckDB<CardDB | string>>;
 
     return model.findById(deckId).exec()
         .then(deck => {
@@ -281,7 +281,7 @@ deckSchema.static("setDescription", function (userId: string, deckId: string, de
                 return null;
             }
 
-            let date = new Date(description.date),
+            const date = new Date(description.date),
                 { name, url } = description;
 
             if (!date || !name) {
@@ -295,7 +295,7 @@ deckSchema.static("setDescription", function (userId: string, deckId: string, de
                     deck.url = url;
                 }
                 else {
-                    description.url = "";
+                    description.url = '';
                 }
             }
             else {
@@ -305,26 +305,26 @@ deckSchema.static("setDescription", function (userId: string, deckId: string, de
         });
 });
 
-deckSchema.static("recycle", function (deckId: string, forceDelete = false, replaceWithDeckId?: string): Promise<boolean> {
-    let model = this as mongoose.Model<DeckDB<CardDB | string>> & DeckStatics;
+deckSchema.static('recycle', function (deckId: string, forceDelete = false, replaceWithDeckId?: string): Promise<boolean> {
+    const model = this as mongoose.Model<DeckDB<CardDB | string>> & DeckStatics;
 
     return model.findById(deckId).exec().then(deck => {
         if (!deck || !(deck.deleted || forceDelete)) {
             return false;
         }
 
-        return User.find({ "$or": [{ decks: deck._id }, { ignoredDecks: deck._id }] }).exec()
+        return User.find({ '$or': [{ decks: deck._id }, { ignoredDecks: deck._id }] }).exec()
             .then(users => {
                 let promise = Promise.resolve() as Promise<any>;
 
-                let usersFavoredTheDeck = users && users.filter(u => (u.decks as string[]).some(dId => dId === deck._id));
-                let usersIgnoredTheDeck = users && users.filter(u => u.ignoredDecks.some(dId => dId === deck._id));
+                const usersFavoredTheDeck = users && users.filter(u => (u.decks as string[]).some(dId => dId === deck._id));
+                const usersIgnoredTheDeck = users && users.filter(u => u.ignoredDecks.some(dId => dId === deck._id));
 
                 return Promise.resolve()
                     .then(() => {
                         if (usersIgnoredTheDeck && usersIgnoredTheDeck.length) {
                             return Promise.all(usersIgnoredTheDeck.map(user => {
-                                //clean up ignore lists
+                                // clean up ignore lists
                                 user.ignoredDecks = user.ignoredDecks.filter(dId => dId !== deck._id);
                                 return user.save();
                             }));
@@ -333,29 +333,29 @@ deckSchema.static("recycle", function (deckId: string, forceDelete = false, repl
                         if (usersFavoredTheDeck && usersFavoredTheDeck.length) {
                             if (!replaceWithDeckId) {
                                 if (deck.deleted) {
-                                    //already soft deleted
+                                    // already soft deleted
                                     return false;
                                 }
-                                //soft delete
+                                // soft delete
                                 deck.deleted = true;
                                 return deck.save().then(() => false);
                             }
                             else {
                                 promise = Promise.all(usersFavoredTheDeck.map(user => {
-                                    //replace deckId in user collections (when upgrading deck)
+                                    // replace deckId in user collections (when upgrading deck)
                                     user.decks = (user.decks as string[]).map((innerId) => innerId === deckId ? replaceWithDeckId : innerId);
                                     return user.save();
                                 }));
                             }
                         }
 
-                        return promise.then(() => model.findByIdAndRemove(deckId).exec()).then(() => true); //hard delete
+                        return promise.then(() => model.findByIdAndRemove(deckId).exec()).then(() => true); // hard delete
                     });
             });
     });
 });
 
-deckSchema.static("getMissingCards", function (userId: string, params?: contracts.DeckQuery & { standart: boolean })
+deckSchema.static('getMissingCards', function (userId: string, params?: contracts.DeckQuery & { standart: boolean })
     : Promise<contracts.DeckResult<contracts.CardMissing<string>[]>> {
     let model = this as mongoose.Model<DeckDB<CardDB | string>> & DeckStatics,
         resultObj: { [cardId: string]: contracts.CardMissing<string> } = {},
@@ -365,7 +365,7 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
         .then(decks => decks.result.forEach(deck => {
             cardHash = decks.cardHash;
             deck.cards.forEach(cardCount => {
-                let card = cardHash[cardCount.card];
+                const card = cardHash[cardCount.card];
                 if (cardCount.count > card.numberAvailable) {
                     let cardMissing = resultObj[card.id];
                     if (!cardMissing) {
@@ -387,7 +387,7 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
             });
         }))
         .then(() => {
-            let result = Object.keys(resultObj)
+            const result = Object.keys(resultObj)
                 .map(cardId => resultObj[cardId])
                 .map(card => {
                     card.decks = card.decks.sort((d1, d2) => d1.dustNeeded - d2.dustNeeded);
@@ -399,7 +399,7 @@ deckSchema.static("getMissingCards", function (userId: string, params?: contract
                         return diff;
                     }
 
-                    let card1 = cardHash[cardMissing1.cardCount.card],
+                    const card1 = cardHash[cardMissing1.cardCount.card],
                         card2 = cardHash[cardMissing2.cardCount.card];
 
                     diff = card2.cost - card1.cost;
@@ -428,7 +428,7 @@ export interface DeckDB<T extends string | CardDB> extends mongoose.Document {
     deleted: boolean;
     standart: boolean;
     revisions: DeckRevisionDB<T>[];
-};
+}
 
 export interface DeckRevisionDB<T extends string | CardDB> {
     importCode: string;
@@ -461,5 +461,5 @@ interface DeckStatics {
     recycle: (deckId: string, forceDelete?: boolean, replaceWithDeckId?: string) => Promise<boolean>;
 }
 
-export const deckSchemaName = "Deck";
+export const deckSchemaName = 'Deck';
 export default mongoose.model<DeckDB<CardDB | string>>(deckSchemaName, deckSchema) as mongoose.Model<DeckDB<CardDB | string>> & DeckStatics;

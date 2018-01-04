@@ -1,0 +1,28 @@
+<div *ngIf="config.cardStyle !== cardStyles.textOnly" class="card-container" ngClass="{{getAvailStatus()}}" [class.compact]="config.cardStyle === cardStyles.compact">
+    <div>
+        <a [href]="card.url">
+            <img [src]="card.img" [title]="card.flavorText" class="card-image"/></a>
+    </div>
+    <div class="card-name"><span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x"+count : ""}}</div>
+    <div *ngIf="config.cardStyle === cardStyles.default">
+        <div [class.hidden]="!card.className">Class: {{card.className}}</div>
+        <div>Dust: {{card.cost}}</div>
+        <div class="card-set">Set: {{card.setName}}</div>
+    </div>
+    <div *ngIf="config.enableCardAvailSelector" [style.visibility]="!basic ? 'visible' : 'hidden'" class="availability-container">
+        <select class="form-control availability-selector" [ngModel]="card.numberAvailable" [disabled]="loading" (ngModelChange)="changeAvailability($event)">
+            <option value="0">0 cards</option>
+            <option value="1">1 card</option>
+            <option value="2">2 cards</option>
+        </select>
+    </div>
+</div>
+<div *ngIf="config.cardStyle === cardStyles.textOnly">
+    <div class="card-name-text-only" [cardTooltip]="card" ngClass="{{getAvailStatus()}}">
+        <a [href]="card.url">
+            <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x"+count : ""}}   
+            <!--<img [src]="'/images/'+ card.id + '.png'">      -->
+        </a>
+        <img [src]="'assets/images/'+ card.id + '.png'">
+    </div>
+</div>

@@ -18,10 +18,13 @@
         "**/node_modules": true,
         "**/bower_components": true,
          "**/*.ngfactory.*" : true,
-        "**/ngfactory":true
+        "**/ngfactory":true,
+        "**/client/assets/images": true
 
     },
     "editor.snippetSuggestions": "bottom",
-    "typescript.check.workspaceVersion": false,
-    "vsicons.presets.angular": true
+    "vsicons.presets.angular": true,
+    "tslint.alwaysShowRuleFailuresAsWarnings": true,
+    "tslint.autoFixOnSave": true,
+    "files.autoSave": "onFocusChange"
 }

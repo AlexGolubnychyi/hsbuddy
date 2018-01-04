@@ -1,9 +1,9 @@
-import * as hstypes from "../../../interfaces/hs-types";
-import * as contracts from "../../../interfaces/";
-import { CardDB } from "../card";
-import { DeckDB } from "../deck";
-import { deckDiffer } from "./differ";
-import { UserDecks } from "../user";
+import * as hstypes from '../../../interfaces/hs-types';
+import * as contracts from '../../../interfaces/';
+import { CardDB } from '../card';
+import { DeckDB } from '../deck';
+import { deckDiffer } from './differ';
+import { UserDecks } from '../user';
 
 
 class Mapper {
@@ -11,7 +11,7 @@ class Mapper {
         if (!deck) {
             return null;
         }
-        let contract: contracts.Deck<string> = {
+        const contract: contracts.Deck<string> = {
             id: deck._id,
             importCode: deck.importCode,
             name: deck.name,
@@ -33,9 +33,9 @@ class Mapper {
                 number: rev.number,
                 userId: rev.userId,
                 importCode: rev.importCode,
-                url: rev.url || "",
+                url: rev.url || '',
                 cost: rev.cost || 0,
-                dustNeeded: 0, //TODO
+                dustNeeded: 0, // TODO
                 class: deck.class,
                 className: hstypes.CardClass[deck.class],
                 collected: false,
@@ -45,10 +45,11 @@ class Mapper {
                 cardAddition: rev.cardAddition.map(cardCount => this.cardToContract(cardCount, cardAvail[cardCount.card.id], cardHash).cardCount),
                 cardRemoval: rev.cardRemoval.map(cardCount => this.cardToContract(cardCount, cardAvail[cardCount.card.id], cardHash).cardCount),
             }))
-        }, collected = true;
+        };
+        let collected = true;
 
         contract.cards = deck.cards.map(cardCountDB => {
-            let { cardCount, cardContract } = this.cardToContract(cardCountDB, cardAvail[cardCountDB.card._id], cardHash);
+            const { cardCount, cardContract } = this.cardToContract(cardCountDB, cardAvail[cardCountDB.card._id], cardHash);
 
             contract.dustNeeded -= Math.min(cardCount.count, cardContract.numberAvailable) * cardContract.cost;
             collected = collected && cardContract.numberAvailable >= cardCount.count;
@@ -58,10 +59,10 @@ class Mapper {
 
         contract.collected = collected;
 
-        //restore rev cards, depend on contract cards
+        // restore rev cards, depend on contract cards
         contract.revisions.forEach((rev, index) => {
             rev.cards = deckDiffer.reverse((contract.revisions[index - 1] || contract).cards, rev.cardAddition, rev.cardRemoval);
-            //diff inversion:
+            // diff inversion:
             // let diff = differ.diff((contract.revisions[index - 1] || contract).cards, rev.cards);
             // rev.cardAddition = diff.cardAddition;
             // rev.cardRemoval = diff.cardRemoval;
@@ -73,9 +74,9 @@ class Mapper {
 
     cardToContract(cardCount: DBCardCount, numberAvailable: number, cardHash: contracts.CardHash) {
         numberAvailable = cardCount.card.cardSet === hstypes.CardSet.Basic ? 2 : (numberAvailable || 0);
-        let card = cardCount.card;
+        const card = cardCount.card;
 
-        let cardContract = cardHash[card.id] = cardHash[card.id] || {
+        const cardContract = cardHash[card.id] = cardHash[card.id] || {
             id: card._id,
             officialId: card.officialId,
             dbfId: card.dbfId,
