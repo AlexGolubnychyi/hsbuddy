@@ -8,7 +8,7 @@
   }, 
   "scripts": {
     "ng": "ng",
-    
+    "start": "node ./dist/server/bin/index.js",
     "server-build": "tsc -p tsconfig.server.json",
     "server-watch": "tsc -p tsconfig.server.json -w",
     "server-run": "tsc -p tsconfig.server.json & nodemon  --inspect dist/server/bin/index.js --watch dist/server",
@@ -18,7 +18,7 @@
     "client-build-dev": "ng build",
     "client-build": "ng build --aot --prod",
     
-    "start":  "concurrently \"npm run server-serve\" \"npm run client-serve\"",
+    "vs-run":  "concurrently \"npm run server-serve\" \"npm run client-serve\"",
     "build": "npm run client-build & npm run server-build",
     
     "easy-client-serve": "ng build --watch",

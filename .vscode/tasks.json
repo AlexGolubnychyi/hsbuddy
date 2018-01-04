@@ -11,7 +11,7 @@
                 "isDefault": true
             },
             "type": "npm",
-            "script": "start",
+            "script": "vs-run",
             "isBackground": true,
             "presentation": {
                 "reveal": "always",
