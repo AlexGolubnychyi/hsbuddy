@@ -30,7 +30,7 @@
     "e2e": "ng e2e",
 
     "deploy": "git push heroku master",
-    "migrate-db": "node ./server/bin/migration.js",
+    "migrate-db": "node ./dist/server/bin/migration.js",
     "postinstall": "npm run build && npm run migrate-db" 
   },
   "private": true,
