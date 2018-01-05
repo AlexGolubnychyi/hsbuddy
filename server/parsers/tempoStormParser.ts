@@ -1,13 +1,13 @@
-import * as Promise from "bluebird";
-import { getJSON } from "../lib/request";
-import { BaseDeckParser, DeckData } from "./base/baseDeckParser";
+import * as Promise from 'bluebird';
+import { getJSON } from '../lib/request';
+import { BaseDeckParser, DeckData } from './base/baseDeckParser';
 
 
 
 class TempoStormParser extends BaseDeckParser {
     private deckRegex = /tempostorm\.com\/hearthstone\/decks\/([0-9a-z\-]+)/;
     private deckListRegex = /tempostorm\.com\/hearthstone\/meta-snapshot\/standard\/([0-9a-z\-]+)/;
-    name = "TempoStorm";
+    name = 'TempoStorm';
     protected getDeckData(url: string) {
         if (this.deckRegex.test(url)) {
             return this.parseDeck(url).then(reportItem => [reportItem]);
@@ -24,8 +24,8 @@ class TempoStormParser extends BaseDeckParser {
         console.log(`parsing ${url}`);
         return this.getDeckListJSON(url).then(obj => {
 
-            let promises = obj.deckTiers.map(tier => {
-                let deckUrl = `https://tempostorm.com/hearthstone/decks/${tier.deck.slugs[0].slug}`,
+            const promises = obj.deckTiers.map(tier => {
+                const deckUrl = `https://tempostorm.com/hearthstone/decks/${tier.deck.slugs[0].slug}`,
                     date = new Date(tier.deck.createdDate),
                     cards: { [cardName: string]: number } = {};
                 tier.deck.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
@@ -41,7 +41,7 @@ class TempoStormParser extends BaseDeckParser {
 
         return this.getDeckJSON(url)
             .then(obj => {
-                let cards: { [cardName: string]: number } = {};
+                const cards: { [cardName: string]: number } = {};
                 obj.cards.forEach(c => cards[c.card.name] = c.cardQuantity);
                 return <DeckData>{ name: obj.name, url, cards, date: new Date(obj.createdDate) };
             });
@@ -49,43 +49,43 @@ class TempoStormParser extends BaseDeckParser {
     }
 
     private getDeckListJSON(url: string): Promise<DeckListResponseObj> {
-        let listName = url.match(this.deckListRegex)[1],
+        const listName = url.match(this.deckListRegex)[1],
             payload = {
-                "where": {
-                    "slug": listName,
-                    "snapshotType": "standard"
+                'where': {
+                    'slug': listName,
+                    'snapshotType': 'standard'
                 },
-                "include": [
+                'include': [
                     {
-                        "relation": "deckTiers",
-                        "scope": {
-                            "include": [
+                        'relation': 'deckTiers',
+                        'scope': {
+                            'include': [
                                 {
-                                    "relation": "deck",
-                                    "scope": {
-                                        "fields": [
-                                            "id",
-                                            "name",
-                                            "createdDate",
-                                            "slug",
-                                            "playerClass"
+                                    'relation': 'deck',
+                                    'scope': {
+                                        'fields': [
+                                            'id',
+                                            'name',
+                                            'createdDate',
+                                            'slug',
+                                            'playerClass'
                                         ],
-                                        "include": [
+                                        'include': [
                                             {
-                                                "relation": "slugs",
-                                                "scope": {
-                                                    "fields": [
-                                                        "linked",
-                                                        "slug"
+                                                'relation': 'slugs',
+                                                'scope': {
+                                                    'fields': [
+                                                        'linked',
+                                                        'slug'
                                                     ]
                                                 },
                                             },
                                             {
-                                                "relation": "cards",
-                                                "scope": {
-                                                    "include": "card",
-                                                    "scope": {
-                                                        "fields": ["id", "name"]
+                                                'relation': 'cards',
+                                                'scope': {
+                                                    'include': 'card',
+                                                    'scope': {
+                                                        'fields': ['id', 'name']
                                                     }
                                                 }
                                             }
@@ -98,23 +98,23 @@ class TempoStormParser extends BaseDeckParser {
                 ]
 
             };
-        return getJSON("https://tempostorm.com/api/snapshots/findOne?filter=" + encodeURIComponent(JSON.stringify(payload)));
+        return getJSON('https://tempostorm.com/api/snapshots/findOne?filter=' + encodeURIComponent(JSON.stringify(payload)));
     }
 
     private getDeckJSON(url: string): Promise<DeckResponseObj> {
-        let deckName = url.match(this.deckRegex)[1],
+        const deckName = url.match(this.deckRegex)[1],
             payload = {
                 where: {
                     slug: deckName
                 },
-                fields: ["id", "createdDate", "name"],
+                fields: ['id', 'createdDate', 'name'],
                 include: [
                     {
-                        relation: "cards",
+                        relation: 'cards',
                         scope: {
-                            include: "card",
+                            include: 'card',
                             scope: {
-                                fields: ["id", "name"]
+                                fields: ['id', 'name']
                             }
                         }
                     }
@@ -122,9 +122,9 @@ class TempoStormParser extends BaseDeckParser {
             };
 
 
-        return getJSON("https://tempostorm.com/api/decks/findOne?filter=" + encodeURIComponent(JSON.stringify(payload)));
+        return getJSON('https://tempostorm.com/api/decks/findOne?filter=' + encodeURIComponent(JSON.stringify(payload)));
     }
-};
+}
 
 export default new TempoStormParser();
 

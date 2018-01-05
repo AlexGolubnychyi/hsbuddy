@@ -1,8 +1,8 @@
 
-import * as Promise from "bluebird";
-import { CardClass } from "../../../interfaces/hs-types";
-import { cardDB } from "../card";
-import { CardCount } from "../../../interfaces/index";
+import * as Promise from 'bluebird';
+import { CardClass } from '../../../interfaces/hs-types';
+import { cardDB } from '../card';
+import { CardCount } from '../../../interfaces/index';
 
 
 const deckStringVersion = 1;
@@ -31,7 +31,7 @@ const сardClassIdMapping: { [index: number]: CardClass } = {
 };
 class DeckEncoder {
     encode(deckClass: CardClass, isStandart: boolean, cards: { count: number, card: { dbfId: number } }[]) {
-        let byteArray: number[] = [];
+        const byteArray: number[] = [];
         byteArray.push(startMarker);
         byteArray.push(deckStringVersion);
         byteArray.push(isStandart ? standartDeckFlag : wildDeckFlag);
@@ -46,25 +46,25 @@ class DeckEncoder {
             }
         });
         if (!heroCode) {
-            throw new DeckEncoderError("card class is not found");
+            throw new DeckEncoderError('card class is not found');
         }
         this.writeHSValue(byteArray, heroCode);
 
 
 
         // cards
-        let singles = cards.filter(c => c.count === 1);
+        const singles = cards.filter(c => c.count === 1);
         byteArray.push(singles.length);
         singles.forEach(c => this.writeHSValue(byteArray, c.card.dbfId));
 
-        let doubles = cards.filter(c => c.count === 2);
+        const doubles = cards.filter(c => c.count === 2);
         byteArray.push(doubles.length);
         doubles.forEach(c => this.writeHSValue(byteArray, c.card.dbfId));
 
 
         byteArray.push(endMarker);
 
-        let result = Buffer.from(byteArray).toString("base64");
+        const result = Buffer.from(byteArray).toString('base64');
         return result;
     }
 
@@ -76,7 +76,7 @@ class DeckEncoder {
             return Promise.reject(e);
         }
 
-        let hash: { [index: string]: number; } =
+        const hash: { [index: string]: number; } =
             cardCodeCounts.reduce((acc, current) => (acc[current.dbfId] = current.count, acc), {});
 
         return Promise
@@ -86,8 +86,8 @@ class DeckEncoder {
     }
 
     private decodeInternal(deckCode: string) {
-        let data: HsStringUrlData = {
-            buffer: new Buffer(deckCode, "base64"),
+        const data: HsStringUrlData = {
+            buffer: new Buffer(deckCode, 'base64'),
             offset: 0
         };
 
@@ -102,31 +102,31 @@ class DeckEncoder {
         }
 
         const format = this.readUIntValue(data);
-        let isStandart = format === standartDeckFlag;
+        const isStandart = format === standartDeckFlag;
         if (!isStandart && format !== wildDeckFlag) {
             throw new DeckEncoderError(`unsupported deck format: ${format}`);
         }
 
         const cards = [];
-        let heroNumber = this.readHSValue(data);
+        const heroNumber = this.readHSValue(data);
         if (heroNumber !== 1) {
             throw new DeckEncoderError(`unsupported number of heroes: ${heroNumber}`);
         }
-        let heroCode = this.readHSValue(data);
-        let hero = сardClassIdMapping[heroCode];
+        const heroCode = this.readHSValue(data);
+        const hero = сardClassIdMapping[heroCode];
         if (!hero) {
             throw new DeckEncoderError(`unsupported heroe: ${heroCode}`);
         }
 
         const singles = this.readUIntValue(data);
         for (let i = 0; i < singles; i++) {
-            let value = this.readHSValue(data);
+            const value = this.readHSValue(data);
             cards.push({ dbfId: value, count: 1 });
         }
 
         const doubles = this.readUIntValue(data);
         for (let i = 0; i < doubles; i++) {
-            let value = this.readHSValue(data);
+            const value = this.readHSValue(data);
             cards.push({ dbfId: value, count: 2 });
         }
 
@@ -145,7 +145,7 @@ class DeckEncoder {
     private readHSValue(data: HsStringUrlData) {
         let result = 0, shift = 0;
         while (true) {
-            let val = data.buffer[data.offset++];
+            const val = data.buffer[data.offset++];
 
             // tslint:disable-next-line:no-bitwise
             result |= ((val & 0b01111111) << shift); // remove highest bit, push in front and join with prev value
@@ -164,7 +164,7 @@ class DeckEncoder {
     private writeHSValue(byteArray: number[], value: number) {
         while (true) {
             // tslint:disable-next-line:no-bitwise
-            let byte = value & 0b01111111; // cut highest bit off
+            const byte = value & 0b01111111; // cut highest bit off
             // tslint:disable-next-line:no-bitwise
             value >>= 7;
             if (!value) {

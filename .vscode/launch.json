@@ -2,6 +2,15 @@
     "version": "0.2.0",
     "configurations": [
         {
+            "name": "AttachDev",
+            "type": "node",
+            "protocol": "inspector",
+            "request": "attach",
+            "restart": true,
+            "port": 9229,
+            "sourceMaps": true,
+        },
+        {
             "type": "node",
             "request": "launch",
             "name": "nodemon",

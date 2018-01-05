@@ -1,13 +1,13 @@
-import * as Promise from "bluebird";
-import { cardDB, CardDB } from "../db/card";
-import { getContent, getJSON } from "../lib/request";
-import * as hsTypes from "../../interfaces/hs-types";
-import mongoose from "../lib/mongoose";
+import * as Promise from 'bluebird';
+import { cardDB, CardDB } from '../db/card';
+import { getContent, getJSON } from '../lib/request';
+import * as hsTypes from '../../interfaces/hs-types';
+import mongoose from '../lib/mongoose';
 
-let hearthPwnUrl = "http://www.hearthpwn.com/cards?page=@@@";
-let hearthPwnUrlExt = "http://www.hearthpwn.com/cards?display=1&filter-premium=1&page=@@@";
+const hearthPwnUrl = 'http://www.hearthpwn.com/cards?page=@@@';
+const hearthPwnUrlExt = 'http://www.hearthpwn.com/cards?display=1&filter-premium=1&page=@@@';
 
-type cardHash = {
+interface cardHash {
     [id: string]: CardDB;
 }
 
@@ -20,73 +20,73 @@ export function parseCards() {
 }
 
 function loadBasicInfo() {
-    let cnt = 40,
-        urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrl.replace("@@@", (inx + 1) + "")),
+    const cnt = 40,
+        urls = new Array(cnt).join(',').split(',').map((_, inx) => hearthPwnUrl.replace('@@@', (inx + 1) + '')),
         cards: cardHash = {};
 
     return Promise.map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 })
         .map(($: CheerioStatic) => {
-            $("table.listing.cards-visual.listing-cards>tbody tr").each((inx, el) => {
+            $('table.listing.cards-visual.listing-cards>tbody tr').each((inx, el) => {
                 let $tr = $(el),
                     card = new cardDB(),
                     token = false;
 
-                card.name = $tr.find("h3").text();
-                card.description = $tr.find(".visual-details-cell>p").text().trim();
-                card.flavorText = $tr.find(".card-flavor-listing-text").text().trim();
-                card.img = $tr.find(".visual-image-cell img").attr("src");
+                card.name = $tr.find('h3').text();
+                card.description = $tr.find('.visual-details-cell>p').text().trim();
+                card.flavorText = $tr.find('.card-flavor-listing-text').text().trim();
+                card.img = $tr.find('.visual-image-cell img').attr('src');
                 card.class = hsTypes.CardClass.neutral;
                 card.type = hsTypes.CardType.unknown;
                 card.rarity = hsTypes.CardRarity.unknown;
                 card.cardSet = hsTypes.CardSet.unknown;
                 card.race = hsTypes.CardRace.none;
-                card.url = "http://www.hearthpwn.com" + $tr.find(".visual-image-cell>a").attr("href");
+                card.url = 'http://www.hearthpwn.com' + $tr.find('.visual-image-cell>a').attr('href');
                 card.cost = 0;
                 card.mana = 0;
 
-                $tr.find(".visual-details-cell>ul>li").each((_, li) => {
-                    let $li = $(li);
+                $tr.find('.visual-details-cell>ul>li').each((_, li) => {
+                    const $li = $(li);
 
-                    if ($li.text().indexOf("Type:") !== -1) {
-                        card.type = hsTypes.CardType[$li.find("a").text().trim().toLowerCase()] || card.type;
+                    if ($li.text().indexOf('Type:') !== -1) {
+                        card.type = hsTypes.CardType[$li.find('a').text().trim().toLowerCase()] || card.type;
                         return;
                     }
 
-                    if ($li.text().indexOf("Class:") !== -1) {
-                        card.class = hsTypes.CardClass[$li.find("a").text().trim().toLowerCase()] || card.class;
+                    if ($li.text().indexOf('Class:') !== -1) {
+                        card.class = hsTypes.CardClass[$li.find('a').text().trim().toLowerCase()] || card.class;
                         return;
                     }
 
-                    if ($li.text().indexOf("Rarity:") !== -1) {
-                        card.rarity = hsTypes.CardRarity[$li.find("a").text().trim().toLowerCase()] || card.rarity;
+                    if ($li.text().indexOf('Rarity:') !== -1) {
+                        card.rarity = hsTypes.CardRarity[$li.find('a').text().trim().toLowerCase()] || card.rarity;
                         return;
                     }
 
-                    if ($li.text().indexOf("Set:") !== -1) {
-                        card.cardSet = <hsTypes.CardSet>hsTypes.hsTypeConverter.cardSet($li.find("a").text());
+                    if ($li.text().indexOf('Set:') !== -1) {
+                        card.cardSet = <hsTypes.CardSet>hsTypes.hsTypeConverter.cardSet($li.find('a').text());
                         return;
                     }
 
-                    if ($li.text().indexOf("Race:") !== -1) {
-                        card.race = hsTypes.CardRace[$li.find("a").text().trim().toLowerCase()] || card.race;
+                    if ($li.text().indexOf('Race:') !== -1) {
+                        card.race = hsTypes.CardRace[$li.find('a').text().trim().toLowerCase()] || card.race;
                         return;
                     }
 
-                    if ($li.text() === "Token") {
+                    if ($li.text() === 'Token') {
                         token = true;
                         return;
                     }
 
-                    if ($li.text().indexOf("Crafting Cost:") !== -1) {
+                    if ($li.text().indexOf('Crafting Cost:') !== -1) {
                         card.cost = +$li.text().match(/([0-9]+)/g)[0];
                         return;
                     }
                 });
 
-                if (typeof card.cost === "undefined") {
+                if (typeof card.cost === 'undefined') {
                     card.cost = hsTypes.hsTypeConverter.getCardCost(card.rarity);
-                    //2 very special cards, thanks WOG 
-                    if (card._id === "cthun" || card._id === "beckonerofevil") {
+                    // 2 very special cards, thanks WOG
+                    if (card._id === 'cthun' || card._id === 'beckonerofevil') {
                         card.cost = 0;
                     }
                 }
@@ -113,22 +113,22 @@ function loadBasicInfo() {
                 cards[card._id] = card;
             });
         })
-        .then(() => (console.log("basic card info from hearthpwn loaded"), cards));
-};
+        .then(() => (console.log('basic card info from hearthpwn loaded'), cards));
+}
 
 function getAdditionalCardInfo(cards: cardHash) {
-    let cnt = 15,
-        urls = new Array(cnt).join(",").split(",").map((_, inx) => hearthPwnUrlExt.replace("@@@", (inx + 1) + ""));
+    const cnt = 15,
+        urls = new Array(cnt).join(',').split(',').map((_, inx) => hearthPwnUrlExt.replace('@@@', (inx + 1) + ''));
 
     return Promise
         .map(urls, cardUrl => getContent(cardUrl), { concurrency: 3 })
         .map(($: CheerioStatic) => {
-            $("table.listing.listing-cards-tabular>tbody tr").each((inx, el) => {
-                let $tr = $(el),
-                    name = $tr.find(".col-name").text().trim(),
-                    mana = +$tr.find(".col-cost").text().trim() || 0,
-                    attack = +$tr.find(".col-attack").text().trim() || 0,
-                    health = +$tr.find(".col-health").text().trim() || 0,
+            $('table.listing.listing-cards-tabular>tbody tr').each((inx, el) => {
+                const $tr = $(el),
+                    name = $tr.find('.col-name').text().trim(),
+                    mana = +$tr.find('.col-cost').text().trim() || 0,
+                    attack = +$tr.find('.col-attack').text().trim() || 0,
+                    health = +$tr.find('.col-health').text().trim() || 0,
                     card = cards[cardDB.generateId(name)];
 
                 if (!card) {
@@ -146,25 +146,25 @@ function getAdditionalCardInfo(cards: cardHash) {
         })
         .all()
         .then(() => {
-            console.log("additional info collected");
+            console.log('additional info collected');
             return cards;
         });
 }
 
 function getHsDbStats(cards: cardHash) {
-    return getJSON("https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json")
+    return getJSON('https://api.hearthstonejson.com/v1/latest/enUS/cards.collectible.json')
         .then((hsJson: HSJSONCard[]) => {
-            let hash: { [index: string]: HSJSONCard } = {};
+            const hash: { [index: string]: HSJSONCard } = {};
             hsJson.forEach(cardJson => {
                 hash[cardDB.generateId(cardJson.name)] = cardJson;
             });
 
             Object.keys(cards).map(cardId => cards[cardId]).forEach(c => {
-                let cardJson = hash[c._id];
+                const cardJson = hash[c._id];
                 c.dbfId = cardJson.dbfId;
                 c.officialId = cardJson.id;
                 c.keywords = [c.name, cardJson.race, ...(cardJson.mechanics || []), cardJson.rarity, cardJson.type, c.description]
-                    .filter(keyword => !!keyword).join("$$$").toLocaleUpperCase();
+                    .filter(keyword => !!keyword).join('$$$').toLocaleUpperCase();
             });
             return cards;
         });
@@ -174,7 +174,7 @@ function saveAll(cards: cardHash) {
     return cardDB
         .insertMany(Object.keys(cards).map(key => cards[key]))
         .then(() => {
-            console.log("[done] cards saved successfully");
+            console.log('[done] cards saved successfully');
         }).catch(e => {
             console.log(e);
         });
@@ -182,23 +182,23 @@ function saveAll(cards: cardHash) {
 
 
 export interface HSJSONCard {
-    "id": string;
-    "dbfId": number;
-    "name": string;
-    "text": string;
-    "flavor": string;
-    "artist": string;
-    "attack": number;
-    "cardClass": string;
-    "collectible": boolean;
-    "cost": number;
-    "elite": boolean;
-    "faction": string;
-    "health": number;
-    "mechanics": string[];
-    "rarity": string;
-    "set": string;
-    "type": string;
+    'id': string;
+    'dbfId': number;
+    'name': string;
+    'text': string;
+    'flavor': string;
+    'artist': string;
+    'attack': number;
+    'cardClass': string;
+    'collectible': boolean;
+    'cost': number;
+    'elite': boolean;
+    'faction': string;
+    'health': number;
+    'mechanics': string[];
+    'rarity': string;
+    'set': string;
+    'type': string;
 
-    "race": string;
+    'race': string;
 }

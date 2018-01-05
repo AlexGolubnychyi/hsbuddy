@@ -31,7 +31,7 @@ export class CardHashService {
     updateAvailability(cardId: string, numberAvailable: number) {
         const card = this.cardHash[cardId];
         card.numberAvailable = numberAvailable;
-        this.cardHash[cardId] = Object.assign({}, card);
+        this.cardHash[cardId] = { ...card };
         this._lastUpdateCardId = cardId;
     }
 

@@ -5,7 +5,7 @@
   "engines": {
     "node": "9.2.0",
     "npm": "5.6.0"
-  }, 
+  },
   "scripts": {
     "ng": "ng",
     "start": "node ./dist/server/bin/index.js",
@@ -13,25 +13,20 @@
     "server-watch": "tsc -p tsconfig.server.json -w",
     "server-run": "tsc -p tsconfig.server.json & nodemon  --inspect dist/server/bin/index.js --watch dist/server",
     "server-serve": "concurrently \"npm run server-watch\" \"npm run server-run\"",
-    
     "client-serve": "ng serve --aot --proxy-config proxy.conf.json",
     "client-build-dev": "ng build",
     "client-build": "ng build --aot --prod",
-    
-    "vs-run":  "concurrently \"npm run server-serve\" \"npm run client-serve\"",
+    "init": "concurrently \"npm run server-watch\" \"npm run server-run\" \"npm run client-serve\"",
     "build": "npm run client-build & npm run server-build",
-    
     "easy-client-serve": "ng build --watch",
     "easy-serve": "concurrently \"npm run server-serve\" \"npm run easy-client-serve\"",
     "easy-run": "concurrently \"npm run server-run\" \"npm run client-build-dev\"",
-    
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e",
-
     "deploy": "git push heroku master",
     "migrate-db": "node ./dist/server/bin/migration.js",
-    "postinstall": "npm run build && npm run migrate-db" 
+    "postinstall": "npm run build && npm run migrate-db"
   },
   "private": true,
   "dependencies": {
@@ -55,18 +50,16 @@
     "bootstrap": "^3.3.7",
     "chalk": "^1.1.3",
     "cheerio": "0.22.0",
-    "compression": "1.6.2",
+    "compression": "1.7.1",
     "debug": "~2.3.0",
     "del-cli": "^0.2.0",
     "express": "~4.14.0",
     "express-jwt": "^5.1.0",
     "jsonwebtoken": "^7.1.9",
-    "less-middleware": "^2.2.0",
-    "mongodb": "^2.2.16",
+    "mongodb": "3.0.1",
     "mongoose": "4.6.6",
     "morgan": "~1.7.0",
     "ngx-bootstrap": "2.0.0-rc.0",
-    "pug": "2.0.0-beta11",
     "request": "2.83.0",
     "valid-url": "^1.0.9"
   },

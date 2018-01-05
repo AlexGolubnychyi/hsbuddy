@@ -1,14 +1,14 @@
-"use strict";
+'use strict';
 
-import * as crypto from "crypto";
-import { AuthError } from "../error";
-import mongoose from "../lib/mongoose";
-import Deck, { DeckDB, deckSchemaName } from "./deck";
-import { CardDB } from "./card";
-import * as contracts from "../../interfaces";
-import * as Promise from "bluebird";
+import * as crypto from 'crypto';
+import { AuthError } from '../error';
+import mongoose from '../lib/mongoose';
+import Deck, { DeckDB, deckSchemaName } from './deck';
+import { CardDB } from './card';
+import * as contracts from '../../interfaces';
+import * as Promise from 'bluebird';
 
-const salt = "everything is better with salt";
+const salt = 'everything is better with salt';
 
 const userSchema = new mongoose.Schema({
     _id: String,
@@ -19,48 +19,48 @@ const userSchema = new mongoose.Schema({
 });
 
 
-let userActivityCache: { [userId: string]: boolean } = {};
+const userActivityCache: { [userId: string]: boolean } = {};
 
-userSchema.static("encrypt", (password: string) => crypto.createHmac("sha1", salt).update(password).digest("hex"));
+userSchema.static('encrypt', (password: string) => crypto.createHmac('sha1', salt).update(password).digest('hex'));
 
-userSchema.static("auth", function (userId: string, password: string) {
+userSchema.static('auth', function (userId: string, password: string) {
     userId = userId && userId.toLowerCase().trim();
-    let model = (this as mongoose.Model<UserDB> & UserStatics);
+    const model = (this as mongoose.Model<UserDB> & UserStatics);
     return model
         .findById(userId).exec()
         .then(user => {
             if (!user || model.encrypt(password) !== user.passwordHash) {
-                return <any>Promise.reject(new AuthError("invalid username or password"));
+                return <any>Promise.reject(new AuthError('invalid username or password'));
             }
             user.latestActivityDate = new Date();
             return user.save();
         });
 });
 
-userSchema.static("loadUser", function (userId: string) {
-    let model = (this as mongoose.Model<UserDB> & UserStatics);
+userSchema.static('loadUser', function (userId: string) {
+    const model = (this as mongoose.Model<UserDB> & UserStatics);
     return model.findById(userId).then(user => {
         if (userActivityCache[userId] || !user) {
             return user;
         }
-        //dates will keep updating cause heroku restarts server all the time
+        // dates will keep updating cause heroku restarts server all the time
         user.latestActivityDate = new Date();
         userActivityCache[userId] = true;
         return user.save();
     });
 });
 
-userSchema.static("createUser", function (userId: string, password: string) {
-    let model = (this as mongoose.Model<UserDB> & UserStatics);
+userSchema.static('createUser', function (userId: string, password: string) {
+    const model = (this as mongoose.Model<UserDB> & UserStatics);
     userId = userId && userId.toLowerCase().trim();
     password = password && password.trim();
     if (!userId || !password) {
-        return Promise.reject(new AuthError("Cannot create user: name/password cannot be empty"));
+        return Promise.reject(new AuthError('Cannot create user: name/password cannot be empty'));
     }
 
     return model.findById(userId).exec().then(user => {
         if (user) {
-            return <any>Promise.reject(new AuthError("Cannot create user: user already exists"));
+            return <any>Promise.reject(new AuthError('Cannot create user: user already exists'));
         }
 
         user = new model();
@@ -71,8 +71,8 @@ userSchema.static("createUser", function (userId: string, password: string) {
     });
 });
 
-userSchema.static("getUserDeckIds", function (userId: string) {
-    let model = (this as mongoose.Model<UserDB> & UserStatics),
+userSchema.static('getUserDeckIds', function (userId: string) {
+    const model = (this as mongoose.Model<UserDB> & UserStatics),
         usersDecks: UserDecks = {
             favorites: [],
             ignored: []
@@ -91,8 +91,8 @@ userSchema.static("getUserDeckIds", function (userId: string) {
     });
 });
 
-userSchema.static("setUserDeck", function (userId: string, deckId: string, set: boolean) {
-    let model = (this as mongoose.Model<UserDB> & UserStatics),
+userSchema.static('setUserDeck', function (userId: string, deckId: string, set: boolean) {
+    const model = (this as mongoose.Model<UserDB> & UserStatics),
         result: contracts.CollectionChangeStatus = {
             collection: set,
             success: true,
@@ -100,7 +100,7 @@ userSchema.static("setUserDeck", function (userId: string, deckId: string, set: 
         };
 
     return model.findById(userId).exec().then(user => {
-        let decks = user.decks as string[],
+        const decks = user.decks as string[],
             index = decks.indexOf(deckId);
 
         if (set) {
@@ -122,15 +122,15 @@ userSchema.static("setUserDeck", function (userId: string, deckId: string, set: 
         });
     });
 });
-userSchema.static("setIgnoredDeck", function (userId: string, deckId: string, set: boolean) {
-    let model = (this as mongoose.Model<UserDB> & UserStatics),
+userSchema.static('setIgnoredDeck', function (userId: string, deckId: string, set: boolean) {
+    const model = (this as mongoose.Model<UserDB> & UserStatics),
         result: contracts.IgnoredChangeStatus = {
             ignored: set,
             success: true
         };
 
     return model.findById(userId).exec().then(user => {
-        let decks = user.ignoredDecks as string[],
+        const decks = user.ignoredDecks as string[],
             index = decks.indexOf(deckId);
 
         if (set) {
@@ -174,5 +174,5 @@ interface UserStatics {
     setIgnoredDeck: (userId: string, deckId: string, set: boolean) => Promise<contracts.IgnoredChangeStatus>;
     loadUser: (userId: string) => Promise<UserDB>;
 }
-export const userSchemaName = "User";
+export const userSchemaName = 'User';
 export default mongoose.model<UserDB>(userSchemaName, userSchema) as mongoose.Model<UserDB> & UserStatics;

@@ -1,14 +1,14 @@
-export enum CardRarity { unknown, free, common, rare, epic, legendary };
-export enum CardClass { unknown, neutral, druid, hunter, mage, paladin, priest, rogue, shaman, warlock, warrior };
-export enum CardType { unknown, weapon, ability, minion, hero };
+export enum CardRarity { unknown, free, common, rare, epic, legendary }
+export enum CardClass { unknown, neutral, druid, hunter, mage, paladin, priest, rogue, shaman, warlock, warrior }
+export enum CardType { unknown, weapon, ability, minion, hero }
 export enum CardSet {
     unknown = 0, Basic, Expert, BlackrockMountain, TheGrandTournament,
     LeagueOfExplorers, WhispersoftheOldGods, Naxxramas, GoblinsvsGnomes, Reward, OneNightInKarazhan, MeanStreetsOfGadgetzan,
     JourneyToUnGoro, KnightsOfTheFrozenThrone, KoboldsAndCatacombs
-};
-export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, totem, elemental };
+}
+export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, totem, elemental }
 
-export var standardCardSets = [
+export const standardCardSets = [
     CardSet.Basic,
     CardSet.Expert,
     CardSet.WhispersoftheOldGods,
@@ -19,7 +19,7 @@ export var standardCardSets = [
     CardSet.KoboldsAndCatacombs
 ];
 
-export var wildCardSets = [
+export const wildCardSets = [
     CardSet.Basic,
     CardSet.GoblinsvsGnomes,
     CardSet.Naxxramas,
@@ -36,18 +36,18 @@ export var wildCardSets = [
     CardSet.Reward
 ];
 
-export var dust = "dust";
+export const dust = 'dust';
 export const latestSet = CardSet.KoboldsAndCatacombs;
 
 const rarityMapping = [-1, 0, 40, 100, 400, 1600],
-    cardSetMapping = ["-", "Basic", "Expert", "Blackrock Mountain", "The Grand Tournament", "League of Explorers",
-        "Whispers of the Old Gods", "Curse of Naxxramas", "Goblins vs Gnomes", "Reward", "One Night in Karazhan", "Mean Streets of Gadgetzan",
-        "Journey to Un'Goro", "Knights of the Frozen Throne", "Kobolds and Catacombs"
+    cardSetMapping = ['-', 'Basic', 'Expert', 'Blackrock Mountain', 'The Grand Tournament', 'League of Explorers',
+        'Whispers of the Old Gods', 'Curse of Naxxramas', 'Goblins vs Gnomes', 'Reward', 'One Night in Karazhan', 'Mean Streets of Gadgetzan',
+        'Journey to Un\'Goro', 'Knights of the Frozen Throne', 'Kobolds and Catacombs'
     ];
 
 class HsTypeConverter {
     getEnumLabel(enumerable: { [index: number]: string }, key: number) {
-        return key === 0 ? "-" : enumerable[key];
+        return key === 0 ? '-' : enumerable[key];
     }
 
     getCardCost(rarity: CardRarity) {
@@ -55,7 +55,7 @@ class HsTypeConverter {
     }
 
     cardSet(set: number | string): CardSet | string {
-        if (typeof set === "string") {
+        if (typeof set === 'string') {
             let inx = cardSetMapping.indexOf(set.trim());
             if (inx < 0) {
                 inx = 0;
@@ -73,4 +73,4 @@ class HsTypeConverter {
 
 }
 
-export var hsTypeConverter = new HsTypeConverter();
+export let hsTypeConverter = new HsTypeConverter();

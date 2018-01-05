@@ -1,11 +1,11 @@
-import * as errors from "../error";
-import {Request, Response, NextFunction}  from "express";
+import * as errors from '../error';
+import {Request, Response, NextFunction} from 'express';
 
 export function url(req: Request & {user?: any}, res: Response, next: NextFunction) {
     if (req.user) {
         return next();
     }
-    res.redirect("/login");
+    res.redirect('/login');
 }
 
 export  function api(req: Request & {user?: any}, res: Response, next: NextFunction) {

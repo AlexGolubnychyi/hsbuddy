@@ -1,4 +1,4 @@
-import mongoose from "../lib/mongoose";
+import mongoose from '../lib/mongoose';
 
 
 const versionSchema = new mongoose.Schema({
@@ -6,14 +6,14 @@ const versionSchema = new mongoose.Schema({
     date: Date
 });
 
-versionSchema.static("getVersion", function(){
-    let model = this as mongoose.Model<VersionDB>;
+versionSchema.static('getVersion', function(){
+    const model = this as mongoose.Model<VersionDB>;
     return model.findOne().exec().then(version => {
         return (version && version.num) || 0;
     });
 });
-versionSchema.static("setVersion", function(num: number) {
-    let model = this as mongoose.Model<VersionDB>;
+versionSchema.static('setVersion', function(num: number) {
+    const model = this as mongoose.Model<VersionDB>;
    return  model.findOne().exec().then(version => {
         version = version || new model();
         version.date = new Date();
@@ -25,7 +25,7 @@ versionSchema.static("setVersion", function(num: number) {
 export interface VersionDB extends mongoose.Document {
     num: number;
     date: Date;
-};
+}
 
 interface VersionStatics {
     getVersion: () => Promise<number>;
@@ -33,4 +33,4 @@ interface VersionStatics {
 }
 
 
-export default mongoose.model<VersionDB>("Version", versionSchema) as mongoose.Model<VersionDB> & VersionStatics;
+export default mongoose.model<VersionDB>('Version', versionSchema) as mongoose.Model<VersionDB> & VersionStatics;

@@ -1,9 +1,9 @@
-import mongoose from "../lib/mongoose";
-import * as hstypes from "../../interfaces/hs-types";
-import { CardCount } from "../../interfaces";
-import * as Promise from "bluebird";
-import { cardDB, CardDB, cardSchemaName } from "./card";
-import { userSchemaName } from "./user";
+import mongoose from '../lib/mongoose';
+import * as hstypes from '../../interfaces/hs-types';
+import { CardCount } from '../../interfaces';
+import * as Promise from 'bluebird';
+import { cardDB, CardDB, cardSchemaName } from './card';
+import { userSchemaName } from './user';
 
 const userCardSchema = new mongoose.Schema({
     userId: { type: String, index: true, ref: userSchemaName },
@@ -11,8 +11,8 @@ const userCardSchema = new mongoose.Schema({
     count: Number
 });
 
-userCardSchema.static("getByUserId", function (userId: string) {
-    let info: { [cardId: string]: number } = {};
+userCardSchema.static('getByUserId', function (userId: string) {
+    const info: { [cardId: string]: number } = {};
     return (this as mongoose.Model<UserCardDB>)
         .find({ userId }).exec()
         .then(userCards => {
@@ -21,13 +21,13 @@ userCardSchema.static("getByUserId", function (userId: string) {
         });
 });
 
-userCardSchema.static("setWithChecks", function (userId: string, cardId: string, count: number) {
-    let model = (this as mongoose.Model<UserCardDB>),
-        card: CardDB;
+userCardSchema.static('setWithChecks', function (userId: string, cardId: string, count: number) {
+    const model = (this as mongoose.Model<UserCardDB>);
+    let card: CardDB;
 
     return cardDB.findById(cardId).exec()
         .then(c => card = c)
-        .then(() => model.findOne({ "$and": [{ userId }, { cardId }] }).exec())
+        .then(() => model.findOne({ '$and': [{ userId }, { cardId }] }).exec())
         .then(userCard => {
             count = Math.min(count, card.rarity === hstypes.CardRarity.legendary ? 1 : 2);
 
@@ -42,27 +42,27 @@ userCardSchema.static("setWithChecks", function (userId: string, cardId: string,
         });
 });
 
-userCardSchema.static("import", function (userId: string, cardCounts: CardCount<string>[]) {
-    let model = (this as mongoose.Model<UserCardDB>),
-        cardHash: { [index: string]: CardDB } = {};
+userCardSchema.static('import', function (userId: string, cardCounts: CardCount<string>[]) {
+    const model = (this as mongoose.Model<UserCardDB>);
+    let cardHash: { [index: string]: CardDB } = {};
 
     return cardDB.find().exec()
         .then(cards => {
             cardHash = cards.reduce((acc, card) => { acc[card.id] = card; return acc; }, {} as { [index: string]: CardDB });
-            let cardsNotFound = cardCounts.filter(cc => !cardHash[cc.card]);
+            const cardsNotFound = cardCounts.filter(cc => !cardHash[cc.card]);
             if (cardsNotFound.length) {
-                return Promise.reject(`collection malformed. Some cards do not exist: ${cardsNotFound.map(cc => cc.card).join(", ")}`);
+                return Promise.reject(`collection malformed. Some cards do not exist: ${cardsNotFound.map(cc => cc.card).join(', ')}`);
             }
         })
-        .then(() => model.remove({ "userId": userId })) //remove all old entries 
+        .then(() => model.remove({ 'userId': userId })) // remove all old entries
         .then(() => {
-            let userCards = cardCounts.map(cc => {
-                let userCard = new model(),
+            const userCards = cardCounts.map(cc => {
+                const userCard = new model(),
                     card = cardHash[cc.card];
 
                 userCard.userId = userId;
                 userCard.cardId = cc.card;
-                userCard.count = Math.min(cc.count, card.rarity === hstypes.CardRarity.legendary ? 1 : 2); //remove duplicates
+                userCard.count = Math.min(cc.count, card.rarity === hstypes.CardRarity.legendary ? 1 : 2); // remove duplicates
                 return userCard;
             });
 
@@ -75,7 +75,7 @@ export interface UserCardDB extends mongoose.Document {
     userId: string;
     cardId: string;
     count: number;
-};
+}
 
 interface UserCardStatics {
     getByUserId: (userId: string) => Promise<{ [cardId: string]: number }>;
@@ -83,6 +83,6 @@ interface UserCardStatics {
     import: (userId: string, cardCounts: CardCount<string>[]) => Promise<void>;
 }
 
-export default mongoose.model<UserCardDB>("UserCard", userCardSchema) as mongoose.Model<UserCardDB> & UserCardStatics;
+export default mongoose.model<UserCardDB>('UserCard', userCardSchema) as mongoose.Model<UserCardDB> & UserCardStatics;
 
 

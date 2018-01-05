@@ -1,9 +1,9 @@
-import mongoose from "../lib/mongoose";
-import * as hstypes from "../../interfaces/hs-types";
-import UserCard from "./userCard";
-import * as contracts from "../../interfaces/";
-import * as Promise from "bluebird";
-import mapper from "./utils/mapper";
+import mongoose from '../lib/mongoose';
+import * as hstypes from '../../interfaces/hs-types';
+import UserCard from './userCard';
+import * as contracts from '../../interfaces/';
+import * as Promise from 'bluebird';
+import mapper from './utils/mapper';
 
 const cardSchema = new mongoose.Schema({
     _id: String,
@@ -26,32 +26,32 @@ const cardSchema = new mongoose.Schema({
     keywords: { type: String, index: true }
 });
 
-cardSchema.static("generateId", (name: string) => {
-    return name.toLowerCase().replace(/[ |,|`|.|'|’|:|"]*/g, "");
+cardSchema.static('generateId', (name: string) => {
+    return name.toLowerCase().replace(/[ |,|`|.|'|’|:|"]*/g, '');
 });
 
-cardSchema.static("getCardLibraryInfo", function (userId: string, standart: boolean): Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>> {
+cardSchema.static('getCardLibraryInfo', function (userId: string, standart: boolean): Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>> {
 
-    let model = this as mongoose.Model<CardDB>,
-        userCards: { [cardId: string]: number },
+    const model = this as mongoose.Model<CardDB>,
         cardHash: contracts.CardHash = {},
         result: contracts.CardLibraryInfo<string> = {
             groups: <any>[],
             stats: {}
         };
+    let userCards: { [cardId: string]: number };
 
     return UserCard.getByUserId(userId)
         .then(uc => userCards = uc)
-        .then(() => model.find({ "cardSet": { "$in": standart ? hstypes.standardCardSets : hstypes.wildCardSets } }).exec())
+        .then(() => model.find({ 'cardSet': { '$in': standart ? hstypes.standardCardSets : hstypes.wildCardSets } }).exec())
         .then(cards => {
             cards.map(card => {
-                let numberAvailable = userCards[card._id],
+                const numberAvailable = userCards[card._id],
                     count = card.rarity === hstypes.CardRarity.legendary ? 1 : 2,
                     cardInfo = mapper.cardToContract({ card, count }, numberAvailable, cardHash),
                     maxAvailNumber = Math.min(cardInfo.cardContract.numberAvailable, count);
 
-                //stats
-                let type = result.stats[hstypes.CardType[card.type]] = result.stats[hstypes.CardType[card.type]] || [0, 0],
+                // stats
+                const type = result.stats[hstypes.CardType[card.type]] = result.stats[hstypes.CardType[card.type]] || [0, 0],
                     rarity = result.stats[hstypes.CardRarity[card.rarity]] = result.stats[hstypes.CardRarity[card.rarity]] || [0, 0],
                     cardClass = result.stats[hstypes.CardClass[card.class]] = result.stats[hstypes.CardClass[card.class]] || [0, 0],
                     cardSet = result.stats[hstypes.CardSet[card.cardSet]] = result.stats[hstypes.CardSet[card.cardSet]] || [0, 0],
@@ -78,8 +78,8 @@ cardSchema.static("getCardLibraryInfo", function (userId: string, standart: bool
                 group.cards.push(cardInfo.cardCount);
             });
 
-            //sort
-            //result.groups.forEach(g => g.cards = g.cards.sort(sortCards));
+            // sort
+            // result.groups.forEach(g => g.cards = g.cards.sort(sortCards));
             result.groups = result.groups.sort((f, s) => {
                 return weightClass(f.class) - weightClass(s.class);
             });
@@ -119,12 +119,12 @@ export interface CardDB extends mongoose.Document {
     attack?: number;
     health?: number;
     keywords: string;
-};
+}
 
 interface CardStatics {
     generateId: (name: string) => string;
     getCardLibraryInfo: (userId: string, standart: boolean) => Promise<contracts.DeckResult<contracts.CardLibraryInfo<string>>>;
 }
 
-export const cardSchemaName = "Card";
+export const cardSchemaName = 'Card';
 export const cardDB = mongoose.model<CardDB>(cardSchemaName, cardSchema) as mongoose.Model<CardDB> & CardStatics;

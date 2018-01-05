@@ -1,4 +1,4 @@
-import { CardCount, Diff } from "../../../interfaces/";
+import { CardCount, Diff } from '../../../interfaces/';
 
 type CardCountMin = CardCount<string>;
 
@@ -15,7 +15,7 @@ class Differ {
             refCards.forEach(cardCount => refCardHash[cardCount.card] = cardCount.count);
         }
 
-        let otherCardHash: { [index: string]: number } = {},
+        const otherCardHash: { [index: string]: number } = {},
             diff: Diff<string> = {
                 diff: 0,
                 cardAddition: [],
@@ -24,7 +24,7 @@ class Differ {
 
         otherCards.forEach(cardCount => {
             otherCardHash[cardCount.card] = cardCount.count;
-            let numDiff = cardCount.count - (refCardHash[cardCount.card] || 0);
+            const numDiff = cardCount.count - (refCardHash[cardCount.card] || 0);
             if (!numDiff) {
                 return;
             }
@@ -43,7 +43,7 @@ class Differ {
     }
 
     reverse<T extends CardCountMin>(refCards: T[], cardAddition: T[], cardRemoval: T[]) {
-        let cardHash: { [index: string]: number } = {};
+        const cardHash: { [index: string]: number } = {};
         if (cardAddition == null && cardRemoval == null) {
             return refCards;
         }
