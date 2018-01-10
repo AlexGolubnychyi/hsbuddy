@@ -9,24 +9,23 @@
   "scripts": {
     "ng": "ng",
     "start": "node ./dist/server/bin/index.js",
-    "server-build": "tsc -p tsconfig.server.json",
+    "init": "concurrently \"npm run server-watch\" \"npm run server-run\" \"npm run client-serve\"",
+    "postinstall": "npm run build && npm run migrate-db",
+    "deploy": "git push heroku master",
+
     "server-watch": "tsc -p tsconfig.server.json -w",
     "server-run": "tsc -p tsconfig.server.json & nodemon  --inspect dist/server/bin/index.js --watch dist/server",
     "server-serve": "concurrently \"npm run server-watch\" \"npm run server-run\"",
     "client-serve": "ng serve --aot --proxy-config proxy.conf.json",
-    "client-build-dev": "ng build",
-    "client-build": "ng build --aot --prod",
-    "init": "concurrently \"npm run server-watch\" \"npm run server-run\" \"npm run client-serve\"",
+    
     "build": "npm run client-build & npm run server-build",
-    "easy-client-serve": "ng build --watch",
-    "easy-serve": "concurrently \"npm run server-serve\" \"npm run easy-client-serve\"",
-    "easy-run": "concurrently \"npm run server-run\" \"npm run client-build-dev\"",
+    "client-build": "ng build --aot --prod",
+    "server-build": "tsc -p tsconfig.server.json",
+    "migrate-db": "node ./dist/server/bin/migration.js",
+   
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e",
-    "deploy": "git push heroku master",
-    "migrate-db": "node ./dist/server/bin/migration.js",
-    "postinstall": "npm run build && npm run migrate-db"
+    "e2e": "ng e2e"
   },
   "private": true,
   "dependencies": {

@@ -5,58 +5,113 @@
     ],
     "tasks": [
         {
-            "label": "init",
+            "label": "init-all",
             "group": {
                 "kind": "build",
                 "isDefault": true
             },
+            "dependsOn": [
+                "run-mongo",
+                "init-server",
+                "init-client"
+            ],
+            "presentation": {
+                "reveal": "never",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "init-client",
+            "group": "build",
             "type": "npm",
-            "script": "init",
+            "script": "client-serve",
             "isBackground": true,
             "presentation": {
                 "reveal": "always",
                 "panel": "new"
             },
-            "problemMatcher": {
-                "owner": "typescript",
-                "fileLocation": "relative",
-                "pattern": {
-                    "regexp": "^\\[0\\]\\s*([^\\s].*)\\((\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
-                    "file": 1,
-                    "location": 2,
-                    "severity": 3,
-                    "code": 4,
-                    "message": 5
-                },
-                "background": {
-                    "activeOnStart": true,
-                    "beginsPattern": "^\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}(?: AM| PM)? - File change detected\\. Starting incremental compilation\\.\\.\\.",
-                    "endsPattern": "^\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}(?: AM| PM)? - Compilation complete\\. Watching for file changes\\."
-                }
-            }
+            "problemMatcher": []
         },
         {
+            "label": "init-server",
+            "dependsOn": [
+                "server-watch",
+                "server-run"
+            ],
+            "presentation": {
+                "reveal": "never",
+                "panel": "new"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "server-watch",
+            "group": "build",
             "type": "npm",
-            "script": "server-build",
+            "script": "server-watch",
+            "isBackground": true,
+            "presentation": {
+                "reveal": "silent",
+                "panel": "new"
+            },
             "problemMatcher": [
-                "$tsc"
+                "$tsc-watch"
             ]
         },
         {
+            "label": "server-run",
+            "group": "build",
             "type": "npm",
             "script": "server-run",
-            "problemMatcher": [
-                "$tsc-watch"
-            ],
-            "isBackground": true
+            "isBackground": true,
+            "presentation": {
+                "reveal": "silent",
+                "panel": "new"
+            },
+            "problemMatcher": []
         },
         {
-            "type": "npm",
-            "script": "server-serve",
-            "problemMatcher": [
-                "$tsc-watch"
-            ],
-            "isBackground": true
-        }
+            "label": "run-mongo",
+            "group": "build",
+            "type": "shell",
+            "windows": {
+                "command": ".\\runmongo.bat"
+            },
+            "isBackground": true,
+            "presentation": {
+                "reveal": "silent",
+                "panel": "shared"
+            }
+        }//,
+        // {
+        //     "label": "Bootstrap",
+        //     "type": "shell",
+        //     "windows": {
+        //         "command": ".\\bootstrap.cmd"
+        //     },
+        //     "group": "build",
+        //     "presentation": {
+        //         "reveal": "always",
+        //         "panel": "new"
+        //     },
+        //     "problemMatcher": {
+        //         "owner": "typescript",
+        //         "fileLocation": "relative",
+        //         "pattern": {
+        //             "regexp": "^\\[0\\]\\s*([^\\s].*)\\((\\d+,\\d+|\\d+,\\d+,\\d+,\\d+)\\):\\s+(error|warning|info)\\s+(TS\\d+)\\s*:\\s*(.*)$",
+        //             "file": 1,
+        //             "location": 2,
+        //             "severity": 3,
+        //             "code": 4,
+        //             "message": 5
+        //         },
+        //         "background": {
+        //             "activeOnStart": true,
+        //             "beginsPattern": "^\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}(?: AM| PM)? - File change detected\\. Starting incremental compilation\\.\\.\\.",
+        //             "endsPattern": "^\\s*\\d{1,2}:\\d{1,2}:\\d{1,2}(?: AM| PM)? - Compilation complete\\. Watching for file changes\\."
+        //         }
+        //     }
+        // },
     ]
 }
