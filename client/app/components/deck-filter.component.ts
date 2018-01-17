@@ -27,9 +27,9 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
     readonly emptyValues: DeckQuery = {
         deckClass: CardClass.unknown,
         dustNeeded: undefined,
-        orderBy: OrderBy.dust,
+        orderBy: OrderBy.date,
         userCollection: false,
-        latestSet: false,
+        latestSet: true,
         showIgnored: false,
         deckName: undefined,
         cardName: undefined
