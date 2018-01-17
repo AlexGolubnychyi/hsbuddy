@@ -95,15 +95,17 @@ export interface CardHash {
 
 export interface CardMissing<T extends string | Card> {
     cardCount: CardCount<T>;
-    decks: [{
-        id: string;
-        name: string;
-        count: number;
-        url: string;
-        cost: number;
-        dustNeeded: number;
-        className: string;
-    }];
+    decks: MissingDeck[];
+}
+
+export interface MissingDeck {
+    id: string;
+    name: string;
+    count: number;
+    url: string;
+    cost: number;
+    dustNeeded: number;
+    className: string;
 }
 
 export interface DeckQuery {

@@ -13,8 +13,8 @@
         <div class="col-md-7 col-lg-9">
             <p>Decks: </p>
             <div *ngFor="let deck of missingCard.decks">
-                (<i>{{deck.className}}</i>, dust:{{deck.dustNeeded}}) {{deck.count}}: <a routerLink="/deck/{{deck.id}}">{{deck.name}}</a>
-                <span>(full cost: {{deck.cost}})</span>
+                <i> {{deck.cost - deck.dustNeeded}} / {{deck.cost}}</i>
+                <a routerLink="/deck/{{deck.id}}">{{deck.name}}</a>, {{deck.count}}
             </div>
         </div>
     </div>
