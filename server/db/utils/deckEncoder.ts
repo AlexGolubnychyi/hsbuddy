@@ -80,9 +80,13 @@ class DeckEncoder {
             cardCodeCounts.reduce((acc, current) => (acc[current.dbfId] = current.count, acc), {});
 
         return Promise
-            .all(cardCodeCounts.map(c => cardDB.findOne({ dbfId: c.dbfId })))
-            .then(cards => cards.map(c => ({ card: c.id, count: hash[c.dbfId] })));
-
+            .all(cardCodeCounts.map(c => cardDB.findOne({ dbfId: c.dbfId }).then(cardDb => ({ dbfId: c.dbfId, card: cardDb }))))
+            .then(entries => entries.map(entry => {
+                if (!entry.card) {
+                    throw new DeckEncoderError(`DbfId = ${entry.dbfId} not found`);
+                }
+                return { card: entry.card.id, count: hash[entry.dbfId] };
+            }));
     }
 
     private decodeInternal(deckCode: string) {
