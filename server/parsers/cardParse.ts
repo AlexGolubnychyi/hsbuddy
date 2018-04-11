@@ -4,8 +4,8 @@ import { getContent, getJSON } from '../lib/request';
 import * as hsTypes from '../../interfaces/hs-types';
 import mongoose from '../lib/mongoose';
 
-const hearthPwnUrl = 'http://www.hearthpwn.com/cards?page=@@@';
-const hearthPwnUrlExt = 'http://www.hearthpwn.com/cards?display=1&filter-premium=1&page=@@@';
+const hearthPwnUrl = 'http://www.hearthpwn.com/cards?filter-unreleased=1&page=@@@';
+const hearthPwnUrlExt = 'http://www.hearthpwn.com/cards?display=1&filter-premium=1&filter-unreleased=1&page=@@@';
 
 interface cardHash {
     [id: string]: CardDB;

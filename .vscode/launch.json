@@ -72,7 +72,7 @@
             "name": "migration",
             "type": "node",
             "request": "launch",
-            "program": "${workspaceRoot}/server/bin/migration.js",
+            "program": "${workspaceRoot}/dist/server/bin/migration.js",
             "stopOnEntry": false,
             "args": [],
             "cwd": "${workspaceRoot}",
