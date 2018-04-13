@@ -36,7 +36,8 @@ const updates: (() => Promise<void>)[] = [
     updateToVersion21,
     updateToVersion22,
     updateToVersion23,
-    updateToVersion24
+    updateToVersion24,
+    updateToVersion25,
 ];
 
 (function checkForUpdates() {
@@ -474,6 +475,15 @@ function updateToVersion24() {
     const version = 24;
 
     console.log(`apply ver${version}, repopulate cards to include Witchwood`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
+}
+
+function updateToVersion25() {
+    const version = 25;
+
+    console.log(`apply ver${version}, redo repopulate cards to include Witchwood`);
     return cardDB.remove({}).exec()
         .then(() => parser.populateWithCards())
         .then(() => console.log(`apply ver${version}`));

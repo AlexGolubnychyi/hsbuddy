@@ -39,7 +39,7 @@ export const dust = 'dust';
 export const latestSet = CardSet.KoboldsAndCatacombs;
 
 const rarityMapping = [-1, 0, 40, 100, 400, 1600],
-    cardSetMapping = ['-', 'Basic', 'Expert', 'Blackrock Mountain', 'The Grand Tournament', 'League of Explorers',
+    cardSetMapping = ['-', 'Basic', 'Classic', 'Blackrock Mountain', 'The Grand Tournament', 'League of Explorers',
         'Whispers of the Old Gods', 'Curse of Naxxramas', 'Goblins vs Gnomes', 'Reward', 'One Night in Karazhan', 'Mean Streets of Gadgetzan',
         'Journey to Un\'Goro', 'Knights of the Frozen Throne', 'Kobolds and Catacombs', 'The Witchwood'
     ];
