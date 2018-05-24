@@ -36,7 +36,7 @@ export const wildCardSets = [
 ];
 
 export const dust = 'dust';
-export const latestSet = CardSet.KoboldsAndCatacombs;
+export const latestSet = CardSet.TheWitchwood;
 
 const rarityMapping = [-1, 0, 40, 100, 400, 1600],
     cardSetMapping = ['-', 'Basic', 'Classic', 'Blackrock Mountain', 'The Grand Tournament', 'League of Explorers',
