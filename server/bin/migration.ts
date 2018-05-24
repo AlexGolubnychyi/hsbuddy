@@ -1,14 +1,13 @@
-import mongoose from '../lib/mongoose';
-import { cardDB, CardDB } from '../db/card';
-import Deck, { DeckDB, DeckRevisionDB } from '../db/deck';
-import * as hstypes from '../../interfaces/hs-types';
-import * as contracts from '../../interfaces';
-import versionDb from '../db/version';
-import parser from '../parsers';
 import * as Promise from 'bluebird';
-import { getJSON } from '../lib/request';
+import * as contracts from '../../interfaces';
+import * as hstypes from '../../interfaces/hs-types';
+import { CardDB, cardDB } from '../db/card';
+import Deck, { DeckDB, DeckRevisionDB } from '../db/deck';
 import { deckEncoder } from '../db/utils/deckEncoder';
 import { deckDiffer } from '../db/utils/differ';
+import versionDb from '../db/version';
+import { getJSON } from '../lib/request';
+import parser from '../parsers';
 import { HSJSONCard } from '../parsers/cardParse';
 
 
@@ -38,7 +37,8 @@ const updates: (() => Promise<void>)[] = [
     updateToVersion23,
     updateToVersion24,
     updateToVersion25,
-    updateToVersion26
+    updateToVersion26,
+    updateToVersion27
 ];
 
 (function checkForUpdates() {
@@ -516,4 +516,13 @@ function updateToVersion26() {
         })
         .map((deck: DeckDB<CardDB>) => deck.save())
         .then(() => console.log(`ver${version} appplied successfully`));
+}
+
+function updateToVersion27() {
+    const version = 27;
+
+    console.log(`apply ver${version}, repopulate cards to apply nerfs`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
 }

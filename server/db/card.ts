@@ -1,8 +1,8 @@
-import mongoose from '../lib/mongoose';
-import * as hstypes from '../../interfaces/hs-types';
-import UserCard from './userCard';
-import * as contracts from '../../interfaces/';
 import * as Promise from 'bluebird';
+import * as contracts from '../../interfaces/';
+import * as hstypes from '../../interfaces/hs-types';
+import mongoose from '../lib/mongoose';
+import UserCard from './userCard';
 import mapper from './utils/mapper';
 
 const cardSchema = new mongoose.Schema({
@@ -55,14 +55,19 @@ cardSchema.static('getCardLibraryInfo', function (userId: string, standart: bool
                     rarity = result.stats[hstypes.CardRarity[card.rarity]] = result.stats[hstypes.CardRarity[card.rarity]] || [0, 0],
                     cardClass = result.stats[hstypes.CardClass[card.class]] = result.stats[hstypes.CardClass[card.class]] || [0, 0],
                     cardSet = result.stats[hstypes.CardSet[card.cardSet]] = result.stats[hstypes.CardSet[card.cardSet]] || [0, 0],
-                    dust = result.stats[hstypes.dust] = result.stats[hstypes.dust] || [0, 0];
+                    dust = result.stats[hstypes.dust] = result.stats[hstypes.dust] || [0, 0],
+                    cardSetDust = result.stats[hstypes.CardSet[card.cardSet] + hstypes.dust] = result.stats[hstypes.CardSet[card.cardSet] + hstypes.dust] || [0, 0],
+                    cardClassDust = result.stats[hstypes.CardClass[card.class] + hstypes.dust] = result.stats[hstypes.CardClass[card.class] + hstypes.dust] || [0, 0];
 
                 [type, rarity, cardClass, cardSet].forEach(stat => {
                     stat[0] += maxAvailNumber;
                     stat[1] += count;
                 });
-                dust[0] += maxAvailNumber * card.cost;
-                dust[1] += count * card.cost;
+
+                [dust, cardClassDust, cardSetDust].forEach(stat => {
+                    stat[0] += maxAvailNumber * card.cost || maxAvailNumber;
+                    stat[1] += count * card.cost || count;
+                });
 
                 return cardInfo;
             }).forEach(cardInfo => {

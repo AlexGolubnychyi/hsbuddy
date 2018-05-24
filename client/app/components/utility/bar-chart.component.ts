@@ -1,5 +1,5 @@
-import { Component, ChangeDetectionStrategy, Input, OnChanges,  SimpleChanges } from '@angular/core';
-import {trigger, transition, state, style, animate} from '@angular/animations';
+import { animate, style, transition, trigger } from '@angular/animations';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 
 @Component({
     moduleId: module.id,
@@ -29,8 +29,12 @@ export class BarChartComponent implements OnChanges {
     }
 
     formatValue(index: number) {
-        const val = this.data.values[index];
-        return this.data.valueStyle === 'value' ? val.value : `${val.value}/${val.maxValue}`;
+        let { value, maxValue }: { value: number | string, maxValue: number | string } = this.data.values[index];
+        if (value > 999) {
+            value = `${Math.round(value / 100) / 10}k`;
+            maxValue = `${Math.round(maxValue / 100) / 10}k`;
+        }
+        return this.data.valueStyle === 'value' ? value : `${value}/${maxValue}`;
     }
 
     getTitle(index: number) {

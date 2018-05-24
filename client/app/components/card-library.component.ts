@@ -1,17 +1,17 @@
 
 import { Component, OnInit } from '@angular/core';
+import { Subject } from 'rxjs/Subject';
+import { Subscription } from 'rxjs/Subscription';
+import { CardClass, CardRarity, CardSet, CardType, dust as dustConst, hsTypeConverter, standardCardSets, wildCardSets } from '../../../interfaces/hs-types';
+import { Card, CardLibraryInfo } from '../../../interfaces/index';
+import { CardPipeArg, SortOptions, isEmpty } from '../pipes/card.pipe';
 import { ApiService, CardChanged } from '../services/api.service';
-import { CardHashService } from '../services/card-hash.service';
 import { AuthService } from '../services/auth.service';
+import { CardHashService } from '../services/card-hash.service';
 import { ConfigService } from '../services/config.service';
-import { CardLibraryInfo, Card } from '../../../interfaces/index';
-import { CardClass, CardRarity, CardSet, CardType, hsTypeConverter, dust as dustConst, standardCardSets, wildCardSets } from '../../../interfaces/hs-types';
-import { isEmpty, SortOptions, CardPipeArg } from '../pipes/card.pipe';
 import { BaseComponent } from './base.component';
 import { BarChartData } from './utility/bar-chart.component';
 import { PillowChartData } from './utility/pillow-chart.component';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
 
 @Component({
     moduleId: module.id,
@@ -33,7 +33,9 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
     rarity = CardRarity;
     rarityChartData: BarChartData;
     classChartData: BarChartData;
+    classDustChartData: BarChartData;
     cardSetChartData: BarChartData;
+    cardSetDustChartData: BarChartData;
     summaryStats: PillowChartData[] = [];
     mergeCards = false;
     isEmpty = isEmpty;
@@ -169,32 +171,51 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
             }))
         };
 
-        this.classChartData = {
+        this.classChartData = this.getCardClassChartData();
+        this.classDustChartData = this.getCardClassChartData(cardClass => CardClass[cardClass] + dustConst);
+        this.cardSetChartData = this.getCardSetChartData();
+        this.cardSetDustChartData = this.getCardSetChartData(cardSet => CardSet[cardSet] + dustConst);
+        this.calculateSummaryStats();
+    }
+
+    private getCardSetChartData(getKey: (cardSet: number) => string = cardSet => CardSet[cardSet]) {
+        return <BarChartData>{
+            valueStyle: 'value',
+            values: Object.keys(CardSet).map(cardSet => {
+                const key = getKey(+cardSet);
+                if (+cardSet < 2 || !this.info.stats[key]) { // filter basic and empty
+                    return null;
+                }
+
+                return {
+                    value: (this.info.stats[key] || [0, 0])[0],
+                    maxValue: (this.info.stats[key] || [0, 0])[1],
+                    barColor: +cardSet === 1 ? 'darkgray' : 'gray',
+                    legend: <string>hsTypeConverter.cardSet(+cardSet),
+                    imageSrc: `assets/images/other/exp${cardSet}.png`
+                };
+            }).filter(value => !!value)
+        };
+    }
+
+    private getCardClassChartData(getKey: (cardClass: number) => string = cardClass => CardClass[cardClass]) {
+        return <BarChartData>{
             valueStyle: 'value',
             image: {
                 backSize: 25,
                 offsetY: 25,
                 src: 'assets/images/other/class_sprite2.png',
             },
-            values: Object.keys(CardClass).filter(key => +key > 0).map(key => ({
-                value: (this.info.stats[CardClass[key]] || [0, 0])[0],
-                maxValue: (this.info.stats[CardClass[key]] || [0, 0])[1],
-                barColor: 'gray',
-                legend: CardClass[key]
-            }))
+            values: Object.keys(CardClass).filter(cardClass => +cardClass > 0).map(cardClass => {
+                const key = getKey(+cardClass);
+                return {
+                    value: (this.info.stats[key] || [0, 0])[0],
+                    maxValue: (this.info.stats[key] || [0, 0])[1],
+                    barColor: 'gray',
+                    legend: CardClass[+cardClass]
+                };
+            })
         };
-
-        this.cardSetChartData = {
-            valueStyle: 'value',
-            values: Object.keys(CardSet).filter(key => +key > 1 && !!this.info.stats[CardSet[key]]).map(key => ({
-                value: (this.info.stats[CardSet[key]] || [0, 0])[0],
-                maxValue: (this.info.stats[CardSet[key]] || [0, 0])[1],
-                barColor: +key === 1 ? 'darkgray' : 'gray',
-                legend: <string>hsTypeConverter.cardSet(+key),
-                imageSrc: `assets/images/other/exp${key}.png`
-            }))
-        };
-        this.calculateSummaryStats();
     }
 
     private calculateSummaryStats() {

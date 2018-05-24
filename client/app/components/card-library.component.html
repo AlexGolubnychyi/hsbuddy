@@ -74,14 +74,23 @@
                     <h3>Rarity:</h3>
                     <bar-chart [data]="rarityChartData"></bar-chart>
                 </div>
-                <div>
-                    <h3>Class cards:</h3>
+                <div [hidden]="showClassDust">
+                    <h3>Class cards: <span (click)="showClassDust = !showClassDust" class="switch-lnk">show dust</span></h3>
                     <bar-chart [data]="classChartData"></bar-chart>
                 </div>
-                <div>
-                    <h3>Card sets:</h3>
+                <div [hidden]="!showClassDust">
+                    <h3>Class cards: <span (click)="showClassDust = !showClassDust" class="switch-lnk">hide dust</span></h3>
+                    <bar-chart [data]="classDustChartData"></bar-chart>
+                </div>
+                <div  [hidden]="showSetDust">
+                    <h3>Card sets: <span (click)="showSetDust = !showSetDust" class="switch-lnk">show dust</span></h3>
                     <bar-chart [data]="cardSetChartData"></bar-chart>
                 </div>
+                <div  [hidden]="!showSetDust">
+                    <h3>Card sets: <span (click)="showSetDust = !showSetDust" class="switch-lnk">hide dust</span></h3>
+                    <bar-chart [data]="cardSetDustChartData"></bar-chart>
+                </div>
+                
             </div>
         </div>
     </div>
