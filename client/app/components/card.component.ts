@@ -1,10 +1,10 @@
-import { Component, Input, OnInit, ChangeDetectionStrategy } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Card } from '../../../interfaces';
-import { CardSet } from '../../../interfaces/hs-types';
+import { CardRarity, CardSet } from '../../../interfaces/hs-types';
+import '../rxjs-operators';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
-import { cardStyles, Config } from '../services/config.service';
-import '../rxjs-operators';
+import { Config, cardStyles } from '../services/config.service';
 
 @Component({
     moduleId: module.id,
@@ -48,6 +48,10 @@ export class CardComponent implements OnInit {
         }
 
         return this.card.numberAvailable > 0 ? 'semiavailable' : 'notavailable';
+    }
+
+    shouldShowCount() {
+        return this.showCount && this.card.rarity !== CardRarity.legendary;
     }
 
     changeAvailability(cardAvail: number) {
