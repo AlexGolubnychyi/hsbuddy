@@ -3,7 +3,7 @@
         <a [href]="card.url">
             <img [src]="card.img" [title]="card.flavorText" class="card-image"/></a>
     </div>
-    <div class="card-name"><span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{shouldShowCount ? "x"+count : ""}}</div>
+    <div class="card-name"><span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> <span *ngIf="count === 2 && showCount">x2</span></div>
     <div *ngIf="config.cardStyle === cardStyles.default">
         <div [class.hidden]="!card.className">Class: {{card.className}}</div>
         <div>Dust: {{card.cost}}</div>
@@ -20,7 +20,7 @@
 <div *ngIf="config.cardStyle === cardStyles.textOnly">
     <div class="card-name-text-only" [cardTooltip]="card" ngClass="{{getAvailStatus()}}">
         <a [href]="card.url">
-            <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> {{showCount ? "x"+count : ""}}   
+            <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> <span *ngIf="count === 2 && showCount">x2</span>   
             <!--<img [src]="'/images/'+ card.id + '.png'">      -->
         </a>
         <img [src]="'assets/images/'+ card.id + '.png'">
