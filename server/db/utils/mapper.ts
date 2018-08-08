@@ -1,9 +1,9 @@
-import * as hstypes from '../../../interfaces/hs-types';
 import * as contracts from '../../../interfaces/';
+import * as hstypes from '../../../interfaces/hs-types';
 import { CardDB } from '../card';
 import { DeckDB } from '../deck';
-import { deckDiffer } from './differ';
 import { UserDecks } from '../user';
+import { deckDiffer } from './differ';
 
 
 class Mapper {
