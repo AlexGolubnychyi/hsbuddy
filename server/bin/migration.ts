@@ -413,7 +413,7 @@ function updateToVersion19() {
             });
             return decks;
         })
-        .map((deck: DeckDB<CardDB>) => deck.save())
+        .map((deck: DeckDB<string>) => deck.save())
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 
@@ -515,7 +515,7 @@ function updateToVersion26() {
             });
             return decks;
         })
-        .map((deck: DeckDB<CardDB>) => deck.save())
+        .map((deck: DeckDB<string>) => deck.save())
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 

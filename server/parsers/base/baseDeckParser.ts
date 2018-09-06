@@ -26,7 +26,7 @@ export abstract class BaseDeckParser {
     }
 
 
-    parse(userId: string, url: string, upgradeDeckId?: string): Promise<ParseReportItem[]> {
+    parse(userId: string, url: string, upgradeDeckId?: string) {
         if (this.parserNotFound) {
             return this.reportParserNotFound(url);
         }
