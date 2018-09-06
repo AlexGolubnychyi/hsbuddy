@@ -3,9 +3,8 @@ import { AuthService } from '../services/auth.service';
 import { ApiService } from '../services/api.service';
 import { DeckUtilsService } from '../services/deck-utils.service';
 import { PseudoDeck, Deck, Card, CollectionChangeStatus } from '../../../interfaces/index';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
-import '../rxjs-operators';
+import { Subject, Observable } from 'rxjs';
+import { debounceTime, switchMap } from 'rxjs/operators';
 @Component({
     moduleId: module.id,
     selector: 'deck-info',
@@ -36,9 +35,11 @@ export class DeckInfoComponent implements OnInit, OnDestroy {
         const deck: Deck<Card> = this.deck;
 
         this.showUserCollection = deck.id && this.authService.isAuthenticated();
-        this.userCollectionChangeStream
-            .debounceTime(200)
-            .switchMap(val => this.apiService.toggleUserDeck(deck.id, val))
+        this.userCollectionChangeStream.
+            pipe(
+                debounceTime(200),
+                switchMap(val => this.apiService.toggleUserDeck(deck.id, val))
+            )
             .subscribe((rez: CollectionChangeStatus) => {
                 if (rez.success) {
                     deck.userCollection = rez.collection;
@@ -49,8 +50,10 @@ export class DeckInfoComponent implements OnInit, OnDestroy {
             });
 
         this.userIgnoreDeckChangeStream
-            .debounceTime(200)
-            .switchMap(val => this.apiService.toggleIgnoredDeck(deck.id, val))
+            .pipe(
+                debounceTime(200),
+                switchMap(val => this.apiService.toggleIgnoredDeck(deck.id, val))
+            )
             .subscribe((result) => {
                 if (result.success) {
                     deck.ignored = result.ignored;

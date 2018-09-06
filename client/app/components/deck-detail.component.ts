@@ -7,10 +7,11 @@ import { CardHashService } from '../services/card-hash.service';
 import * as contracts from '../../../interfaces/index';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { DeckUtilsService } from '../services/deck-utils.service';
-import { Observable } from 'rxjs/Observable';
+import { of } from 'rxjs';
 import { DeckComponent } from './deck.component';
 import { CardPipeArg, SortOptions } from '../pipes/card.pipe';
 import { BaseComponent } from './base.component';
+import { map, switchMap, timeout, catchError, tap, filter } from 'rxjs/operators';
 
 
 @Component({
@@ -63,8 +64,10 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
         });
 
         this.route.params
-            .map(params => params['id'] as string)
-            .switchMap(id => this.apiService.getDeck(id))
+            .pipe(
+                map(params => params['id'] as string),
+                switchMap(id => this.apiService.getDeck(id))
+            )
             .subscribe(deck => {
                 if (!deck) {
                     this.router.navigateByUrl('/');
@@ -89,8 +92,10 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
         this.loadingSimilarDecks = true;
 
         this.apiService.getSimilar(this.deck.id, this.config.standart)
-            .timeout(5000)
-            .catch(() => Observable.of(null))
+            .pipe(
+                timeout(5000),
+                catchError(() => of(null))
+            )
             .subscribe(similarDecks => {
                 this.ref.markForCheck();
                 this.loadingSimilarDecks = false;
@@ -131,10 +136,12 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
         this.loading = true;
         (this.deck.userCollection
             ? this.apiService.toggleUserDeck(this.deck.id, false)
-            : Observable.of({ collection: false, success: true }))
-            .do<contracts.CollectionChangeStatus>(result => this.loading = result.success)
-            .filter(result => result.success)
-            .switchMap(() => this.apiService.deleteDeck(this.deck.id))
+            : of({ collection: false, success: true }))
+            .pipe(
+                tap<contracts.CollectionChangeStatus>(result => this.loading = result.success),
+                filter(result => result.success),
+                switchMap(() => this.apiService.deleteDeck(this.deck.id))
+            )
             .subscribe(result => {
                 this.ref.markForCheck();
                 this.loading = false;
@@ -192,7 +199,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
         return rev.number;
     }
 
-     getDeckName() {
+    getDeckName() {
         if (this.config.standart) {
             return this.deck.name;
         }

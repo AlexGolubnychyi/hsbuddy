@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AuthService } from '../services/auth.service';
-import { Subject } from 'rxjs/Subject';
+import { Subject } from 'rxjs';
 
 export enum cardStyles {
     default = 0, compact, textOnly

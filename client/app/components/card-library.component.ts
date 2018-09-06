@@ -1,7 +1,6 @@
 
 import { Component, OnInit } from '@angular/core';
-import { Subject } from 'rxjs/Subject';
-import { Subscription } from 'rxjs/Subscription';
+import { Subject, Subscription } from 'rxjs';
 import { CardClass, CardRarity, CardSet, CardType, dust as dustConst, hsTypeConverter, standardCardSets, wildCardSets } from '../../../interfaces/hs-types';
 import { Card, CardLibraryInfo } from '../../../interfaces/index';
 import { CardPipeArg, SortOptions, isEmpty } from '../pipes/card.pipe';
@@ -12,6 +11,7 @@ import { ConfigService } from '../services/config.service';
 import { BaseComponent } from './base.component';
 import { BarChartData } from './utility/bar-chart.component';
 import { PillowChartData } from './utility/pillow-chart.component';
+import { map, debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
 @Component({
     moduleId: module.id,
@@ -56,9 +56,11 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
         this.statsCollapsed = true;
 
         this.cardKeywordInputStream
-            .map((e: Event) => (e.target as HTMLInputElement).value)
-            .debounceTime(200)
-            .distinctUntilChanged()
+            .pipe(
+                map((e: Event) => (e.target as HTMLInputElement).value),
+                debounceTime(200),
+                distinctUntilChanged()
+            )
             .subscribe((query: string) => {
                 if (!query) {
                     this.filter.keyword = null;

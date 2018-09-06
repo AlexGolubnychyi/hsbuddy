@@ -4,10 +4,9 @@ import { AuthService } from '../services/auth.service';
 import { CardHashService } from '../services/card-hash.service';
 import { DeckQuery, OrderBy } from '../../../interfaces/index';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
-import { Subject } from 'rxjs/Subject';
-import { Observable } from 'rxjs/Observable';
-import { Subscriber } from 'rxjs/Subscriber';
+import { Subject, Observable, Subscriber, combineLatest, race, timer } from 'rxjs';
 import { ConfigService } from '../services/config.service';
+import { debounce, startWith, filter, tap, map } from 'rxjs/operators';
 
 @Component({
     moduleId: module.id,
@@ -76,16 +75,21 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
             subscriber.next(result);
         });
 
-        this.filter$ = (this.filterForm.valueChanges as Observable<DeckQuery>)
-            .debounce(v => Observable.race(
-                this.filterButtonClickStream,
-                this.deckNameKeyStream.filter((e: KeyboardEvent) => e.keyCode === 13),
-                this.cardNameKeyStream.filter((e: KeyboardEvent) => e.keyCode === 13),
-                Observable.timer(1000)))
-            .startWith(defaults)
-            .combineLatest(this.configService.configChanged.map(c => c.standart).startWith(this.configService.config.standart))
-            .filter(v => this.filterForm.valid)
-            .do(v => localStorage.setItem(this.filterName, JSON.stringify(v[0])));
+        this.filter$ = (
+            combineLatest(
+                (this.filterForm.valueChanges as Observable<DeckQuery>).pipe(
+                    debounce(v => race(
+                        this.filterButtonClickStream,
+                        this.deckNameKeyStream.pipe(filter((e: KeyboardEvent) => e.keyCode === 13)),
+                        this.cardNameKeyStream.pipe(filter((e: KeyboardEvent) => e.keyCode === 13)),
+                        timer(1000))),
+                    startWith(defaults)),
+                this.configService.configChanged.pipe(map(c => c.standart), startWith(this.configService.config.standart))
+            ).pipe(
+                filter(v => this.filterForm.valid),
+                tap(v => localStorage.setItem(this.filterName, JSON.stringify(v[0])))
+            )
+        );
     }
 
     ngOnDestroy() {

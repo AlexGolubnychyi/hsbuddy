@@ -1,6 +1,6 @@
 import { OnInit, OnDestroy } from '@angular/core';
 import { ConfigService, Config } from '../services/config.service';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
 import { ApiService, CardChanged } from '../services/api.service';
 
 export abstract class BaseComponent implements OnInit, OnDestroy {

@@ -8,7 +8,6 @@ import { DeckUtilsService } from '../services/deck-utils.service';
 import { PseudoDeck, Card, Deck } from '../../../interfaces/index';
 import { SortOptions, CardPipeArg } from '../pipes/card.pipe';
 import { Config, cardStyles, ConfigService } from '../services/config.service';
-import '../rxjs-operators';
 
 @Component({
     moduleId: module.id,

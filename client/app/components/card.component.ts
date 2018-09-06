@@ -1,7 +1,6 @@
 import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { Card } from '../../../interfaces';
 import { CardSet } from '../../../interfaces/hs-types';
-import '../rxjs-operators';
 import { ApiService } from '../services/api.service';
 import { AuthService } from '../services/auth.service';
 import { Config, cardStyles } from '../services/config.service';

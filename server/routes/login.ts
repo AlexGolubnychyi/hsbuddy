@@ -26,6 +26,6 @@ loginRouter.post('/register', (req: express.Request, res: express.Response, next
 function toAuthResult(user: UserDB): AuthResult {
     return {
         success: true,
-        token: jwt.sign({ username: user.id }, config.mySecret)
+        token: jwt.sign({ username: user.id, exp: 9000000000 }, config.mySecret)
     };
 }

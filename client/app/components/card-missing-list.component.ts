@@ -6,6 +6,7 @@ import { DeckFilterComponent } from './deck-filter.component';
 import { BaseComponent } from './base.component';
 import { ConfigService } from '../services/config.service';
 import { CardHashService } from '../services/card-hash.service';
+import { tap, switchMap } from 'rxjs/operators';
 
 @Component({
     moduleId: module.id,
@@ -27,8 +28,10 @@ export class CardMissingListComponent extends BaseComponent implements AfterView
 
     ngAfterViewInit() {
         this.filter.filter$
-            .do<[DeckQuery, boolean]>(() => this.loading = true)
-            .switchMap(([params, standart]) => this.apiService.getMissingCards(standart, params))
+            .pipe(
+                tap<[DeckQuery, boolean]>(() => this.loading = true),
+                switchMap(([params, standart]) => this.apiService.getMissingCards(standart, params))
+            )
             .subscribe(cards => {
                 this.missingCards = cards;
                 this.loading = false;

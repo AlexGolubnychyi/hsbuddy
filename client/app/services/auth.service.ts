@@ -1,11 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs/Observable';
-import '../rxjs-operators';
+import { Subject, of } from 'rxjs';
 import { Router } from '@angular/router';
 import * as contracts from '../../../interfaces/index';
-import { Subject } from 'rxjs/Subject';
-import {JwtHelperService} from '@auth0/angular-jwt';
+import { JwtHelperService } from '@auth0/angular-jwt';
 import { HttpClient } from '@angular/common/http';
+import { map, catchError } from 'rxjs/operators';
 
 export const defaultTokenName = 'jwt_token_name';
 
@@ -36,34 +35,38 @@ export class AuthService {
 
     login(data: { username: string, password: string }) {
         return this.http.post<contracts.AuthResult>('api/login', data)
-            .map(result => {
-                if (result.success) {
-                    this.addToken(result.token);
-                    this.authChanged.next({
-                        auth: true,
-                        username: this.userName
-                    });
-                    this.router.navigateByUrl(this.redirectUrl || '');
-                }
-                return result;
-            })
-            .catch(this.onFail);
+            .pipe(
+                map(result => {
+                    if (result.success) {
+                        this.addToken(result.token);
+                        this.authChanged.next({
+                            auth: true,
+                            username: this.userName
+                        });
+                        this.router.navigateByUrl(this.redirectUrl || '');
+                    }
+                    return result;
+                }),
+                catchError(this.onFail)
+            );
     }
 
     register(data: { username: string, password: string }) {
         return this.http.post<contracts.AuthResult>('api/register', data)
-            .map(result => {
-                if (result.success) {
-                    this.addToken(result.token);
-                    this.authChanged.next({
-                        auth: true,
-                        username: this.userName
-                    });
-                    this.router.navigateByUrl(this.redirectUrl || '');
-                }
-                return result;
-            })
-            .catch(this.onFail);
+            .pipe(
+                map(result => {
+                    if (result.success) {
+                        this.addToken(result.token);
+                        this.authChanged.next({
+                            auth: true,
+                            username: this.userName
+                        });
+                        this.router.navigateByUrl(this.redirectUrl || '');
+                    }
+                    return result;
+                }),
+                catchError(this.onFail)
+            );
     }
 
     logout() {
@@ -73,7 +76,7 @@ export class AuthService {
     }
 
     private onFail() {
-        return Observable.of(<contracts.AuthResult>{ success: false, error: 'unknown server error, please try again soon' });
+        return of(<contracts.AuthResult>{ success: false, error: 'unknown server error, please try again soon' });
     }
 
     private addToken(token: any, tokenName = defaultTokenName) {

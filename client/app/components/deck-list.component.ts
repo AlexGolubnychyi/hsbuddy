@@ -5,7 +5,8 @@ import { ConfigService } from '../services/config.service';
 import { Deck, Card, DeckQuery } from '../../../interfaces/index';
 import { DeckFilterComponent } from './deck-filter.component';
 import { BaseComponent } from './base.component';
-import { Subscription } from 'rxjs/Subscription';
+import { Subscription } from 'rxjs';
+import { tap, switchMap } from 'rxjs/operators';
 @Component({
     moduleId: module.id,
     selector: 'deck-list',
@@ -30,8 +31,10 @@ export class DeckListComponent extends BaseComponent implements AfterViewInit, O
 
     ngAfterViewInit() {
         this.filterSubscription = this.filter.filter$
-            .do<[DeckQuery, boolean]>(() => this.loading = true)
-            .switchMap(([params, standart]) => this.apiService.getDecks(standart, params))
+            .pipe(
+                tap<[DeckQuery, boolean]>(() => this.loading = true),
+                switchMap(([params, standart]) => this.apiService.getDecks(standart, params))
+            )
             .subscribe(decks => {
                 this.ref.markForCheck();
                 this.decks = decks;
@@ -68,7 +71,7 @@ export class DeckListComponent extends BaseComponent implements AfterViewInit, O
         // trigger deck redraw
         this.ref.markForCheck();
         this.decks = this.decks.map(deck => {
-            return  { ...deck };
+            return { ...deck };
         });
     }
 }
