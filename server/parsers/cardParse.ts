@@ -161,10 +161,23 @@ function getHsDbStats(cards: cardHash) {
 
             Object.keys(cards).map(cardId => cards[cardId]).forEach(c => {
                 const cardJson = hash[c._id];
+                if (!cardJson) {
+                    console.log(`HearthstoneJSON: card not found ${c.name}`);
+                    return;
+                }
                 c.dbfId = cardJson.dbfId;
                 c.officialId = cardJson.id;
                 c.keywords = [c.name, cardJson.race, ...(cardJson.mechanics || []), cardJson.rarity, cardJson.type, c.description]
                     .filter(keyword => !!keyword).join('$$$').toLocaleUpperCase();
+                c.mana = cardJson.cost;
+                if (c.type === hsTypes.CardType.minion) {
+                    c.attack = cardJson.attack;
+                    c.health = cardJson.health;
+                    if (!c.race && cardJson.race) {
+                        c.race = hsTypes.CardRace[cardJson.race.toLowerCase()] || c.race;
+                    }
+                }
+
             });
             return cards;
         });
