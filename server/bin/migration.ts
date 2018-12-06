@@ -40,7 +40,8 @@ const updates: (() => Promise<void>)[] = [
     updateToVersion26,
     updateToVersion27,
     updateToVersion28,
-    updateToVersion29
+    updateToVersion29,
+    updateToVersion30
 ];
 
 (function checkForUpdates() {
@@ -542,6 +543,15 @@ function updateToVersion29() {
     const version = 29;
 
     console.log(`apply ver${version}, repopulate cards to include new classic cards`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
+}
+
+function updateToVersion30() {
+    const version = 30;
+
+    console.log(`apply ver${version}, redo repopulate cards to include Rumble`);
     return cardDB.remove({}).exec()
         .then(() => parser.populateWithCards())
         .then(() => console.log(`apply ver${version}`));

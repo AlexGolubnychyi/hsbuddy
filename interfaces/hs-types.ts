@@ -4,7 +4,7 @@ export enum CardType { unknown, weapon, ability, minion, hero }
 export enum CardSet {
     unknown = 0, Basic, Expert, BlackrockMountain, TheGrandTournament,
     LeagueOfExplorers, WhispersoftheOldGods, Naxxramas, GoblinsvsGnomes, Reward, OneNightInKarazhan, MeanStreetsOfGadgetzan,
-    JourneyToUnGoro, KnightsOfTheFrozenThrone, KoboldsAndCatacombs, TheWitchwood, TheBoomsdayProject
+    JourneyToUnGoro, KnightsOfTheFrozenThrone, KoboldsAndCatacombs, TheWitchwood, TheBoomsdayProject, RastakhansRumble
 }
 export enum CardRace { none = 0, beast, demon, dragon, mech, murloc, pirate, totem, elemental, all }
 
@@ -15,7 +15,8 @@ export const standardCardSets = [
     CardSet.KnightsOfTheFrozenThrone,
     CardSet.KoboldsAndCatacombs,
     CardSet.TheWitchwood,
-    CardSet.TheBoomsdayProject
+    CardSet.TheBoomsdayProject,
+    CardSet.RastakhansRumble
 ];
 
 export const wildCardSets = [
@@ -34,16 +35,17 @@ export const wildCardSets = [
     CardSet.KoboldsAndCatacombs,
     CardSet.TheWitchwood,
     CardSet.TheBoomsdayProject,
+    CardSet.RastakhansRumble,
     CardSet.Reward
 ];
 
 export const dust = 'dust';
-export const latestSet = CardSet.TheBoomsdayProject;
+export const latestSet = CardSet.RastakhansRumble;
 
 const rarityMapping = [-1, 0, 40, 100, 400, 1600],
     cardSetMapping = ['-', 'Basic', 'Classic', 'Blackrock Mountain', 'The Grand Tournament', 'League of Explorers',
         'Whispers of the Old Gods', 'Curse of Naxxramas', 'Goblins vs Gnomes', 'Reward', 'One Night in Karazhan', 'Mean Streets of Gadgetzan',
-        'Journey to Un\'Goro', 'Knights of the Frozen Throne', 'Kobolds and Catacombs', 'The Witchwood', 'The Boomsday Project'
+        'Journey to Un\'Goro', 'Knights of the Frozen Throne', 'Kobolds and Catacombs', 'The Witchwood', 'The Boomsday Project', `Rastakhan's Rumble`
     ];
 
 class HsTypeConverter {
