@@ -41,7 +41,8 @@ const updates: (() => Promise<void>)[] = [
     updateToVersion27,
     updateToVersion28,
     updateToVersion29,
-    updateToVersion30
+    updateToVersion30,
+    updateToVersion31
 ];
 
 (function checkForUpdates() {
@@ -557,3 +558,11 @@ function updateToVersion30() {
         .then(() => console.log(`apply ver${version}`));
 }
 
+function updateToVersion31() {
+    const version = 31;
+
+    console.log(`apply ver${version}, fix bug with loosing some cards while parsing`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
+}

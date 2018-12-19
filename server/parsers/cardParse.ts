@@ -20,7 +20,7 @@ export function parseCards() {
 }
 
 function loadBasicInfo() {
-    const cnt = 40,
+    const cnt = 80,
         urls = new Array(cnt).join(',').split(',').map((_, inx) => hearthPwnUrl.replace('@@@', (inx + 1) + '')),
         cards: cardHash = {};
 
