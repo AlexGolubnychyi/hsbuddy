@@ -42,7 +42,8 @@ const updates: (() => Promise<void>)[] = [
     updateToVersion28,
     updateToVersion29,
     updateToVersion30,
-    updateToVersion31
+    updateToVersion31,
+    updateToVersion32
 ];
 
 (function checkForUpdates() {
@@ -562,6 +563,15 @@ function updateToVersion31() {
     const version = 31;
 
     console.log(`apply ver${version}, fix bug with loosing some cards while parsing`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
+}
+
+function updateToVersion32() {
+    const version = 32;
+
+    console.log(`apply ver${version}, NEFRS!`);
     return cardDB.remove({}).exec()
         .then(() => parser.populateWithCards())
         .then(() => console.log(`apply ver${version}`));
