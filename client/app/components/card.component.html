@@ -5,15 +5,13 @@
     </div>
     <div class="card-name"><span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> <span *ngIf="count === 2 && showCount">x2</span></div>
     <div *ngIf="config.cardStyle === cardStyles.default">
-        <div [class.hidden]="!card.className">Class: {{card.className}}</div>
-        <div>Dust: {{card.cost}}</div>
-        <div class="card-set">Set: {{card.setName}}</div>
+        <div class="card-set">{{card.setName}}</div>
     </div>
     <div *ngIf="config.enableCardAvailSelector" [style.visibility]="!basic ? 'visible' : 'hidden'" class="availability-container">
         <select class="form-control availability-selector" [ngModel]="card.numberAvailable" [disabled]="loading" (ngModelChange)="changeAvailability($event)">
             <option value="0">0 cards</option>
             <option value="1">1 card</option>
-            <option value="2">2 cards</option>
+            <option *ngIf="card.rarity !== 5" value="2">2 cards</option>
         </select>
     </div>
 </div>
@@ -21,7 +19,6 @@
     <div class="card-name-text-only" [cardTooltip]="card" ngClass="{{getAvailStatus()}}">
         <a [href]="card.url">
             <span ngClass="{{'rarity-'+card.rarity}}">{{card.name}}</span> <span *ngIf="count === 2 && showCount">x2</span>   
-            <!--<img [src]="'/images/'+ card.id + '.png'">      -->
         </a>
         <img [src]="'assets/images/'+ card.id + '.png'">
     </div>

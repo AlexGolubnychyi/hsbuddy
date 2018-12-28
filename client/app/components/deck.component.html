@@ -38,9 +38,8 @@
 	</div>
 </span>
 <div [hidden]="hideDetails || canUseClipboard" class="deck-import-code">
-	<input type="text" class="form-control" [value]="deck.importCode"/>
+	{{deck.importCode}}
 </div>
-
 <div *ngIf="!hideDetails">
 	<div class="row">
 		<div class="col-xs-12" [class.col-md-4]="config.cardStyle === cardStyles.textOnly" [class.col-md-push-8]="config.cardStyle === cardStyles.textOnly">
