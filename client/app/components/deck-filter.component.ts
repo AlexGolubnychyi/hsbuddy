@@ -43,7 +43,7 @@ export class DeckFilterComponent implements OnInit, OnDestroy {
 
     deckClasses = Object.keys(CardClass)
         .filter(key => !isNaN(+key))
-        .map(id => ({ name: hsTypeConverter.getEnumLabel(CardClass, +id), value: +id }))
+        .map(id => ({ name: hsTypeConverter.cardClass(+id), value: +id }))
         .filter(item => item.value !== CardClass.neutral);
     orderOptions = OrderBy;
 

@@ -43,7 +43,8 @@ const updates: (() => Promise<void>)[] = [
     updateToVersion29,
     updateToVersion30,
     updateToVersion31,
-    updateToVersion32
+    updateToVersion32,
+    updateToVersion33
 ];
 
 (function checkForUpdates() {
@@ -184,7 +185,7 @@ function updateToVersion8(): Promise<void> {
         })
         .map((card: CardDB) => card.save())
         .then(() => Deck.findById('84faab928966370df48ead085c6881a5ece742d4').exec())
-        .then(badDeck => badDeck.remove())
+        .then(badDeck => badDeck && badDeck.remove())
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 
@@ -572,6 +573,15 @@ function updateToVersion32() {
     const version = 32;
 
     console.log(`apply ver${version}, NEFRS!`);
+    return cardDB.remove({}).exec()
+        .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
+}
+
+function updateToVersion33() {
+    const version = 33;
+
+    console.log(`apply ver${version}, redo repopulate cards to include a lot of new expansions :) `);
     return cardDB.remove({}).exec()
         .then(() => parser.populateWithCards())
         .then(() => console.log(`apply ver${version}`));

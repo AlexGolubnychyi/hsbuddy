@@ -1,7 +1,7 @@
 import { DeckData, BaseDeckParser } from './base/baseDeckParser';
 import { getContent } from '../lib/request';
 import { cardDB } from '../db/card';
-
+import * as Promise from 'bluebird';
 
 
 class HsReplayParser extends BaseDeckParser {
@@ -27,7 +27,7 @@ class HsReplayParser extends BaseDeckParser {
             const cardHash: { [index: string]: number } = dbfIds.reduce((acc, cur) => (acc[cur] = (acc[cur] + 1) || 1, acc), {});
 
             return Promise
-                .all(Object.keys(cardHash).map(dbfId => cardDB.findOne({ dbfId })))
+                .all(Object.keys(cardHash).map(dbfId => cardDB.findOne({ dbfId }).exec()))
                 .then(dbCards => dbCards.map(c => ({ card: c.id, count: cardHash[c.dbfId] })))
                 .then(cards => <DeckData>{ name, url, cards, date });
         });

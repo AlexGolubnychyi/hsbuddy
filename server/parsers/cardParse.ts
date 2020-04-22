@@ -53,7 +53,7 @@ function loadBasicInfo() {
                     }
 
                     if ($li.text().indexOf('Class:') !== -1) {
-                        card.class = hsTypes.CardClass[$li.find('a').text().trim().toLowerCase()] || card.class;
+                        card.class = (hsTypes.hsTypeConverter.cardClass($li.find('a').text()) as hsTypes.CardClass) || card.class;
                         return;
                     }
 
@@ -77,7 +77,7 @@ function loadBasicInfo() {
                         return;
                     }
 
-                    if ($li.text().indexOf('Crafting Cost:') !== -1) {
+                    if ($li.text().indexOf('Cost to Craft:') !== -1) {
                         card.cost = +$li.text().match(/([0-9]+)/g)[0];
                         return;
                     }
@@ -156,6 +156,9 @@ function getHsDbStats(cards: cardHash) {
         .then((hsJson: HSJSONCard[]) => {
             const hash: { [index: string]: HSJSONCard } = {};
             hsJson.forEach(cardJson => {
+                if (cardJson.set === 'HERO_SKINS'){
+                    return;
+                }
                 hash[cardDB.generateId(cardJson.name)] = cardJson;
             });
 

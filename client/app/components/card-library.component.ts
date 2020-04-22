@@ -214,7 +214,7 @@ export class CardLibraryComponent extends BaseComponent implements OnInit {
                     value: (this.info.stats[key] || [0, 0])[0],
                     maxValue: (this.info.stats[key] || [0, 0])[1],
                     barColor: 'gray',
-                    legend: CardClass[+cardClass]
+                    legend: hsTypeConverter.cardClass(+cardClass)
                 };
             })
         };

@@ -31,7 +31,8 @@ const сardClassIdMapping: { [index: number]: CardClass } = {
     47817: CardClass.warlock,
     46116: CardClass.paladin,
     53237: CardClass.shaman,
-    51834: CardClass.warlock
+    51834: CardClass.warlock,
+    56550: CardClass.demonhunter,
 };
 class DeckEncoder {
     encode(deckClass: CardClass, isStandart: boolean, cards: { count: number, card: { dbfId: number } }[]) {
