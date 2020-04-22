@@ -203,7 +203,7 @@ export class DeckDetailComponent extends BaseComponent implements OnInit {
         if (this.config.standart) {
             return this.deck.name;
         }
-        return `[${this.deck.standart ? 'standart' : 'wild'}] ${this.deck.name}`;
+        return `[${this.deck.standart ? 'standard' : 'wild'}] ${this.deck.name}`;
     }
 
     protected onCardChanged(cardChanged: CardChanged) {

@@ -80,7 +80,7 @@ export class DeckComponent implements OnInit, OnChanges {
         if (this.config.standart) {
             return this.deck.name;
         }
-        return `[${this.deck.standart ? 'standart' : 'wild'}] ${this.deck.name}`;
+        return `[${this.deck.standart ? 'standard' : 'wild'}] ${this.deck.name}`;
     }
 
     copyDeck() {
