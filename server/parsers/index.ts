@@ -13,6 +13,7 @@ import { deckImportCodeParser } from './deckImportCodeParser';
 import { metaStatsParser } from './metastatsParser';
 import { hsReplayParser } from './hsReplayParser';
 import { parseCards } from './cardParse';
+import { vsParser } from './vsParser';
 
 
 
@@ -28,6 +29,7 @@ class Parser {
             tempoStormParser,
             metaStatsParser,
             hsReplayParser,
+            vsParser,
             // <-----deckCodeParser should always be at the botto, before failParser
             deckImportCodeParser,
             // <-----failParser should always be the last in the list

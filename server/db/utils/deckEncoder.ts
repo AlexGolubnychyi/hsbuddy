@@ -8,7 +8,7 @@ import { CardCount } from '../../../interfaces/index';
 const deckStringVersion = 1;
 const startMarker = 0;
 const endMarker = 0;
-const standartDeckFlag = 2;
+const standardDeckFlag = 2;
 const wildDeckFlag = 1;
 const сardClassIdMapping: { [index: number]: CardClass } = {
     274: CardClass.druid,
@@ -35,11 +35,11 @@ const сardClassIdMapping: { [index: number]: CardClass } = {
     56550: CardClass.demonhunter,
 };
 class DeckEncoder {
-    encode(deckClass: CardClass, isStandart: boolean, cards: { count: number, card: { dbfId: number } }[]) {
+    encode(deckClass: CardClass, isStandard: boolean, cards: { count: number, card: { dbfId: number } }[]) {
         const byteArray: number[] = [];
         byteArray.push(startMarker);
         byteArray.push(deckStringVersion);
-        byteArray.push(isStandart ? standartDeckFlag : wildDeckFlag);
+        byteArray.push(isStandard ? standardDeckFlag : wildDeckFlag);
 
         // hero
         byteArray.push(1); // always 1 hero
@@ -111,7 +111,7 @@ class DeckEncoder {
         }
 
         const format = this.readUIntValue(data);
-        const isStandart = format === standartDeckFlag;
+        const isStandart = format === standardDeckFlag;
         if (!isStandart && format !== wildDeckFlag) {
             throw new DeckEncoderError(`unsupported deck format: ${format}`);
         }
