@@ -1,16 +1,14 @@
 
 import mongoose = require('mongoose');
 import * as Promise from 'bluebird';
-import { config } from './config';
+import { appConfig } from './appconfig';
 import * as chalk from 'chalk';
 
 /**
  * Connect to MongoDB.
  */
-const connection = process.env.NODE_ENV === 'prod' ? config.prodDBConnectionString : config.devDBConnectionString;
-// mongoose.set('debug', process.env.NODE_ENV !== 'prod');
 mongoose.Promise = Promise;
-mongoose.connect(connection);
+mongoose.connect(appConfig.dbConnection);
 mongoose.connection.on('error', () => {
     console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
     process.exit();

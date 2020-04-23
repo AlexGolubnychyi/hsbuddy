@@ -4,7 +4,7 @@ import * as jwt from 'express-jwt';
 import * as compression from 'compression';
 import * as logger from 'morgan';
 import { json, urlencoded } from 'body-parser';
-import { config } from './lib/config';
+import { appConfig } from './lib/appconfig';
 import { loadUserInfo } from './middleware/loadUserInfo';
 import mongoose from './lib/mongoose';
 import { apiRouter } from './routes/index';
@@ -17,7 +17,7 @@ app.use(logger('dev'));
 app.use(express.static(path.join(__dirname, '../public')));
 
 // check auth token
-app.use(jwt({ secret: config.mySecret, credentialsRequired: false }));
+app.use(jwt({ secret: appConfig.secret, credentialsRequired: false }));
 // chech that user exists in db
 app.use(loadUserInfo);
 

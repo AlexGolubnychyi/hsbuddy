@@ -3,7 +3,7 @@ import * as express from 'express';
 import User, { UserDB } from '../db/user';
 import { AuthResult, TokenPayload } from '../../interfaces';
 import * as jwt from 'jsonwebtoken';
-import { config } from '../lib/config';
+import { appConfig } from '../lib/appconfig';
 
 export const loginRouter = express.Router();
 
@@ -26,6 +26,6 @@ loginRouter.post('/register', (req: express.Request, res: express.Response, next
 function toAuthResult(user: UserDB): AuthResult {
     return {
         success: true,
-        token: jwt.sign({ username: user.id, exp: 9000000000 }, config.mySecret)
+        token: jwt.sign({ username: user.id, exp: 9000000000 }, appConfig.secret)
     };
 }
