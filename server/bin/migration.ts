@@ -44,7 +44,8 @@ const updates: (() => Promise<void>)[] = [
     updateToVersion30,
     updateToVersion31,
     updateToVersion32,
-    updateToVersion33
+    updateToVersion33,
+    updateToVersion34,
 ];
 
 (function checkForUpdates() {
@@ -65,6 +66,30 @@ const updates: (() => Promise<void>)[] = [
 
     });
 })();
+
+function rotateDecksFromStandard(){
+    const cardHash: { [index: string]: CardDB } = {};
+
+    return cardDB.find().exec()
+        .then(cards => cards.forEach(c => cardHash[c.id] = c))
+        .then(() => Deck.find().exec())
+        .then((decks: DeckDB<string>[]) => {
+            decks.forEach(deck => {
+                deck.standart = deck.cards.every(c => hstypes.hsTypeConverter.isStandart(cardHash[c.card]));
+                deck.importCode = deckEncoder.encode(deck.class, deck.standart, deck.cards.map(c => ({ card: cardHash[c.card], count: c.count })));
+
+                deck.revisions.forEach(r => {
+                    const revCards = deckDiffer
+                        .reverse(deck.cards, r.cardAddition, r.cardRemoval)
+                        .map(cardMin => ({ card: cardHash[cardMin.card], count: cardMin.count }));
+                    r.standart = revCards.every(c => hstypes.hsTypeConverter.isStandart(c.card));
+                    r.importCode = deckEncoder.encode(deck.class, r.standart, revCards);
+                });
+            });
+            return decks;
+        })
+        .map((deck: DeckDB<string>) => deck.save())
+}
 
 // -------------------------updates-------------------------------------
 function updateToVersion1(): Promise<void> {
@@ -502,25 +527,7 @@ function updateToVersion26() {
 
     console.log(`apply ver${version}`);
     console.log('rotate decks from standart');
-    return cardDB.find().exec()
-        .then(cards => cards.forEach(c => cardHash[c.id] = c))
-        .then(() => Deck.find().exec())
-        .then((decks: DeckDB<string>[]) => {
-            decks.forEach(deck => {
-                deck.standart = deck.cards.every(c => hstypes.hsTypeConverter.isStandart(cardHash[c.card]));
-                deck.importCode = deckEncoder.encode(deck.class, deck.standart, deck.cards.map(c => ({ card: cardHash[c.card], count: c.count })));
-
-                deck.revisions.forEach(r => {
-                    const revCards = deckDiffer
-                        .reverse(deck.cards, r.cardAddition, r.cardRemoval)
-                        .map(cardMin => ({ card: cardHash[cardMin.card], count: cardMin.count }));
-                    r.standart = revCards.every(c => hstypes.hsTypeConverter.isStandart(c.card));
-                    r.importCode = deckEncoder.encode(deck.class, r.standart, revCards);
-                });
-            });
-            return decks;
-        })
-        .map((deck: DeckDB<string>) => deck.save())
+    return rotateDecksFromStandard()
         .then(() => console.log(`ver${version} appplied successfully`));
 }
 
@@ -584,5 +591,13 @@ function updateToVersion33() {
     console.log(`apply ver${version}, redo repopulate cards to include a lot of new expansions :) `);
     return cardDB.remove({}).exec()
         .then(() => parser.populateWithCards())
+        .then(() => console.log(`apply ver${version}`));
+}
+
+function updateToVersion34() {
+    const version = 34;
+
+    console.log(`apply ver${version}, rotate decks from Standard `);
+    return rotateDecksFromStandard()
         .then(() => console.log(`apply ver${version}`));
 }
