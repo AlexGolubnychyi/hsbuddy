@@ -8,7 +8,7 @@ function getConfig() {
 
     return {
         secret: 'dev secret :)',
-        dbConnection: 'mongodb://localhost/hearthstonedb'
+        dbConnection: 'mongodb://admin:a12345@ds111063.mlab.com:11063/hsbuddydev'
     };
 }
 
